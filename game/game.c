@@ -101,23 +101,33 @@ joystickPressed()
 void
 game_loop()
 {
-  int hscroll = 2;
+  int hscroll = 226;
+  
   int done = 0;
 
   while (!done) {
     hw_waitVerticalBlank();
+    hw_waitVerticalBlank();
     hw_readJoystick();
 
-    //    if (joystickPressed()) {
-    if (hw_joystickButton & 0x1) {
+    //if (joystickPressed()) {
+      //if (hw_joystickButton & 0x1) {
       hscroll++;
-    }
+      // }
 
     hscroll = hscroll % SCREEN_HEIGHT;
 
-    copper.wait1[0] = 0x1d<<8|1;
-    copper.wait2[0] = ((0x1d+hscroll)<<8)|1;
-    copper.wait3[0] = ((0x1d+hscroll)<<8)|1;
+    uint16_t copperLine = 0x1d+hscroll;
+
+    //    copper.wait1[0] = 0x1d<<8|1;
+
+    if (copperLine < 256) {
+      copper.wait2[0] = (copperLine<<8)|1;
+      copper.wait3[0] = (copperLine<<8)|1;
+    } else if (copperLine >= 256) {
+       copper.wait2[0] = 0xffdf;
+       copper.wait3[0] = ((copperLine-256)<<8)|1;
+    }
     screen_pokeCopperList(frameBuffer+((SCREEN_HEIGHT-hscroll)*SCREEN_BIT_DEPTH*SCREEN_WIDTH_BYTES), copper.bpl1);
     screen_pokeCopperList(frameBuffer, copper.bpl2);
     #if TRACKLOADER==0
