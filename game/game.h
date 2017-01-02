@@ -35,8 +35,9 @@ extern volatile struct Custom *custom;
 #include "gfx.h"
 #include "mouse.h"
 #include "palette.h"
+#include "tile.h"
 
-extern void a1942_init(void);
-extern void a1942_loop(void);
+extern void game_init(void);
+extern void game_loop(void);
 
 #endif /* __GAME_H */

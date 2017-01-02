@@ -21,8 +21,8 @@ Entry:
 
 Main:
 	jsr	_init_amiga
-	jsr	_a1942_init
-	;; jsr	_si_loop
+	jsr	_game_init
+	jsr	_game_loop
 Loop:	
 	bra 	Loop
 

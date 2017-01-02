@@ -6,7 +6,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c
 SRCS=hw_asm.s trackloader.s palette_asm.s
 
 IMAGES=sprite.png
@@ -71,7 +71,7 @@ $(ADF): out/bootblock.bin
 wb: bin/$(GAME_NAME)
 
 out/background-map.c: assets/background.tmx
-	../tools/mapgen/out/mapgen --c --depth=3 --input=assets/background.tmx
+	../tools/mapgen/out/mapgen --c --depth=5 --input=assets/background.tmx
 	@mv background-map.c out
 	@rm background-indexes.c
 

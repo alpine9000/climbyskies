@@ -86,7 +86,6 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   static volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = spriteFrameBuffer;
   frame_buffer_t mask = spriteMask;
-
   uint32_t widthWords =  ((w+15)>>4)+1;
   int shift = (dx&0xf);
   
@@ -127,12 +126,29 @@ gfx_renderTile(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t 
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = SCREEN_WIDTH_BYTES-2;
-  _custom->bltbmod = SCREEN_WIDTH_BYTES-2;
-  _custom->bltcmod = SCREEN_WIDTH_BYTES-2;
   _custom->bltdmod = SCREEN_WIDTH_BYTES-2;
   _custom->bltapt = source;
-  _custom->bltbpt = source;
-  _custom->bltcpt = dest;
+  _custom->bltdpt = dest;
+  _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
+}
+
+
+void
+gfx_renderTile2(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+  
+  dest += dyOffsetsLUT[y] + (x>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = SCREEN_WIDTH_BYTES-2;
+  _custom->bltdmod = SCREEN_WIDTH_BYTES-2;
+  _custom->bltapt = tile;
   _custom->bltdpt = dest;
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }

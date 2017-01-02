@@ -114,6 +114,7 @@ _hw_readJoystick:
 
 _hw_waitForJoystick:
 .joystickPressed:	
+	move.l	d0,-(sp)
 	jsr	_hw_readJoystick
 	move.w	#5-1,d0
 .debounce:
@@ -126,6 +127,7 @@ _hw_waitForJoystick:
 	jsr	_hw_waitVerticalBlank
 	btst.b	#0,_hw_joystickButton
 	beq	.wait
+	move.l	(sp)+,d0
 	rts
 	
 _hw_interruptsInit:
