@@ -3,12 +3,12 @@
 #define printf(...)
 #define dprintf(...)
 
-static uint16_t dyOffsetsLUT[SCREEN_HEIGHT];
+static uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
 
 void 
 gfx_init()
 {
-  for (uint16_t y = 0; y < SCREEN_HEIGHT; y++) {
+  for (uint16_t y = 0; y < FRAME_BUFFER_HEIGHT; y++) {
     dyOffsetsLUT[y] = (y * (SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH));
   }
 }

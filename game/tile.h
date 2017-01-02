@@ -2,6 +2,9 @@
 #define __TILE_H
 
 void 
-tile_renderScreen(frame_buffer_t frameBuffer, uint16_t tileIndex);
+tile_renderScreen(frame_buffer_t frameBuffer);
+
+uint32_t
+tile_renderNextRow(frame_buffer_t frameBuffer, uint16_t hscroll);
 
 #endif

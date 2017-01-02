@@ -23,8 +23,6 @@ Main:
 	jsr	_init_amiga
 	jsr	_game_init
 	jsr	_game_loop
-Loop:	
-	bra 	Loop
 
 	if TRACKLOADER=0
 QuitGame:

@@ -1,22 +1,22 @@
 #include "game.h"
 
-volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCREEN_HEIGHT+32)];
+volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
+static int hscroll = 0;
+static int scroll = 1;
 
 
 typedef struct {
-  uint16_t wait1[2];
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
+  uint16_t wait1[2];
   uint16_t wait2[2];
-  uint16_t wait3[2];
   uint16_t bpl2[SCREEN_BIT_DEPTH*2*2];
-  uint16_t wait4[2];
+  uint16_t end[2];
 } copper_t;
 
 
-//static 
+static 
 copper_t copper = {
-  .wait1  = { 0x1d<<8|1,0xfffe },
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -29,8 +29,12 @@ copper_t copper = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
-  .wait2 = { ((0x1d+1)<<8)|1,0xfffe },
-  .wait3 = { ((0x1d+1)<<8)|1,0xfffe },
+  .wait1 = { 
+    0xffff,0xfffe 
+  },
+  .wait2 = { 
+    0xffff,0xfffe
+  },
   .bpl2= {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -43,24 +47,20 @@ copper_t copper = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
-  .wait4 = { 0xffff,0xfffe }
+  .end = { 
+    0xffff,0xfffe 
+  }
 };
 
 void
 game_init()
 {
-  
   palette_install();
   frameBuffer = (uint8_t*)&_frameBuffer;
+  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
+  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, copper.bpl1);
-  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 2);
-#if 0
-  gfx_fillRect(frameBuffer, 0, 0, 64, 64, 3);
-  gfx_renderSprite(frameBuffer, 16, 16, 64, 64, 16, 16);
-  gfx_renderTile(frameBuffer, 16, 16, 64+16, 64+16);
-#else
-  tile_renderScreen(frameBuffer, 0);
-#endif
+  tile_renderScreen(frameBuffer);
 }
 
 // check for joystick button up
@@ -80,60 +80,50 @@ joystickPressed()
 }
 
 
-/*
-   0 |      |
-   1 +------+
-   2 +------+
-   3 |      |
-   4 |      |
-   5 |      |
-   6 |      |
-   7 |      |
+static void
+scrollBackground()
+{
+  hscroll+=scroll;
+  
+  hscroll = hscroll % FRAME_BUFFER_HEIGHT;
+  
+  uint16_t copperLine = RASTER_Y_START+hscroll;
+  
+  if (copperLine < 256) {
+    copper.wait1[0] = (copperLine<<8)|1;
+    copper.wait2[0] = (copperLine<<8)|1;
+  } else if (copperLine >= 256) {
+    copper.wait1[0] = 0xffdf;
+    copper.wait2[0] = ((copperLine-256)<<8)|1;
+  }
 
-
-   hscroll = 2%16
-
-   line1 = (H-2)*
-   line2 = (2+8-1)%8 = 1
-
-*/
+  screen_pokeCopperList(frameBuffer+((FRAME_BUFFER_HEIGHT-hscroll)*SCREEN_BIT_DEPTH*SCREEN_WIDTH_BYTES), copper.bpl1);
+  screen_pokeCopperList(frameBuffer, copper.bpl2);
+  
+  if (hscroll % TILE_HEIGHT == 0) {	 
+    if (tile_renderNextRow(frameBuffer,  hscroll)) {
+      scroll = 0;
+    }
+  }
+}
 
 void
 game_loop()
 {
-  int hscroll = 226;
-  
+  int frame = 0;
   int done = 0;
 
   while (!done) {
-    hw_waitVerticalBlank();
-    hw_waitVerticalBlank();
+    frame++;
     hw_readJoystick();
-
-    //if (joystickPressed()) {
-      //if (hw_joystickButton & 0x1) {
-      hscroll++;
-      // }
-
-    hscroll = hscroll % SCREEN_HEIGHT;
-
-    uint16_t copperLine = 0x1d+hscroll;
-
-    //    copper.wait1[0] = 0x1d<<8|1;
-
-    if (copperLine < 256) {
-      copper.wait2[0] = (copperLine<<8)|1;
-      copper.wait3[0] = (copperLine<<8)|1;
-    } else if (copperLine >= 256) {
-       copper.wait2[0] = 0xffdf;
-       copper.wait3[0] = ((copperLine-256)<<8)|1;
+    hw_waitVerticalBlank();
+    
+    if (frame % 2 == 0) {
+      scrollBackground();
     }
-    screen_pokeCopperList(frameBuffer+((SCREEN_HEIGHT-hscroll)*SCREEN_BIT_DEPTH*SCREEN_WIDTH_BYTES), copper.bpl1);
-    screen_pokeCopperList(frameBuffer, copper.bpl2);
-    #if TRACKLOADER==0
+
+#if TRACKLOADER==0
     done = mouse_leftButtonPressed();
-    #endif
-
-
+#endif
   }
 }

@@ -30,7 +30,7 @@ C_OBJS=$(C_SRCS:.c=.o)
 OBJS=$(ASM_OBJS) $(C_OBJS) 
 #OBJS=$(ASM_OBJS) super.o
 ADF_OBJS=$(addprefix out/adf/, $(OBJS)) out/adf/background-map.o
-WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS))
+WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) out/workbench/background-map.o
 ALL_TOOLS=$(MAKEADF) $(IMAGECON) $(MAPGEN) $(FADE) $(CROPPA) $(RESIZE)
 ALL_OBJS=out/adf/main.o $(ADF_OBJS)
 ALL_WORKBENCH_OBJS=out/workbench/main.o $(WORKBENCH_OBJS)
@@ -101,6 +101,9 @@ out/adf/super.o: $(C_SRCS)
 
 out/adf/%.o: out/%.c
 	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
+
+out/workbench/%.o: out/%.c
+	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/adf/%.o: %.c
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
