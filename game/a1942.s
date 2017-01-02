@@ -1,0 +1,51 @@
+	include "includes.i"
+
+	xdef _custom
+	xdef _spriteBitplanes
+
+	
+	if TRACKLOADER=1
+byteMap:
+	dc.l	Entry
+	dc.l	endCode-byteMap
+	endif
+
+	include "wbstartup.i"		; does nothing if TRACKLOADER=1
+	
+Entry:
+	if TRACKLOADER=0
+	jmp 	StartupFromOS
+	else
+	lea	userstack,a7	
+	endif
+
+Main:
+	jsr	_init_amiga
+	jsr	_a1942_init
+	;; jsr	_si_loop
+Loop:	
+	bra 	Loop
+
+	if TRACKLOADER=0
+QuitGame:
+	jmp	LongJump
+	endif
+
+	include "os.i"
+
+	align 4
+_spriteBitplanes:
+	incbin	"out/sprite.bin"
+	
+	align 4
+_custom:
+	dc.l	CUSTOM
+	
+	section	.bss	
+	align 4
+	if TRACKLOADER=1
+startUserstack:
+	ds.b	1000
+userstack:
+	endif
+	end

@@ -1,0 +1,88 @@
+Short:       ProTracker 2.3B replayer with support for external sound fx
+Author:      Frank Wille
+Uploader:    frank@phoenix.owl.de
+Type:        mus/play
+Version:     2.0
+Requires:    Assembler
+Achitecture: m68k-amigaos
+
+While developing the games Sqrxz and Solid Gold I needed a Protracker
+player which can insert sound effects from the game into the current song.
+I ended up in writing a completely new player based on the original
+replayer source which came with ProTracker 2.3.
+
+This player is quite optimized and has some useful features for game
+developers:
+
+- Insert external sound effects into the replayed module.
+
+- A fast master volume for the replayed music.
+
+- No busy waiting. DMA and repeat pointers are set with timer interrupts.
+
+- E8 command can be used as a trigger for your main program.
+
+- Lots of tables for best performance. No multiplications or divisions.
+
+
+The sound fx system will always block the channel which would be free for
+the longest period. This has the effect that the replayed song is often not
+disturbed at all. Up to four sound fx can be played at the same time (which
+would block all four music channels for this period).
+
+The master volume is always applied to the music, but does not affect
+external sound fx.
+
+
+There are two sources included:
+
+ptplayer.asm:
+Uses the small data model and expects register A4 to be set up with the
+small data base pointer (_LinkerDB) for all function calls. Tested
+with the vasm and PhxAss assembler. Others may work after some
+modifications (e.g. remove the NEAR directive).
+
+ptplayer_noa4.asm:
+Uses a single code section, where data is accessed mostly PC-relative.
+Should be compatible with most assemblers. Tested with Devpac and AsmOne.
+
+
+Exported functions:
+
+mt_install_cia(a6=CUSTOM, a0=AutoVecBase, d0=PALflag.b)
+  Install a CIA-B interrupt for calling mt_music.
+
+mt_remove_cia(a6=CUSTOM)
+  Remove CIA-B music interrupt and restore the old vector.
+
+mt_init(a6=CUSTOM, a0=TrackerModule, a1=Samples, d0=StartPos.b)
+  Initialize a new module to start playing at StartPos.
+  Reset speed to 6, tempo to 125 and start at first position.
+  Master volume is at 64 (maximum).
+  For monolithic tracker modules the Samples pointer will be NULL.
+  Optionally you can split the module and load the samples to a different
+  memory region. In this case you will provide the pointer to it in a1.
+  Unlike ptplayer_noa4.asm, ptplayer.asm destroys registers d2 and a2!
+
+mt_end(a6=CUSTOM)
+  Stop playing current module.
+
+mt_soundfx(a6=CUSTOM, a0=SamplePointer, d0=SampleLength.w,
+           d1=SamplePeriod.w, d2=SampleVolume.w)
+  Request playing of an external sound effect on the most unused channel.
+  This channel will be blocked for music until the effect has finished.
+
+mt_mastervol(d0=MasterVolume.w)
+  Set a master volume from 0 to 64 for all music channels.
+  Note that the master volume does not affect the volume of external
+  sound effects (which is desired).
+
+
+Exported variables:
+
+mt_Enable
+  Set this byte to non-zero to play music, zero to pause playing.
+
+mt_E8Trigger
+  This byte is read-only and reflects the value of the last E8 command.
+  It is reset to 0 after mt_init().
