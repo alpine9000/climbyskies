@@ -1,8 +1,8 @@
 #include "game.h"
 
-int
+uint32_t
 mouse_leftButtonPressed(void)
 {
-  uint8* ciaa = (uint8*)0xbfe001;
+  uint8_t* ciaa = (uint8_t*)0xbfe001;
   return !(*ciaa & 0x40);
 }

@@ -18,18 +18,15 @@
 #define RASTER_X_STOP	   RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	   RASTER_Y_START+SCREEN_HEIGHT
 
-typedef UBYTE uint8;
-typedef SHORT int16;
-typedef USHORT uint16;
-typedef LONG int32;
-typedef ULONG uint32;
+typedef UBYTE uint8_t;
+typedef SHORT int16_t;
+typedef USHORT uint16_t;
+typedef LONG int32_t;
+typedef ULONG uint32_t;
 
-typedef volatile uint8* frame_buffer_t;
+typedef volatile uint8_t* frame_buffer_t;
 
 extern volatile struct Custom *custom;
-extern volatile uint8 bitplanes;
-extern volatile uint8 spriteBitplanes;
-extern unsigned long verticalBlankCount;
 
 #include "registers.h"
 #include "hw.h"

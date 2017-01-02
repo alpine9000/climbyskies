@@ -3,15 +3,15 @@
 
 
 void 
-screen_pokeCopperList(frame_buffer_t frameBuffer, uint16* copper)
+screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t* copper)
 {
   /* poke bitplane pointers into copper list */
-  volatile uint16* copperPtr = copper;
-  uint32 bitplanesPtr = (uint32)frameBuffer;
+  volatile uint16_t* copperPtr = copper;
+  uint32_t bitplanesPtr = (uint32_t)frameBuffer;
 
   for (int i = 0; i < SCREEN_BIT_DEPTH; i++) {
-    copperPtr[1] = (uint16)bitplanesPtr;
-    copperPtr[3] = (uint16)(((uint32)bitplanesPtr)>>16);
+    copperPtr[1] = (uint16_t)bitplanesPtr;
+    copperPtr[3] = (uint16_t)(((uint32_t)bitplanesPtr)>>16);
     bitplanesPtr = bitplanesPtr + (SCREEN_WIDTH_BYTES);
     copperPtr = copperPtr + 4;
   }
@@ -19,12 +19,12 @@ screen_pokeCopperList(frame_buffer_t frameBuffer, uint16* copper)
 
 
 void 
-screen_setup(frame_buffer_t frameBuffer, uint16* copper)
+screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
 {
   unsigned i;
-  volatile uint16 scratch;
-  volatile uint16* copperPtr = copper;
-  volatile uint32 bitplanesPtr = (uint32)frameBuffer;
+  volatile uint16_t scratch;
+  volatile uint16_t* copperPtr = copper;
+  volatile uint32_t bitplanesPtr = (uint32_t)frameBuffer;
 
   /* set up playfield */
   
@@ -39,7 +39,7 @@ screen_setup(frame_buffer_t frameBuffer, uint16* copper)
   screen_pokeCopperList(frameBuffer, copper);
 
   /* install copper list, then enable dma and selected interrupts */
-  custom->cop1lc = (uint32)copper;
+  custom->cop1lc = (uint32_t)copper;
   scratch = custom->copjmp1;
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
   //  custom->intena = (INTF_SETCLR|INTF_VERTB|INTF_INTEN);

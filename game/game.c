@@ -1,10 +1,9 @@
 #include "game.h"
 
-volatile __chip uint8 _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*SCREEN_HEIGHT];
-volatile uint8* frameBuffer;
-volatile uint8* spriteFrameBuffer;
+volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*SCREEN_HEIGHT];
+volatile uint8_t* frameBuffer;
 
-static __chip uint16 copper[] = {
+static __chip uint16_t copper[] = {
   //;;;  bitplane pointers must be first else poking addresses will be incorrect
   BPL1PTL,0x0000,
   BPL1PTH,0x0000,
@@ -25,11 +24,12 @@ a1942_init()
 {
   
   palette_install();
-  frameBuffer = (uint8*)&_frameBuffer;
-  spriteFrameBuffer = (uint8*)&spriteBitplanes;
-  frameBuffer = (uint8*)&spriteBitplanes;
+  frameBuffer = (uint8_t*)&_frameBuffer;
   screen_setup(frameBuffer, copper);
-  gfx_fillRect(frameBuffer, 32, 32, 100, 100, 3);
+  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 2);
+  gfx_fillRect(frameBuffer, 0, 0, 64, 64, 3);
+  gfx_renderSprite(frameBuffer, 16, 16, 64, 64, 16, 16);
+  gfx_renderTile(frameBuffer, 16, 16, 64+16, 64+16);
 }
 
 

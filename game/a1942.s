@@ -1,8 +1,8 @@
 	include "includes.i"
 
 	xdef _custom
-	xdef _spriteBitplanes
-
+	xdef _spriteMask
+	xdef _spriteFrameBuffer
 	
 	if TRACKLOADER=1
 byteMap:
@@ -36,7 +36,13 @@ QuitGame:
 	align 4
 _spriteBitplanes:
 	incbin	"out/sprite.bin"
-	
+
+spriteMask
+	incbin	"out/sprite-mask.bin"
+_spriteMask:
+	dc.l	spriteMask
+_spriteFrameBuffer:
+	dc.l	_spriteBitplanes
 	align 4
 _custom:
 	dc.l	CUSTOM
