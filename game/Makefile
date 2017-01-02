@@ -8,16 +8,13 @@ BASE_ADDRESS=4000
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=glcdfont.c game.c gfx.c init.c screen.c mouse.c
 SRCS=hw_asm.s trackloader.s palette_asm.s
-P61_MUSIC=0
 
 IMAGES=sprite.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
-MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
-
 LINKER_OPTIONS=-T link.script.x
-VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp -DP61_MUSIC=$(P61_MUSIC) -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp
 AMIGA_INCLUDE=/usr/local/amiga/m68k-amigaos/ndk/include
 C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
 
