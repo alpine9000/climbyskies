@@ -5,9 +5,10 @@ volatile uint8_t* frameBuffer;
 static int hscroll = 0;
 static int scroll = 1;
 
-
 typedef struct {
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
+  uint16_t sprite0[4];
+  uint16_t sprite1[4];
   uint16_t wait1[2];
   uint16_t wait2[2];
   uint16_t bpl2[SCREEN_BIT_DEPTH*2*2];
@@ -15,7 +16,7 @@ typedef struct {
 } copper_t;
 
 
-static 
+//static 
 copper_t copper = {
   .bpl1 = {
     BPL1PTL,0x0000,
@@ -28,6 +29,14 @@ copper_t copper = {
     BPL4PTH,0x0000,
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
+  },
+  .sprite0 = {
+    SPR0PTH, 0x0000,
+    SPR0PTL, 0x0000,
+  },
+  .sprite1 = {
+    SPR1PTH, 0x0000,
+    SPR1PTL, 0x0000,
   },
   .wait1 = { 
     0xffff,0xfffe 
@@ -61,6 +70,15 @@ game_init()
   gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, copper.bpl1);
   tile_renderScreen(frameBuffer);
+
+  copper.sprite0[1] = (uint32_t)&spriteBackground0 >> 16;
+  copper.sprite0[3] = (uint32_t)&spriteBackground0;
+  copper.sprite1[1] = (uint32_t)&spriteBackground1 >> 16;
+  copper.sprite1[3] = (uint32_t)&spriteBackground1;
+
+  //  volatile uint16_t* sp = &spriteBackground0;
+  //sp[0] = (0x1d << 8) | (0x81)>>1;
+  //  sp[1] = 0xff02;
 }
 
 // check for joystick button up

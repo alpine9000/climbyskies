@@ -41,7 +41,7 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
   /* install copper list, then enable dma and selected interrupts */
   custom->cop1lc = (uint32_t)copper;
   scratch = custom->copjmp1;
-  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
+  custom->dmacon = (DMAF_SPRITE|DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
   //  custom->intena = (INTF_SETCLR|INTF_VERTB|INTF_INTEN);
 
 }

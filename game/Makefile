@@ -7,9 +7,9 @@ BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c
-SRCS=hw_asm.s trackloader.s palette_asm.s
+SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s
 
-IMAGES=sprite.png
+IMAGES=sprite.png sprite_background-0.png sprite_background-1.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
@@ -77,6 +77,16 @@ out/background-map.c: assets/background.tmx
 
 out/sprite.bin: assets/sprite.png
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask
+
+
+out/sprite_background-%.bin: out/sprite_background-%.png
+	$(IMAGECON) --input $<  --quantize --colors 4 --output-bitplanes  --output-palette --full-color-palette-file --output-png  --output out/sprite_background-$* --palette-offset 16  --use-palette=assets/sprite_background.pal
+
+.SECONDARY:
+out/sprite_background-0.png: assets/sprite_background.png
+	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-0.png --width=16 --height=256 --rows=1 --cols=1 --dx=0 --dy=0 --x=0 --y=0
+out/sprite_background-1.png: assets/sprite_background.png
+	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-1.png --width=16 --height=256 --rows=1 --cols=1 --dx=0 --dy=0 --x=16 --y=0
 
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@

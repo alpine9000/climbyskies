@@ -12,6 +12,11 @@
 #define BPL5PTH 0x00F0
 #define BPL5PTL 0x00F2
 
+
+#define SPR0PTH  0x120
+#define SPR0PTL  0x122
+#define SPR1PTH  0x124
+#define SPR1PTL  0x126
 //#define COLOR00 0x0180
 //#define COLOR01 0x0182
 

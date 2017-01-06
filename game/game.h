@@ -30,6 +30,8 @@ typedef ULONG uint32_t;
 typedef volatile uint8_t* frame_buffer_t;
 
 extern volatile struct Custom *custom;
+extern uint16_t spriteBackground0;
+extern uint16_t spriteBackground1;
 
 #include "registers.h"
 #include "hw.h"
