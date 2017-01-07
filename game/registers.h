@@ -34,8 +34,9 @@
 
 #define SPR0POS 0x140
 #define SPR1POS 0x148
-//#define COLOR00 0x0180
-//#define COLOR01 0x0182
+
+#define COLOR00 0x0180
+#define COLOR01 0x0182
 
 
 #endif

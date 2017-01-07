@@ -22,18 +22,6 @@ tile_renderScreen(frame_buffer_t frameBuffer)
 
 
 uint32_t
-tile_renderNextRow(frame_buffer_t frameBuffer, uint16_t hscroll)
-{
-  int y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT-hscroll;
-  for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-    gfx_renderTile2(frameBuffer, x, y, spriteFrameBuffer+*tilePtr--);
-  }
-
-  return tilePtr <= &background_tileAddresses[0][0];
-}
-
-
-uint32_t
 tile_renderNextTile(frame_buffer_t frameBuffer, uint16_t hscroll)
 {
   int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));

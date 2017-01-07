@@ -9,7 +9,12 @@ BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c
 SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s
 
-IMAGES=sprite.png sprite_background-0.png sprite_background-1.png sprite_background-2.png sprite_background-3.png
+IMAGES=sprite.png\
+	 sprite_background-0.png\
+	 sprite_background-1.png\
+	 sprite_background-2.png\
+	 sprite_background-3.png\
+	 sprite_background-4.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
@@ -94,6 +99,10 @@ out/sprite_background-2.png: assets/sprite_background.png
 .SECONDARY:
 out/sprite_background-3.png: assets/sprite_background.png
 	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-3.png --width=16 --height=256 --rows=1 --cols=1 --dx=0 --dy=0 --x=48 --y=0
+.SECONDARY:
+out/sprite_background-4.png: assets/sprite_background.png
+	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-4.png --width=16 --height=256 --rows=1 --cols=1 --dx=0 --dy=0 --x=64 --y=0
+.SECONDARY:
 
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
