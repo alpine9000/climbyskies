@@ -32,6 +32,8 @@ typedef volatile uint8_t* frame_buffer_t;
 extern volatile struct Custom *custom;
 extern uint16_t spriteBackground0;
 extern uint16_t spriteBackground1;
+extern uint16_t spriteBackground2;
+extern uint16_t spriteBackground3;
 
 #include "registers.h"
 #include "hw.h"

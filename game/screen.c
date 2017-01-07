@@ -36,7 +36,7 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
   custom->bpl1mod = SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH-SCREEN_WIDTH_BYTES;
   custom->bpl2mod = SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH-SCREEN_WIDTH_BYTES;
 
-  screen_pokeCopperList(frameBuffer, copper);
+  //  screen_pokeCopperList(frameBuffer, copper);
 
   /* install copper list, then enable dma and selected interrupts */
   custom->cop1lc = (uint32_t)copper;
