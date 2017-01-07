@@ -34,6 +34,7 @@ extern uint16_t spriteBackground0;
 extern uint16_t spriteBackground1;
 extern uint16_t spriteBackground2;
 extern uint16_t spriteBackground3;
+extern uint16_t nullSprite;
 
 #include "registers.h"
 #include "hw.h"

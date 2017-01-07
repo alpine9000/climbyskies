@@ -31,3 +31,25 @@ tile_renderNextRow(frame_buffer_t frameBuffer, uint16_t hscroll)
 
   return tilePtr <= &background_tileAddresses[0][0];
 }
+
+
+uint32_t
+tile_renderNextTile(frame_buffer_t frameBuffer, uint16_t hscroll)
+{
+  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+  static int x = SCREEN_WIDTH-TILE_WIDTH;
+
+  if (y < 0) {
+    y = FRAME_BUFFER_HEIGHT+y;
+  }
+
+  gfx_renderTile2(frameBuffer, x, y, spriteFrameBuffer+*tilePtr--);
+  
+  x -= TILE_WIDTH;
+
+  if (x < 0) {
+    x = SCREEN_WIDTH-TILE_WIDTH;
+  }
+
+  return tilePtr <= &background_tileAddresses[0][0];
+}

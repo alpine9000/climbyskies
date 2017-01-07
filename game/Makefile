@@ -23,7 +23,7 @@ MODULE=$(GAME_NAME).s
 PROGRAM_BIN=out/main.bin
 
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
-CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O0
+CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3
 
 ASM_OBJS=$(SRCS:.s=.o)
 C_OBJS=$(C_SRCS:.c=.o)

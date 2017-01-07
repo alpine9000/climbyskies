@@ -30,6 +30,7 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
   
   custom->diwstrt = (RASTER_Y_START<<8)|RASTER_X_START;
   custom->diwstop = ((RASTER_Y_STOP-256)<<8)|(RASTER_X_STOP-256);
+
   custom->ddfstrt = (RASTER_X_START/2-SCREEN_RES);
   custom->ddfstop = (RASTER_X_START/2-SCREEN_RES)+(8*((SCREEN_WIDTH/16)-1));
   custom->bplcon0 = (SCREEN_BIT_DEPTH<<12)|0x200;
