@@ -1,9 +1,12 @@
 #include "game.h"
 
+#define SCROLL_PIXELS 4
+
 volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
+static int scrollCount = 0;
 static int hscroll = 0;
-static int scroll = 2;
+static int scroll = SCROLL_PIXELS;
 static int lastLine = 0;
 
 
@@ -168,7 +171,7 @@ game_loop()
 {
   int frame = 0;
   int done = 0;
-  int joystickDown = 0;
+  int joystickDown = 1;
 
   while (!done) {
     frame++;
@@ -178,19 +181,21 @@ game_loop()
     
 
     hw_readJoystick();
-    if (!joystickDown && hw_joystickButton & 0x1) {    
-      //      scroll *= -1;
+    if (!joystickDown && hw_joystickButton) {    
+      scrollCount = 1+((6*16)/SCROLL_PIXELS);
       joystickDown = 1;
-
     }
 
-    if (frame % 2 == 0 && scroll) {
+    if (scrollCount > 0 && frame % 1 == 0 && scroll) {
       sprite_scroll(-2);
     }
-    //if (joystickPressed()) {
-    scrollBackground();
-    // }
 
+    if (scrollCount > 1) {
+      scrollBackground();
+      scrollCount--;
+    } else if (scrollCount > 0) {
+      scrollCount--;
+    }
 
     joystickDown = (hw_joystickButton & 0x1);
 

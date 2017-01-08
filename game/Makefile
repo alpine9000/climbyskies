@@ -8,7 +8,7 @@ BASE_ADDRESS=4000
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c
 SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s
-SPRITE_BACKGROUND_HEIGHT=1024
+SPRITE_BACKGROUND_HEIGHT=2048
 
 IMAGES=sprite.png\
 	 sprite_background-0.png\

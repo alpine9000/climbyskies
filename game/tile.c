@@ -1,13 +1,15 @@
 #include "game.h"
 
-extern unsigned short background_tileAddresses[100][14];
+#define MAP_TILE_HEIGHT 201
+#define MAP_TILE_WIDTH 14
+extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 static unsigned short* tilePtr;
 
 void 
 tile_renderScreen(frame_buffer_t frameBuffer)
 {
 
-  tilePtr = &background_tileAddresses[99][13];
+  tilePtr = &background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t i = 0, y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
       gfx_renderTile2(frameBuffer, x, y, spriteFrameBuffer+*tilePtr--);

@@ -30,12 +30,12 @@ void palette_loadFile(imagecon_image_t* ic)
 	printf("%03d %03d %03d\n", ic->palette[paletteIndex].r, ic->palette[paletteIndex].g, ic->palette[paletteIndex].b);
       }
     } else {
-      sscanf(buffer, "%d %d %d %d\n",
+      sscanf(buffer, "%d %d %d %d",
 	     &ic->palette[paletteIndex].r,
 	     &ic->palette[paletteIndex].g,
 	     &ic->palette[paletteIndex].b,
 	     &ic->palette[paletteIndex].a);
-      
+
       if (config.verbose) {
 	printf("r: %03d g: %03d b: %03d a: %03d\n", ic->palette[paletteIndex].r, ic->palette[paletteIndex].g, ic->palette[paletteIndex].b, ic->palette[paletteIndex].a);
       }
