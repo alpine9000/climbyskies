@@ -41,6 +41,7 @@ extern volatile struct Custom *custom;
 #include "tile.h"
 #include "sprite.h"
 #include "copper.h"
+#include "music.h"
 
 extern void game_init(void);
 extern void game_loop(void);

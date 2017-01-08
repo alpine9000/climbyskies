@@ -151,7 +151,7 @@ Level3InterruptHandler:
 .verticalBlank:
 	move.w	#INTF_VERTB,INTREQ(a6)	; clear interrupt bit	
 	;; add.l	#1,_verticalBlankCount
-	;; MusicPlay
+	jsr	P61_Music
 .checkCopper:
 	move.w	INTREQR(a6),d0
 	and.w	#INTF_COPER,d0	

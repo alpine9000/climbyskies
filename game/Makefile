@@ -7,8 +7,10 @@ BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c
-SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s
+SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s P6112-Play.s music.s disk.s
 SPRITE_BACKGROUND_HEIGHT=2048
+
+MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
 IMAGES=sprite.png\
 	 sprite_background-0.png\
@@ -20,7 +22,7 @@ IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
 LINKER_OPTIONS=-T link.script.x
-VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp
+VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
 AMIGA_INCLUDE=/usr/local/amiga/m68k-amigaos/ndk/include
 C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
 

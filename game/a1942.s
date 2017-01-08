@@ -26,6 +26,9 @@ Main:
 
 	if TRACKLOADER=0
 QuitGame:
+	movem.l d0-a6,-(sp)
+	jsr     P61_End
+	movem.l (sp)+,d0-a6
 	jmp	LongJump
 	endif
 

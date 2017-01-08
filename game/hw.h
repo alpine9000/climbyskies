@@ -11,4 +11,5 @@ extern void hw_waitForJoystick(void);
 extern volatile uint8_t hw_joystickButton;
 extern volatile uint8_t hw_joystickPos;
 
+#define JOYSTICK_BUTTON_DOWN (hw_joystickButton&0x1)
 #endif

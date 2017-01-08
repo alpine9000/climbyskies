@@ -121,10 +121,10 @@ game_init()
 static uint16_t
 joystickPressed()
 {
-  if (hw_joystickButton & 0x1) {
+  if (JOYSTICK_BUTTON_DOWN) {
     for (;;) {
       hw_readJoystick();
-      if (!(hw_joystickButton & 0x1)) {    
+      if (!JOYSTICK_BUTTON_DOWN) {    
 	break;
       }
     }
@@ -157,7 +157,10 @@ scrollBackground()
 
   for (int s = 0; s < scroll && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     if (tile_renderNextTile(frameBuffer, tileY)) {
-      scroll = 0;
+      if (scroll != 0) {
+	scroll = 0;
+	music_play(1);
+      }
     }
   }
 
@@ -173,15 +176,17 @@ game_loop()
   int done = 0;
   int joystickDown = 1;
 
+  music_play(0);
+
   while (!done) {
     frame++;
     hw_readJoystick();
     hw_waitVerticalBlank();
-    custom->color[0] = 0xf00;
+    //   custom->color[0] = 0xf00;
     
 
     hw_readJoystick();
-    if (!joystickDown && hw_joystickButton) {    
+    if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
       scrollCount = 1+((6*16)/SCROLL_PIXELS);
       joystickDown = 1;
     }
@@ -197,7 +202,7 @@ game_loop()
       scrollCount--;
     }
 
-    joystickDown = (hw_joystickButton & 0x1);
+    joystickDown = JOYSTICK_BUTTON_DOWN;
 
     custom->color[0] = 0x000;
     
