@@ -3,34 +3,10 @@
 volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
 static int hscroll = 0;
-static int scroll = 1;
+static int scroll = 2;
 static int lastLine = 0;
 
-#define AMIGA_SPRITES 8
-#define NUM_SPRITE_COLUMNS 3
-#define NUM_SPRITES 4
 
-typedef struct {
-  uint16_t wait[2];
-  uint16_t pos[NUM_SPRITES*2];
-} sprite_pos_t;
-
-typedef struct {
-  uint16_t wait1[2];
-  uint16_t wait2[2];
-  uint16_t bpl[SCREEN_BIT_DEPTH*2*2];
-  sprite_pos_t sprite[NUM_SPRITE_COLUMNS];
-} copper_video_line_t;
-
-typedef struct {
-  uint16_t wait[2];
-  uint16_t sprites[AMIGA_SPRITES*4];
-  copper_video_line_t lines[SCREEN_HEIGHT];
-  uint16_t end[2];
-} copper_t;
-
-
-//static
 copper_t copper = {
   .wait = {0x0001, 0xff00},
   .sprites = {
@@ -135,24 +111,7 @@ game_init()
   gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
-
-  copper.sprites[1] = (uint32_t)&spriteBackground0 >> 16;
-  copper.sprites[3] = (uint32_t)&spriteBackground0;
-  copper.sprites[5] = (uint32_t)&spriteBackground1 >> 16;
-  copper.sprites[7] = (uint32_t)&spriteBackground1;
-  copper.sprites[9] = (uint32_t)&spriteBackground2 >> 16;
-  copper.sprites[0xb] = (uint32_t)&spriteBackground2;
-  copper.sprites[0xd] = (uint32_t)&spriteBackground3 >> 16;
-  copper.sprites[0xf] = (uint32_t)&spriteBackground3;
-
-  copper.sprites[0x11] = (uint32_t)&spriteBackground4 >> 16;
-  copper.sprites[0x13] = (uint32_t)&spriteBackground4;
-  copper.sprites[0x15] = (uint32_t)&spriteBackground5 >> 16;
-  copper.sprites[0x17] = (uint32_t)&spriteBackground5;
-  copper.sprites[0x19] = (uint32_t)&nullSprite >> 16;
-  copper.sprites[0x1b] = (uint32_t)&nullSprite;
-  copper.sprites[0x1d] = (uint32_t)&nullSprite >> 16;
-  copper.sprites[0x1f] = (uint32_t)&nullSprite;
+  sprite_init();
 }
 
 // check for joystick button up
@@ -192,13 +151,16 @@ scrollBackground()
   static int tileY = 0;
   
   int tileIndex = hscroll % TILE_HEIGHT;
-  if (tileIndex == 0) {	 
-     tileY = hscroll;
-  } else if (tileIndex <= SCREEN_WIDTH/TILE_HEIGHT) {
+
+  for (int s = 0; s < scroll && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     if (tile_renderNextTile(frameBuffer, tileY)) {
       scroll = 0;
     }
-  } 
+  }
+
+  if (tileIndex == 0) {	 
+     tileY = hscroll;
+  }
 }
 
 void
@@ -206,6 +168,7 @@ game_loop()
 {
   int frame = 0;
   int done = 0;
+  int joystickDown = 0;
 
   while (!done) {
     frame++;
@@ -213,9 +176,23 @@ game_loop()
     hw_waitVerticalBlank();
     custom->color[0] = 0xf00;
     
+
+    hw_readJoystick();
+    if (!joystickDown && hw_joystickButton & 0x1) {    
+      //      scroll *= -1;
+      joystickDown = 1;
+
+    }
+
+    if (frame % 2 == 0 && scroll) {
+      sprite_scroll(-2);
+    }
     //if (joystickPressed()) {
     scrollBackground();
     // }
+
+
+    joystickDown = (hw_joystickButton & 0x1);
 
     custom->color[0] = 0x000;
     

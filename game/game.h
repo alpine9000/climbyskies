@@ -30,13 +30,6 @@ typedef ULONG uint32_t;
 typedef volatile uint8_t* frame_buffer_t;
 
 extern volatile struct Custom *custom;
-extern uint16_t spriteBackground0;
-extern uint16_t spriteBackground1;
-extern uint16_t spriteBackground2;
-extern uint16_t spriteBackground3;
-extern uint16_t spriteBackground4;
-extern uint16_t spriteBackground5;
-extern uint16_t nullSprite;
 
 #include "registers.h"
 #include "hw.h"
@@ -46,6 +39,8 @@ extern uint16_t nullSprite;
 #include "mouse.h"
 #include "palette.h"
 #include "tile.h"
+#include "sprite.h"
+#include "copper.h"
 
 extern void game_init(void);
 extern void game_loop(void);
