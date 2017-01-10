@@ -2,7 +2,7 @@
 
 #define SCROLL_PIXELS 4
 
-volatile __chip uint8_t _frameBuffer[SCREEN_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+volatile __chip uint8_t _frameBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
 static int scrollCount = 0;
 static int hscroll = 0;
@@ -36,7 +36,7 @@ copper_t copper = {
 static void 
 initCopper(void)
 {
-  uint32_t bitplanesPtr = (uint32_t)frameBuffer;
+  uint32_t bitplanesPtr = (uint32_t)(frameBuffer);
 
   for (int y = 0; y < SCREEN_HEIGHT; y++) {
     uint16_t copperLine = RASTER_Y_START+y;
@@ -99,7 +99,7 @@ pokeCopper(int16_t line, frame_buffer_t ptr)
     copper.lines[line].bpl[(b*4)+2] = BPL1PTH + (b*4);
     copper.lines[line].bpl[(b*4)+1] = bitplanesPtr;
     copper.lines[line].bpl[(b*4)+3] = (bitplanesPtr >> 16);
-    bitplanesPtr = bitplanesPtr + (SCREEN_WIDTH_BYTES);
+    bitplanesPtr = bitplanesPtr + (FRAME_BUFFER_WIDTH_BYTES);
   }
 }
 
@@ -111,9 +111,11 @@ game_init()
   initCopper();
   pokeCopper(0, frameBuffer);
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
-  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+  //  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT, 1);
+  gfx_fillRect(frameBuffer, SCREEN_WIDTH, 0, 128, 32, 1);
+  //gfx_fillRect(frameBuffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 2);
   screen_setup(frameBuffer, (uint16_t*)&copper);
-  tile_renderScreen(frameBuffer);
+  //  tile_renderScreen(frameBuffer);
   sprite_init();
 }
 
@@ -143,7 +145,7 @@ scrollBackground()
   clearCopper();
 
   if (hscroll != 0) {
-    pokeCopper(0, frameBuffer+((FRAME_BUFFER_HEIGHT-hscroll)*SCREEN_BIT_DEPTH*SCREEN_WIDTH_BYTES));
+    pokeCopper(0, frameBuffer+((FRAME_BUFFER_HEIGHT-hscroll)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES));
   }
 
   if (hscroll < SCREEN_HEIGHT) {

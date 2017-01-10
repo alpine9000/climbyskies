@@ -8,11 +8,13 @@
 #define CUSTOM ((volatile struct Custom*)0xdff000)
 #define SCREEN_WIDTH        224
 #define SCREEN_HEIGHT       256
-#define FRAME_BUFFER_HEIGHT (256+32)
+#define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+32)
+#define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
 #define SCREEN_HEIGHT_WORDS SCREEN_HEIGHT/16
 #define SCREEN_WIDTH_BYTES  (SCREEN_WIDTH/8)
+#define FRAME_BUFFER_WIDTH_BYTES  (FRAME_BUFFER_WIDTH/8)
 #define SCREEN_WIDTH_WORDS  (SCREEN_WIDTH/16)
 #define SCREEN_BIT_DEPTH    5
 #define SCREEN_RES	    8 /* 8=lo resolution, 4=hi resolution */
