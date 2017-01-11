@@ -1,5 +1,6 @@
 #include "game.h"
 
+#ifdef SPRITE_BACKGROUND
 #define NUM_SCROLLED_SPRITES 4
 
 typedef struct {
@@ -8,7 +9,6 @@ typedef struct {
   uint16_t* ptr;
 } sprite_t;
   
-
 static sprite_t sprites[NUM_SCROLLED_SPRITES] = {
   {
     {0x1d48, 0xff02},
@@ -31,7 +31,6 @@ static sprite_t sprites[NUM_SCROLLED_SPRITES] = {
     &spriteBackground3
   }
 };
-
 
 void
 sprite_init(void)
@@ -66,3 +65,5 @@ sprite_scroll(int scroll)
     sprites[i].ptr = newPtr;
   }
 }
+
+#endif

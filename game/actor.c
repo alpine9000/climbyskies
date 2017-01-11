@@ -49,12 +49,7 @@ actor_render(frame_buffer_t fb)
 {
   actor_t* a = &actors[0];
 
-#if 1
-  for (int i = 0; i < NUM_ACTORS; i++) {
-    actor_t* actor = &actors[i];
-    bob_clear(fb, actor->x, actor->y, actor->bobIndex);
-  }
-#endif
+  bob_clear(fb, a->x, a->y, a->bobIndex);
 
   if (a->moveCount > 0) {
     a->x += a->deltaX;
@@ -94,6 +89,9 @@ actor_left()
 {
   actor_t * a= &actors[0];
   if (a->moveCount <= 0) {
+    if (a->bobSet == 0) {
+      scrollCount = 1+((6*16)/SCROLL_PIXELS);
+    }
     a->deltaX = -2;
     a->deltaY = 0;
     a->bobSet = 2;

@@ -38,5 +38,7 @@
 #define COLOR00 0x0180
 #define COLOR01 0x0182
 
+#define COP2LCH 0x084
+#define COP2LCL 0x086
 
 #endif

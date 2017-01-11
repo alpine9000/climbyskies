@@ -27,6 +27,8 @@
 
 #define SCROLL_PIXELS 4
 
+#define SPRITE_BACKGROUND
+
 #if defined(__GNUC__)
 #define __reg(x)
 #define __chip

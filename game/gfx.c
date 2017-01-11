@@ -108,6 +108,7 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   _custom->bltcpt = (uint8_t*)dest;
   _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  USE(h);
 }
 
 void
@@ -130,6 +131,7 @@ gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t 
   _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  USE(h);
 }
 
 void
