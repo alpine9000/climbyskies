@@ -111,6 +111,28 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
 }
 
 void
+gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t h)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+  //  frame_buffer_t source = spriteFrameBuffer;
+  //  frame_buffer_t mask = spriteMask;
+  uint32_t widthWords =  ((w+15)>>4)+1;
+  int shift = (dx&0xf);
+  
+  dest += dyOffsetsLUT[dy] + (dx>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (DEST|0x00|shift<<ASHIFTSHIFT);
+  _custom->bltcon1 = shift<<BSHIFTSHIFT;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0x0000;
+  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltdpt = (uint8_t*)dest;
+  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+}
+
+void
 gfx_renderTile(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
 {
   static volatile struct Custom* _custom = CUSTOM;

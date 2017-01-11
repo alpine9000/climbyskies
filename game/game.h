@@ -8,7 +8,9 @@
 #define CUSTOM ((struct Custom*)0xdff000)
 #define SCREEN_WIDTH        224
 #define SCREEN_HEIGHT       256
-#define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+32)
+#define FRAME_BUFFER_OFFSCREEN_HEIGHT 32
+#define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)
+#define WORLD_HEIGHT        (FRAME_BUFFER_HEIGHT-FRAME_BUFFER_OFFSCREEN_HEIGHT)
 #define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -23,6 +25,7 @@
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
 
+#define SCROLL_PIXELS 4
 
 #if defined(__GNUC__)
 #define __reg(x)
@@ -43,6 +46,8 @@ typedef volatile uint8_t * frame_buffer_t;
 
 typedef volatile struct Custom* custom_t;
 extern custom_t custom; 
+extern int cameraY;
+extern int scrollCount;
 
 #include "registers.h"
 #include "hw.h"
@@ -55,6 +60,8 @@ extern custom_t custom;
 #include "sprite.h"
 #include "copper.h"
 #include "music.h"
+#include "bob.h"
+#include "actor.h"
 
 extern void game_init(void);
 extern void game_loop(void);

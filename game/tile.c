@@ -26,6 +26,7 @@ tile_renderScreen(frame_buffer_t frameBuffer)
 uint32_t
 tile_renderNextTile(frame_buffer_t frameBuffer, uint16_t hscroll)
 {
+#if 1
   int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
   static int x = SCREEN_WIDTH-TILE_WIDTH;
 
@@ -42,4 +43,9 @@ tile_renderNextTile(frame_buffer_t frameBuffer, uint16_t hscroll)
   }
 
   return tilePtr <= &background_tileAddresses[0][0];
+#else
+  USE(frameBuffer);
+  USE(hscroll);
+  return 0;
+#endif
 }

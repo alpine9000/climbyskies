@@ -6,7 +6,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c bob.c actor.c
 SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s P6112-Play.s music.s disk.s
 SPRITE_BACKGROUND_HEIGHT=2048
 
@@ -85,7 +85,7 @@ out/background-map.c: assets/background.tmx
 	@rm background-indexes.c
 
 out/sprite.bin: assets/sprite.png
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,0,0
 
 
 out/sprite_background-%.bin: out/sprite_background-%.png

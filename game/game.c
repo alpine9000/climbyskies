@@ -1,11 +1,9 @@
 #include "game.h"
 
-#define SCROLL_PIXELS 4
-
 volatile __chip uint8_t _frameBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
-static int scrollCount = 0;
-static int hscroll = 0;
+int cameraY = 0;
+int scrollCount = 0;
 static int scroll = SCROLL_PIXELS;
 static int lastLine = 0;
 
@@ -112,6 +110,7 @@ game_init()
   gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
+  actor_render(frameBuffer);
   sprite_init();
 }
 
@@ -133,11 +132,11 @@ joystickPressed()
 }
 #endif
 
-static void
+void
 scrollBackground()
 {
-  hscroll += scroll;
-  hscroll = hscroll % FRAME_BUFFER_HEIGHT;
+  cameraY += scroll;
+  int hscroll = cameraY % FRAME_BUFFER_HEIGHT;
     
   clearCopper();
 
@@ -154,7 +153,7 @@ scrollBackground()
   
   int tileIndex = hscroll % TILE_HEIGHT;
 
-  for (int s = 0; s < scroll && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
+  for (int s = 0;  s < scroll && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     if (tile_renderNextTile(frameBuffer, tileY)) {
       if (scroll != 0) {
 	scroll = 0;
@@ -176,25 +175,40 @@ game_loop()
   int joystickDown = 1;
 
   music_play(0);
-
   // Don't enable interrupts until music is set up
   hw_interruptsInit();
 
   while (!done) {
     frame++;
     hw_readJoystick();
-    hw_waitVerticalBlank();
-    //   custom->color[0] = 0xf00;
-    
 
-    hw_readJoystick();
     if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
       scrollCount = 1+((6*16)/SCROLL_PIXELS);
       joystickDown = 1;
     }
+    joystickDown = JOYSTICK_BUTTON_DOWN;
 
+    hw_waitVerticalBlank();
+
+    custom->color[0] = 0xf00;    
+    
     if (scrollCount > 0 && frame % 1 == 0 && scroll) {
       sprite_scroll(-2);
+    }
+
+    // 812
+    // 7 3
+    // 654 
+
+
+    if (hw_joystickPos == 1) {
+      actor_jump();
+    }
+    if (hw_joystickPos == 7) {
+      actor_left();
+    }
+    if (hw_joystickPos == 3) {
+      actor_right();
     }
 
     if (scrollCount > 1) {
@@ -202,11 +216,13 @@ game_loop()
       scrollCount--;
     } else if (scrollCount > 0) {
       scrollCount--;
+    } else {
+      actor_render(frameBuffer);
     }
+    
 
-    joystickDown = JOYSTICK_BUTTON_DOWN;
 
-    custom->color[0] = 0x000;
+    
     
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();
