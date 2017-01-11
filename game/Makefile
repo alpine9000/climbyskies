@@ -31,12 +31,12 @@ MODULE=$(GAME_NAME).s
 PROGRAM_BIN=out/main.bin
 
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
-CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 -DSPRITE_BACKGROUND_HEIGHT=$(SPRITE_BACKGROUND_HEIGHT)
+EXTRA_DEFINES=-DSPRITE_BACKGROUND_HEIGHT=$(SPRITE_BACKGROUND_HEIGHT)
+CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES)
 
 ASM_OBJS=$(SRCS:.s=.o)
 C_OBJS=$(C_SRCS:.c=.o)
 OBJS=$(ASM_OBJS) $(C_OBJS) 
-#OBJS=$(ASM_OBJS) super.o
 ADF_OBJS=$(addprefix out/adf/, $(OBJS)) out/adf/background-map.o
 WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) out/workbench/background-map.o
 ALL_TOOLS=$(MAKEADF) $(IMAGECON) $(MAPGEN) $(FADE) $(CROPPA) $(RESIZE)
@@ -88,7 +88,7 @@ out/sprite.bin: assets/sprite.png
 
 
 out/sprite_background-%.bin: out/sprite_background-%.png
-	$(IMAGECON) --input $<  --quantize --colors 4 --output-bitplanes  --output-palette --full-color-palette-file --output-png  --output out/sprite_background-$* --palette-offset 16  --use-palette=assets/sprite_background.pal
+	$(IMAGECON) --input $<  --quantize --colors 4 --output-bitplanes  --output-palette --full-color-palette-file --output-png  --output out/sprite_background-$* --palette-offset 16  --use-palette=palette.pal --output-palette --set-color=0,0,0,0
 
 .SECONDARY:
 out/sprite_background-0.png: assets/sprite_background.png
@@ -125,9 +125,6 @@ out/adf/%.o: %.s
 	$(VASM) $(VASM_ARGS)  -DTRACKLOADER=1 $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/adf/$*.d
 
-out/adf/super.o: $(C_SRCS)
-	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $(C_SRCS) -o $@	
-
 out/adf/%.o: out/%.c
 	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
 
@@ -135,6 +132,7 @@ out/workbench/%.o: out/%.c
 	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/adf/%.o: %.c
+	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/adf/" | cat - $*.dep > out/adf/$*.d
 	-@rm $*.dep

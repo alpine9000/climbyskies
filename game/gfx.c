@@ -17,7 +17,7 @@ gfx_init()
 void
 gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color)
 {
-  static volatile struct Custom* _custom = CUSTOM;
+  static custom_t _custom = CUSTOM;
   static uint16_t startBitPatterns[] = { 0xffff,
 			       0x7fff, 0x3fff, 0x1fff, 0x0fff, 
 			       0x07ff, 0x03ff, 0x01ff, 0x00ff,
@@ -55,16 +55,16 @@ gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
     _custom->bltamod = 0;
     _custom->bltadat = startMask;
     _custom->bltbdat = colorInPlane ? 0xffff : 0x0;
-    _custom->bltcpt = fb;
-    _custom->bltdpt = fb;
+    _custom->bltcpt = (uint8_t*)fb;
+    _custom->bltdpt = (uint8_t*)fb;
     _custom->bltsize = h<<6 | 1;
     
     if (widthWords > 1) {
       hw_waitBlitter();    
       _custom->bltcon0 = (SRCC|DEST|0xca);
       _custom->bltadat = endMask;
-      _custom->bltcpt = fb+((widthWords-1)<<1);
-      _custom->bltdpt = fb+((widthWords-1)<<1);
+      _custom->bltcpt = (uint8_t*)fb+((widthWords-1)<<1);
+      _custom->bltdpt = (uint8_t*)fb+((widthWords-1)<<1);
       _custom->bltsize = h<<6 | 1;
     }
     
@@ -72,8 +72,8 @@ gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
       hw_waitBlitter();    
       _custom->bltcon0 = (DEST|(colorInPlane ? 0xff : 0x00));
       _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH-1))+(FRAME_BUFFER_WIDTH_BYTES-((widthWords-2)<<1));
-      _custom->bltdpt = fb+2;
-      _custom->bltsize = h<<6 | widthWords-2;
+      _custom->bltdpt = (uint8_t*)fb+2;
+      _custom->bltsize = h<<6 | (widthWords-2);
     }    
 
     fb += FRAME_BUFFER_WIDTH_BYTES;
@@ -103,10 +103,10 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltapt = mask;
-  _custom->bltbpt = source;
-  _custom->bltcpt = dest;
-  _custom->bltdpt = dest;
+  _custom->bltapt = (uint8_t*)mask;
+  _custom->bltbpt = (uint8_t*)source;
+  _custom->bltcpt = (uint8_t*)dest;
+  _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
 }
 
@@ -127,8 +127,8 @@ gfx_renderTile(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t 
   _custom->bltalwm = 0xffff;
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
-  _custom->bltapt = source;
-  _custom->bltdpt = dest;
+  _custom->bltapt = (uint8_t*)source;
+  _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }
 
@@ -148,8 +148,8 @@ gfx_renderTile2(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
   _custom->bltalwm = 0xffff;
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
-  _custom->bltapt = tile;
-  _custom->bltdpt = dest;
+  _custom->bltapt = (uint8_t*)tile;
+  _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }
 

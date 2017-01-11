@@ -3,10 +3,9 @@
 
 
 void 
-screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t* copper)
+screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
 {
   /* poke bitplane pointers into copper list */
-  volatile uint16_t* copperPtr = copper;
   uint32_t bitplanesPtr = (uint32_t)frameBuffer;
 
   for (int i = 0; i < SCREEN_BIT_DEPTH; i++) {
@@ -19,12 +18,10 @@ screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t* copper)
 
 
 void 
-screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
+screen_setup(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
 {
-  unsigned i;
+  USE(frameBuffer);
   volatile uint16_t scratch;
-  volatile uint16_t* copperPtr = copper;
-  volatile uint32_t bitplanesPtr = (uint32_t)frameBuffer;
 
   /* set up playfield */
   
@@ -40,8 +37,11 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t* copper)
   //  screen_pokeCopperList(frameBuffer, copper);
 
   /* install copper list, then enable dma and selected interrupts */
-  custom->cop1lc = (uint32_t)copper;
+  custom->cop1lc = (uint32_t)copperPtr;
   scratch = custom->copjmp1;
+
+  USE(scratch);
+
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
   //  custom->intena = (INTF_SETCLR|INTF_VERTB|INTF_INTEN);
 

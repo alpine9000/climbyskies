@@ -8,6 +8,13 @@ p61Inited:
 
 
 	align 4
+
+_music_setVolume:
+	move.w	d0,P61_Master
+	rts
+
+	align 4
+	
 _music_play:
 	move.l	(4,a7),d0
 	;; d0.w - module index

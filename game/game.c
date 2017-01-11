@@ -36,8 +36,6 @@ copper_t copper = {
 static void 
 initCopper(void)
 {
-  uint32_t bitplanesPtr = (uint32_t)(frameBuffer);
-
   for (int y = 0; y < SCREEN_HEIGHT; y++) {
     uint16_t copperLine = RASTER_Y_START+y;
     
@@ -111,14 +109,13 @@ game_init()
   initCopper();
   pokeCopper(0, frameBuffer);
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
-  //  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH/2, SCREEN_HEIGHT, 1);
-  gfx_fillRect(frameBuffer, SCREEN_WIDTH, 0, 128, 32, 1);
-  //gfx_fillRect(frameBuffer, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 2);
+  gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, (uint16_t*)&copper);
-  //  tile_renderScreen(frameBuffer);
+  tile_renderScreen(frameBuffer);
   sprite_init();
 }
 
+#if 0
 // check for joystick button up
 static uint16_t
 joystickPressed()
@@ -134,7 +131,7 @@ joystickPressed()
   }
   return 0;
 }
-
+#endif
 
 static void
 scrollBackground()
@@ -179,6 +176,9 @@ game_loop()
   int joystickDown = 1;
 
   music_play(0);
+
+  // Don't enable interrupts until music is set up
+  hw_interruptsInit();
 
   while (!done) {
     frame++;

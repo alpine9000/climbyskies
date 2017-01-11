@@ -5,6 +5,7 @@
 #include "imagecon.h"
 
 imagecon_config_t config = { 
+  .overrideIndex = -1,
   .maxColors = MAX_PALETTE, 
   .outputPalette = 0, 
   .outputMask = 0,
@@ -33,6 +34,7 @@ usage()
   fprintf(stderr, 
 	  "%s:  --input <input1.png,input2.png...> [options]\n"\
 	  "options:\n"\
+	  "  --set-color <index,r,g,b>\n"\
 	  "  --output <output prefix>\n"\
 	  "  --colors <max colors>\n"\
 	  "  --quantize\n  --output-mask\n"\
@@ -505,6 +507,7 @@ main(int argc, char **argv)
       {"full-color-palette-file", no_argument, &config.fullColorPaletteFile, 1},
       {"use-palette", required_argument, 0, 'p'},
       {"palette-offset", required_argument, 0, 'l'},
+      {"set-color", required_argument, 0, 's'},
       {"output",  required_argument, 0, 'o'},
       {"colors",  required_argument, 0, 'c'},
       {"input",   required_argument, 0, 'i'},
@@ -535,6 +538,16 @@ main(int argc, char **argv)
     case 'd':
       if (sscanf(optarg, "%f", &config.darken) != 1) {
 	abort_("invalid darken argument");
+      }
+      break;
+    case 's':
+      {
+	if (sscanf(optarg, "%d,%d,%d,%d", &config.overrideIndex, &config.overrideColor.r, &config.overrideColor.g, &config.overrideColor.b) != 4) {
+	  abort_("invalid color override");
+	} else {
+	  config.overrideColor.a = 255;
+	  printf("%d %d %d\n", config.overrideColor.r, config.overrideColor.g, config.overrideColor.b);
+	}
       }
       break;
     case 'l':

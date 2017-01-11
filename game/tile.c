@@ -10,7 +10,7 @@ tile_renderScreen(frame_buffer_t frameBuffer)
 {
 
   tilePtr = &background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
-  for (int16_t i = 0, y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
+  for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
       gfx_renderTile2(frameBuffer, x, y, spriteFrameBuffer+*tilePtr--);
     }

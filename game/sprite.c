@@ -1,7 +1,5 @@
 #include "game.h"
 
-static int spriteOffset = 0;
-
 #define NUM_SCROLLED_SPRITES 4
 
 typedef struct {

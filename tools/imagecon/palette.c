@@ -9,7 +9,8 @@ void palette_loadFile(imagecon_image_t* ic)
     printf("palette_loadFile:\n");
   }
 
-  for (paletteIndex = 0; paletteIndex < MAX_PALETTE; paletteIndex++) {
+  int index;
+  for (paletteIndex = 0, index = 0; paletteIndex < MAX_PALETTE; paletteIndex++) {
 
     char buffer[255];
     char* line = fgets(buffer, 255, fp);
@@ -20,26 +21,35 @@ void palette_loadFile(imagecon_image_t* ic)
     if (!config.fullColorPaletteFile) {
       unsigned int c;
       sscanf(buffer, "%x\n", &c);
-      
-      ic->palette[paletteIndex].r = (c >> 8 & 0xF) << 4;
-      ic->palette[paletteIndex].g = (c >> 4 & 0xF) << 4;
-      ic->palette[paletteIndex].b = (c >> 0 & 0xF) << 4;
-      ic->palette[paletteIndex].a = 255;
-      
-      if (config.verbose) {
-	printf("%03d %03d %03d\n", ic->palette[paletteIndex].r, ic->palette[paletteIndex].g, ic->palette[paletteIndex].b);
+      if (paletteIndex >= config.paletteOffset && index < config.maxColors) {
+	ic->palette[index].r = (c >> 8 & 0xF) << 4;
+	ic->palette[index].g = (c >> 4 & 0xF) << 4;
+	ic->palette[index].b = (c >> 0 & 0xF) << 4;
+	ic->palette[index].a = 255;
+	
+	if (config.verbose) {
+	  printf("%03d %03d %03d\n", ic->palette[index].r, ic->palette[index].g, ic->palette[index].b);
+	}
+	index++;
       }
     } else {
-      sscanf(buffer, "%d %d %d %d",
-	     &ic->palette[paletteIndex].r,
-	     &ic->palette[paletteIndex].g,
-	     &ic->palette[paletteIndex].b,
-	     &ic->palette[paletteIndex].a);
-
-      if (config.verbose) {
-	printf("r: %03d g: %03d b: %03d a: %03d\n", ic->palette[paletteIndex].r, ic->palette[paletteIndex].g, ic->palette[paletteIndex].b, ic->palette[paletteIndex].a);
-      }
-    }   
+      if (paletteIndex >= config.paletteOffset && index < config.maxColors) {
+	if (index == config.overrideIndex) {
+	  ic->palette[index] = config.overrideColor;
+	} else {
+	  sscanf(buffer, "%d %d %d %d",
+		 &ic->palette[index].r,
+		 &ic->palette[index].g,
+		 &ic->palette[index].b,
+		 &ic->palette[index].a);
+	}
+	
+	if (config.verbose) {
+	  printf("r: %03d g: %03d b: %03d a: %03d\n", ic->palette[index].r, ic->palette[index].g, ic->palette[index].b, ic->palette[index].a);
+	}
+	index++;
+      }   
+    }
   }
 
   ic->numColors = paletteIndex;

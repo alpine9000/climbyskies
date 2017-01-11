@@ -5,7 +5,7 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
-#define CUSTOM ((volatile struct Custom*)0xdff000)
+#define CUSTOM ((struct Custom*)0xdff000)
 #define SCREEN_WIDTH        224
 #define SCREEN_HEIGHT       256
 #define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+32)
@@ -23,15 +23,26 @@
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
 
+
+#if defined(__GNUC__)
+#define __reg(x)
+#define __chip
+#define USE(x) do { x = x; } while(0);
+#else
+#define USE(x)
+#endif
+
+
 typedef UBYTE uint8_t;
 typedef SHORT int16_t;
 typedef USHORT uint16_t;
 typedef LONG int32_t;
 typedef ULONG uint32_t;
 
-typedef volatile uint8_t* frame_buffer_t;
+typedef volatile uint8_t * frame_buffer_t;
 
-extern volatile struct Custom *custom;
+typedef volatile struct Custom* custom_t;
+extern custom_t custom; 
 
 #include "registers.h"
 #include "hw.h"

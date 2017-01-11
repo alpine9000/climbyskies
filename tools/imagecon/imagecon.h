@@ -46,6 +46,8 @@ typedef struct {
   int verbose;
   float darken;
   char** argv;  
+  int overrideIndex;
+  amiga_color_t overrideColor;
 } imagecon_config_t;
 
 
