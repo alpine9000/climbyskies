@@ -1,4 +1,4 @@
-GAME_NAME=a1942
+GAME_NAME=climbyskies
 
 # userstack used by bootblock
 USERSTACK_ADDRESS=7fffc
@@ -33,6 +33,7 @@ PROGRAM_BIN=out/main.bin
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
 EXTRA_DEFINES=-DSPRITE_BACKGROUND_HEIGHT=$(SPRITE_BACKGROUND_HEIGHT)
 CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES)
+GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/
 
 ASM_OBJS=$(SRCS:.s=.o)
 C_OBJS=$(C_SRCS:.c=.o)
@@ -132,13 +133,14 @@ out/workbench/%.o: out/%.c
 	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/adf/%.o: %.c
-	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/
+	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/adf/" | cat - $*.dep > out/adf/$*.d
 	-@rm $*.dep
 	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/workbench/%.o: %.c
+	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/workbench/" | cat - $*.dep > out/workbench/$*.d
 	-@rm $*.dep
