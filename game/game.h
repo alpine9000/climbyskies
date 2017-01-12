@@ -52,6 +52,7 @@ extern custom_t custom;
 extern int cameraY;
 extern int screenScrollY;
 extern int scrollCount;
+extern volatile uint8_t* saveBuffer;
 
 #include "registers.h"
 #include "hw.h"

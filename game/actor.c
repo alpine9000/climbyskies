@@ -5,22 +5,22 @@
 typedef struct {
   int start;
   int end;
-} bob_set_t;  
+} animation_t;  
 
 typedef struct {
   int x;
   int y;
-  int bobSet;
+  int animation;
   int bobIndex;
   int deltaX;
   int deltaY;
   int moveCount;
-  int nextBobSet;
+  int nextAnimation;
 } actor_t;
 
 
 static
-bob_set_t bobSets[] = {
+animation_t animations[] = {
   { 5, 5 },   // 0 - left jumping
   { 4, 4 },   // 1 - left standing
   { 0, 3 },   // 2 - left running
@@ -35,7 +35,7 @@ actor_t actors[NUM_ACTORS] = {
     .x = SCREEN_WIDTH-32,
     .y = WORLD_HEIGHT-48-(16*3),
     .bobIndex = 4,
-    .bobSet = 1,
+    .animation = 1,
     .deltaX = 0,
     .deltaY = 0,
     .moveCount = -1
@@ -43,6 +43,14 @@ actor_t actors[NUM_ACTORS] = {
 };
 
 static void actor_stop(void);
+
+void
+actor_init(frame_buffer_t fb)
+{
+  actor_t* a = &actors[0];
+
+  bob_save(fb, a->x, a->y, a->bobIndex);
+}
 
 void
 actor_render(frame_buffer_t fb)
@@ -56,8 +64,8 @@ actor_render(frame_buffer_t fb)
     a->y += a->deltaY;
     if (a->moveCount % 4 == 0) {
       a->bobIndex++;
-      if (a->bobIndex > bobSets[a->bobSet].end) {
-	a->bobIndex = bobSets[a->bobSet].start;
+      if (a->bobIndex > animations[a->animation].end) {
+	a->bobIndex = animations[a->animation].start;
       }
     }
     a->moveCount-=2;
@@ -66,8 +74,8 @@ actor_render(frame_buffer_t fb)
     a->moveCount--;
   }
 
-  actor_t* actor = &actors[0];
-  bob_render(fb, actor->x, actor->y, actor->bobIndex);
+  bob_save(fb, a->x, a->y, a->bobIndex);
+  bob_render(fb, a->x, a->y, a->bobIndex);
 }
 
 void 
@@ -76,16 +84,11 @@ actor_jump()
   actor_t * a= &actors[0];
   if (a->moveCount == -1) {
     a->deltaX = 0;
-    a->nextBobSet = a->bobSet;
-    a->bobSet = 0;
-    a->bobIndex = bobSets[a->bobSet].start;
-#if 1
+    a->nextAnimation = a->animation;
+    a->animation = 0;
+    a->bobIndex = animations[a->animation].start;
     a->deltaY = -4;
     a->moveCount = 48;
-#else
-    a->deltaY = -1;
-    a->moveCount = 1;
-#endif
   }
 }
 
@@ -94,14 +97,14 @@ actor_left()
 {
   actor_t * a= &actors[0];
   if (a->moveCount <= 0) {
-    if (a->bobSet == 0) {
+    if (a->animation == 0) {
       scrollCount = 1+((6*16)/SCROLL_PIXELS);
     }
     a->deltaX = -2;
     a->deltaY = 0;
-    a->bobSet = 2;
-    a->nextBobSet = 1;
-    a->bobIndex = bobSets[a->bobSet].start;
+    a->animation = 2;
+    a->nextAnimation = 1;
+    a->bobIndex = animations[a->animation].start;
     a->moveCount = 32;
   }
 }
@@ -113,9 +116,9 @@ actor_right()
   if (a->moveCount <= 0) {
     a->deltaX = 2;
     a->deltaY = 0;
-    a->bobSet = 4;
-    a->bobIndex = bobSets[a->bobSet].start;
-    a->nextBobSet = 3;
+    a->animation = 4;
+    a->bobIndex = animations[a->animation].start;
+    a->nextAnimation = 3;
     a->moveCount = 32;
   }
 }
@@ -125,9 +128,9 @@ static void
 actor_stop(void)
 {
   actor_t * a= &actors[0]; 
-  if (a->bobSet == 0) {
+  if (a->animation == 0) {
       scrollCount = 1+((6*16)/SCROLL_PIXELS);
   }
-  a->bobSet = a->nextBobSet;
-  a->bobIndex = bobSets[a->bobSet].start;
+  a->animation = a->nextAnimation;
+  a->bobIndex = animations[a->animation].start;
 }

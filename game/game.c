@@ -1,7 +1,9 @@
 #include "game.h"
 
 volatile __chip uint8_t _frameBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+volatile __chip uint8_t _saveBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile uint8_t* frameBuffer;
+volatile uint8_t* saveBuffer;
 int cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
 int screenScrollY = 0;
 int scrollCount = 0;
@@ -47,12 +49,14 @@ game_init()
 {
   palette_install();
   frameBuffer = (uint8_t*)&_frameBuffer;
+  saveBuffer = (uint8_t*)&_saveBuffer;
   screen_pokeCopperList(frameBuffer, copper.bpl1);
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
   gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
-  //  actor_render(frameBuffer);
+  actor_init(frameBuffer);
+  actor_render(frameBuffer);
 }
 
 #if 0
@@ -156,10 +160,7 @@ game_loop()
       scrollCount--;
     } else if (scrollCount > 0) {
       scrollCount--;
-    } else {
-      //  actor_render(frameBuffer);    
     }
-
 
     actor_render(frameBuffer);    
     
