@@ -80,12 +80,12 @@ void
 bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 {
   bob_t* bob = &bobs[b];
-  gfx_renderSprite(fb, bob->x, bob->y, x, y, bob->w, bob->h);
+  gfx_renderSprite(fb, bob->x, bob->y, x, y-cameraY-screenScrollY, bob->w, bob->h);
 }
 
 void
 bob_clear(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 {
   bob_t* bob = &bobs[b];
-  gfx_clearSprite(fb, x, y, bob->w, bob->h);
+  gfx_clearSprite(fb, x, y-cameraY-screenScrollY, bob->w, bob->h);
 }

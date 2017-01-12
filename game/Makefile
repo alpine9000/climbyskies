@@ -6,18 +6,12 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c bob.c actor.c
-SRCS=hw_asm.s trackloader.s palette_asm.s sprite_data.s P6112-Play.s music.s disk.s
-SPRITE_BACKGROUND_HEIGHT=2048
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c actor.c
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png\
-	 sprite_background-0.png\
-	 sprite_background-1.png\
-	 sprite_background-2.png\
-	 sprite_background-3.png\
-	 sprite_background-4.png
+IMAGES=sprite.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
@@ -31,7 +25,7 @@ MODULE=$(GAME_NAME).s
 PROGRAM_BIN=out/main.bin
 
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
-EXTRA_DEFINES=-DSPRITE_BACKGROUND_HEIGHT=$(SPRITE_BACKGROUND_HEIGHT)
+EXTRA_DEFINES=
 CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES)
 GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/
 
@@ -86,28 +80,6 @@ out/background-map.c: assets/background.tmx
 
 out/sprite.bin: assets/sprite.png
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,0,0
-
-
-out/sprite_background-%.bin: out/sprite_background-%.png
-	$(IMAGECON) --input $<  --quantize --colors 4 --output-bitplanes  --output-palette --full-color-palette-file --output-png  --output out/sprite_background-$* --palette-offset 16  --use-palette=palette.pal --output-palette --set-color=0,0,0,0
-
-.SECONDARY:
-out/sprite_background-0.png: assets/sprite_background.png
-	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-0.png --width=16 --height=$(SPRITE_BACKGROUND_HEIGHT) --rows=1 --cols=1 --dx=0 --dy=0 --x=0 --y=0
-.SECONDARY:
-out/sprite_background-1.png: assets/sprite_background.png
-	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-1.png --width=16 --height=$(SPRITE_BACKGROUND_HEIGHT) --rows=1 --cols=1 --dx=0 --dy=0 --x=16 --y=0
-.SECONDARY:
-out/sprite_background-2.png: assets/sprite_background.png
-	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-2.png --width=16 --height=$(SPRITE_BACKGROUND_HEIGHT) --rows=1 --cols=1 --dx=0 --dy=0 --x=32 --y=0
-.SECONDARY:
-out/sprite_background-3.png: assets/sprite_background.png
-	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-3.png --width=16 --height=$(SPRITE_BACKGROUND_HEIGHT) --rows=1 --cols=1 --dx=0 --dy=0 --x=48 --y=0
-.SECONDARY:
-out/sprite_background-4.png: assets/sprite_background.png
-	../tools/croppa/out/croppa --input=assets/sprite_background.png --output=out/sprite_background-4.png --width=16 --height=$(SPRITE_BACKGROUND_HEIGHT) --rows=1 --cols=1 --dx=0 --dy=0 --x=64 --y=0
-.SECONDARY:
-
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
 

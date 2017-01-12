@@ -42,7 +42,7 @@ actor_t actors[NUM_ACTORS] = {
   }
 };
 
-static void actor_stop();
+static void actor_stop(void);
 
 void
 actor_render(frame_buffer_t fb)
@@ -117,7 +117,7 @@ actor_right()
 
 
 static void 
-actor_stop()
+actor_stop(void)
 {
   actor_t * a= &actors[0]; 
   if (a->bobSet == 0) {

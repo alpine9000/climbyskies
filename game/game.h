@@ -10,7 +10,6 @@
 #define SCREEN_HEIGHT       256
 #define FRAME_BUFFER_OFFSCREEN_HEIGHT 32
 #define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)
-#define WORLD_HEIGHT        (FRAME_BUFFER_HEIGHT-FRAME_BUFFER_OFFSCREEN_HEIGHT)
 #define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
@@ -25,9 +24,11 @@
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
 
-#define SCROLL_PIXELS 4
+#define MAP_TILE_HEIGHT     201
+#define MAP_TILE_WIDTH      14
+#define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
 
-#define SPRITE_BACKGROUND
+#define SCROLL_PIXELS 4
 
 #if defined(__GNUC__)
 #define __reg(x)
@@ -49,6 +50,7 @@ typedef volatile uint8_t * frame_buffer_t;
 typedef volatile struct Custom* custom_t;
 extern custom_t custom; 
 extern int cameraY;
+extern int screenScrollY;
 extern int scrollCount;
 
 #include "registers.h"
