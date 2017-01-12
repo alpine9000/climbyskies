@@ -80,12 +80,36 @@ void
 bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 {
   bob_t* bob = &bobs[b];
-  gfx_renderSprite(fb, bob->x, bob->y, x, y-cameraY-screenScrollY, bob->w, bob->h);
+  y = y-cameraY-screenScrollY;
+  if (y >= 0) {
+    gfx_renderSprite(fb, bob->x, bob->y, x, y, bob->w, bob->h);
+  } else {
+    if (y > -bob->h) {
+      gfx_renderSprite(fb, bob->x, bob->y-y, x, 0, bob->w, bob->h+y);    
+      gfx_renderSprite(fb, bob->x, bob->y, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
+    } else {
+      gfx_renderSprite(fb, bob->x, bob->y, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h);    
+    }
+  }
 }
 
 void
 bob_clear(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 {
   bob_t* bob = &bobs[b];
-  gfx_clearSprite(fb, x, y-cameraY-screenScrollY, bob->w, bob->h);
+  y = y-cameraY-screenScrollY;
+  if (y >= 0) {
+    gfx_clearSprite(fb, x, y, bob->w, bob->h);
+    //gfx_fillRect(fb, x, y, bob->w, bob->h, 13);
+  } else {
+    if (y > -bob->h) {
+      gfx_clearSprite(fb, x, 0, bob->w, bob->h+y);
+      gfx_clearSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);
+      //gfx_fillRect(fb, x, 0, bob->w, bob->h+y, 16);
+      //gfx_fillRect(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y, 23);
+    } else {
+      gfx_clearSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h);
+      //gfx_fillRect(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h, 1);
+    }
+  }
 }

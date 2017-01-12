@@ -76,11 +76,16 @@ actor_jump()
   actor_t * a= &actors[0];
   if (a->moveCount == -1) {
     a->deltaX = 0;
-    a->deltaY = -4;
     a->nextBobSet = a->bobSet;
     a->bobSet = 0;
     a->bobIndex = bobSets[a->bobSet].start;
+#if 1
+    a->deltaY = -4;
     a->moveCount = 48;
+#else
+    a->deltaY = -1;
+    a->moveCount = 1;
+#endif
   }
 }
 
