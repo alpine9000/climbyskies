@@ -151,7 +151,6 @@ game_loop()
       scrollCount--;
     }
 
-
     player_saveBackground(frameBuffer);
 
     player_render(frameBuffer);

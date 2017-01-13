@@ -17,7 +17,6 @@ typedef struct {
   animation_t animation;
   int deltaX;
   int deltaY;
-  int moveCount;
   facing_direction_t facing;
 } action_t;
 

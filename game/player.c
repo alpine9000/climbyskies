@@ -10,9 +10,11 @@
 #define JOYSTICK_POS_DOWNLEFT 6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
-#define PLAYER_WIDTH_FUZZY 5
 #define PLAYER_HEIGHT 48
+#define PLAYER_WIDTH_FUZZY 5
 #define PLAYER_WIDTH  32
+#define PLAYER_VISIBLE_WIDTH  (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
+#define PLAYER_JUMP_HEIGHT 112
 
 #define JOYSTICK_IDLE() (hw_joystickPos == 0)
 #define JOYSTICK_LEFT() (hw_joystickPos == 7)
@@ -51,10 +53,9 @@ action_t actions[] = {
   [ACTION_LEFT_JUMP] = {
     .deltaX = 0,
     .deltaY = -4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 5, 
-      .stop = 5, 
+      .start = BOB_CLIMBER_JUMP_LEFT, 
+      .stop = BOB_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -62,10 +63,9 @@ action_t actions[] = {
   [ACTION_RIGHT_JUMP] = {
     .deltaX = 0,
     .deltaY = -4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 11, 
-      .stop = 11, 
+      .start = BOB_CLIMBER_JUMP_RIGHT, 
+      .stop = BOB_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT
@@ -73,10 +73,9 @@ action_t actions[] = {
   [ACTION_LEFT_FALL] = {
     .deltaX = 0,
     .deltaY = 4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 5, 
-      .stop = 5, 
+      .start = BOB_CLIMBER_JUMP_LEFT, 
+      .stop = BOB_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -84,10 +83,9 @@ action_t actions[] = {
   [ACTION_RIGHT_FALL] = {
     .deltaX = 0,
     .deltaY = 4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 11, 
-      .stop = 11, 
+      .start = BOB_CLIMBER_JUMP_RIGHT, 
+      .stop = BOB_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT 
@@ -95,10 +93,9 @@ action_t actions[] = {
   [ACTION_RIGHT_FALL_RIGHT] = {
     .deltaX = 2,
     .deltaY = 4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 11, 
-      .stop = 11, 
+      .start = BOB_CLIMBER_JUMP_RIGHT, 
+      .stop = BOB_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT
@@ -106,10 +103,9 @@ action_t actions[] = {
   [ACTION_LEFT_FALL_LEFT] = {
     .deltaX = -2,
     .deltaY = 4,
-    .moveCount = 64/2,
     .animation = { 
-      .start = 5, 
-      .stop = 5, 
+      .start = BOB_CLIMBER_JUMP_LEFT, 
+      .stop = BOB_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -118,10 +114,9 @@ action_t actions[] = {
   [ACTION_LEFT_STAND] = { 
     .deltaX = 0,
     .deltaY = 0,
-    .moveCount = 0,
     .animation = {
-      .start = 4, 
-      .stop = 4, 
+      .start = BOB_CLIMBER_STAND_LEFT, 
+      .stop = BOB_CLIMBER_STAND_LEFT, 
       .speed = 0 
     },
     .facing = FACING_LEFT
@@ -129,10 +124,9 @@ action_t actions[] = {
   [ACTION_LEFT_RUN] = {
     .deltaX = -2,
     .deltaY = 0,
-    .moveCount = 16,
     .animation = {
-      .start = 0, 
-      .stop = 3,
+      .start = BOB_CLIMBER_RUN_LEFT_1, 
+      .stop = BOB_CLIMBER_RUN_LEFT_4,
       .speed = 4
     },
     .facing = FACING_LEFT
@@ -140,10 +134,9 @@ action_t actions[] = {
   [ACTION_RIGHT_STAND] = {
     .deltaX = 0,
     .deltaY = 0,
-    .moveCount = 0,
     .animation = {
-      .start = 10, 
-      .stop = 10,
+      .start = BOB_CLIMBER_STAND_RIGHT, 
+      .stop = BOB_CLIMBER_STAND_RIGHT,
       .speed = 0
     },
     .facing = FACING_RIGHT
@@ -151,10 +144,9 @@ action_t actions[] = {
   [ACTION_RIGHT_RUN] = {
     .deltaX = 2,
     .deltaY = 0,
-    .moveCount = 16,
     .animation = {
-      .start = 6,
-      .stop = 9,
+      .start = BOB_CLIMBER_RUN_RIGHT_1,
+      .stop = BOB_CLIMBER_RUN_RIGHT_4,
       .speed = 4 
     },
     .facing = FACING_RIGHT
@@ -202,12 +194,15 @@ static int
 player_onGround(void)
 {
   int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
-  int x = (player.x+PLAYER_WIDTH_FUZZY)/TILE_WIDTH;
-  if (background_tileAddresses[y][x] != 0) {
+  int x = (player.x+PLAYER_WIDTH_FUZZY);
+  if (x >= 0 && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
     return 1;
   }
-  x = ((player.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)/TILE_WIDTH);
-  return background_tileAddresses[y][x] != 0;
+  x = player.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY;
+  if (x < SCREEN_WIDTH && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
+    return 1;
+  } 
+  return 0;
 }
 
 
@@ -262,7 +257,7 @@ player_updateDuringMove(void)
   int currentActionId = player.actionId;
   
   if (player.deltaY < 0) { // Jumping
-    if (player.jumpStartY - player.y > 112) {
+    if (player.jumpStartY - player.y > PLAYER_JUMP_HEIGHT) {
       if (player.action->facing == FACING_LEFT) {
 	player_setAction(ACTION_LEFT_FALL);
       } else {
@@ -315,6 +310,11 @@ player_update(void)
 
   if (player.deltaX != 0 || player.deltaY != 0) {
     player.x += player.deltaX;
+    if (player.x > SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH) {
+      player.x = SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH;
+    } else if (player.x < -PLAYER_WIDTH_FUZZY) {
+      player.x = -PLAYER_WIDTH_FUZZY;
+    }
     player.y += player.deltaY;
     if (frameCount % player.action->animation.speed == 0) {
       player.bobIndex++;
