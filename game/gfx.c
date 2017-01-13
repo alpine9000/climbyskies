@@ -117,7 +117,7 @@ gfx_saveSprite(frame_buffer_t source, int16_t dx, int16_t dy, int16_t w, int16_t
   static volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t dest = saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
-  int shift = (dx&0xf);
+  int shift = 0;//(dx&0xf);
   
   dest += dyOffsetsLUT[dy] + (dx>>3);
   source += dyOffsetsLUT[dy] + (dx>>3);
@@ -141,7 +141,7 @@ gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t 
   static volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
-  int shift = (dx&0xf);
+  int shift = 0;//(dx&0xf);
   
   dest += dyOffsetsLUT[dy] + (dx>>3);
   source += dyOffsetsLUT[dy] + (dx>>3);

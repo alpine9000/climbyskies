@@ -7,24 +7,19 @@ typedef struct {
   int speed;
 } animation_t;  
 
+
+typedef enum {
+  FACING_LEFT,
+  FACING_RIGHT
+} facing_direction_t;
+
 typedef struct {
   animation_t animation;
   int deltaX;
   int deltaY;
   int moveCount;
+  facing_direction_t facing;
 } action_t;
 
-typedef struct {
-  int x;
-  int y;
-  int lastX;
-  int lastY;
-  int lastScrollY;
-  int action;
-  int bobIndex;
-  int deltaX;
-  int deltaY;
-  int moveCount;
-} actor_t;
 
 #endif

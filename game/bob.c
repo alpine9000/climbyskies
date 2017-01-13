@@ -9,68 +9,74 @@ typedef struct {
 
 static
 bob_t bobs[] = {
-  { // climber run left 1
+  { // 0. climber run left 1
     .x = 0,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber run left 2
+  { // 1. climber run left 2
     .x = 32,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber run left 3
+  { // 2. climber run left 3
     .x = 64,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber run left 4
+  { // 3. climber run left 4
     .x = 96,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber stand left 
+  { // 4. climber stand left 
     .x = 128,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber jump left
+  { // 5. climber jump left
     .x = 160,
     .y = 80,
     .w = 32,
     .h = 48
   },
-  { // climber run right 1
+  { // 6. climber run right 1
     .x = 0,
     .y = 128,
     .w = 32,
     .h = 48
   },
-  { // climber run right 2
+  { // 7. climber run right 2
     .x = 32,
     .y = 128,
     .w = 32,
     .h = 48
   },
-  { // climber run right 3
+  { // 8. climber run right 3
     .x = 64,
     .y = 128,
     .w = 32,
     .h = 48
   },
-  { // climber run right 4
+  { // 9. climber run right 4
     .x = 96,
     .y = 128,
     .w = 32,
     .h = 48
   },
-  { // climber stand right 
+  { // 10. climber stand right 
     .x = 128,
+    .y = 128,
+    .w = 32,
+    .h = 48
+  },
+  { // 11. climber jump right
+    .x = 160,
     .y = 128,
     .w = 32,
     .h = 48

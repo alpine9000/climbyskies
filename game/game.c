@@ -7,6 +7,7 @@ volatile uint8_t* saveBuffer;
 int cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
 int screenScrollY = 0;
 int scrollCount = 0;
+uint32_t frameCount = 0;
 static int scroll = SCROLL_PIXELS;
 
 copper_t copper = {
@@ -56,7 +57,6 @@ game_init()
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
   player_init(frameBuffer);
-  player_render(frameBuffer);
 }
 
 #if 0
@@ -119,7 +119,6 @@ scrollBackground()
 void
 game_loop()
 {
-  int frame = 0;
   int done = 0;
   int joystickDown = 1;
 
@@ -128,7 +127,7 @@ game_loop()
    hw_interruptsInit();
 
   while (!done) {
-    frame++;
+    frameCount++;
     hw_readJoystick();
 
     if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
@@ -137,7 +136,9 @@ game_loop()
     }
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
+    custom->color[0] = 0xff0;
     player_update();
+    custom->color[0] = 0x0;
 
     hw_waitVerticalBlank();
 
@@ -149,6 +150,7 @@ game_loop()
     } else if (scrollCount > 0) {
       scrollCount--;
     }
+
 
     player_saveBackground(frameBuffer);
 

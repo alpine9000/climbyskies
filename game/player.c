@@ -4,11 +4,13 @@
 #define JOYSTICK_POS_UP    1
 #define JOYSTICK_POS_LEFT  7
 #define JOYSTICK_POS_RIGHT 3
+#define JOYSTICK_POS_DOWN  5
+#define JOYSTICK_POS_UPLEFT 8
+#define JOYSTICK_POS_UPRIGHT 2
+#define JOYSTICK_POS_DOWNLEFT 6
+#define JOYSTICK_POS_DOWNRIGHT 4
 
-    // 812
-    // 7 3
-    // 654 
-
+#define PLAYER_WIDTH_FUZZY 5
 #define PLAYER_HEIGHT 48
 #define PLAYER_WIDTH  32
 
@@ -17,14 +19,32 @@
 #define JOYSTICK_RIGHT() (hw_joystickPos == 3)
 #define JOYSTICK_UP() (hw_joystickPos == 1)
 
-#define ACTION_LEFT_JUMP        0
-#define ACTION_LEFT_STAND       1
-#define ACTION_LEFT_RUN         2
-#define ACTION_RIGHT_STAND      3
-#define ACTION_RIGHT_RUN        4
-#define ACTION_FALL_FACING_LEFT 5
-#define ACTION_FALL_LEFT        6
-#define ACTION_FALL_RIGHT       7
+#define ACTION_LEFT_JUMP         0
+#define ACTION_LEFT_STAND        1
+#define ACTION_LEFT_RUN          2
+#define ACTION_RIGHT_JUMP        3
+#define ACTION_RIGHT_STAND       4
+#define ACTION_RIGHT_RUN         5
+#define ACTION_LEFT_FALL         6
+#define ACTION_LEFT_FALL_LEFT    7
+#define ACTION_RIGHT_FALL        8
+#define ACTION_RIGHT_FALL_RIGHT  9
+
+typedef struct {
+  int x;
+  int y;
+  int lastX;
+  int lastY;
+  int lastScrollY;
+  int actionId;
+  int bobIndex;
+  int deltaX;
+  int deltaY;
+  int jumpStartY;
+  int onGround;
+  action_t* action;
+} player_t;
+
 
 static
 action_t actions[] = {
@@ -36,9 +56,21 @@ action_t actions[] = {
       .start = 5, 
       .stop = 5, 
       .speed = 1
-    }   
+    },
+    .facing = FACING_LEFT
   },
-  [ACTION_FALL_FACING_LEFT] = {
+  [ACTION_RIGHT_JUMP] = {
+    .deltaX = 0,
+    .deltaY = -4,
+    .moveCount = 64/2,
+    .animation = { 
+      .start = 11, 
+      .stop = 11, 
+      .speed = 1
+    },
+    .facing = FACING_RIGHT
+  },
+  [ACTION_LEFT_FALL] = {
     .deltaX = 0,
     .deltaY = 4,
     .moveCount = 64/2,
@@ -46,19 +78,32 @@ action_t actions[] = {
       .start = 5, 
       .stop = 5, 
       .speed = 1
-    }   
+    },
+    .facing = FACING_LEFT
   },
-  [ACTION_FALL_RIGHT] = {
+  [ACTION_RIGHT_FALL] = {
+    .deltaX = 0,
+    .deltaY = 4,
+    .moveCount = 64/2,
+    .animation = { 
+      .start = 11, 
+      .stop = 11, 
+      .speed = 1
+    },
+    .facing = FACING_RIGHT 
+  },
+  [ACTION_RIGHT_FALL_RIGHT] = {
     .deltaX = 2,
     .deltaY = 4,
     .moveCount = 64/2,
     .animation = { 
-      .start = 5, 
-      .stop = 5, 
+      .start = 11, 
+      .stop = 11, 
       .speed = 1
-    }   
+    },
+    .facing = FACING_RIGHT
   },
-  [ACTION_FALL_LEFT] = {
+  [ACTION_LEFT_FALL_LEFT] = {
     .deltaX = -2,
     .deltaY = 4,
     .moveCount = 64/2,
@@ -66,7 +111,8 @@ action_t actions[] = {
       .start = 5, 
       .stop = 5, 
       .speed = 1
-    }   
+    },
+    .facing = FACING_LEFT
   },
 
   [ACTION_LEFT_STAND] = { 
@@ -77,7 +123,8 @@ action_t actions[] = {
       .start = 4, 
       .stop = 4, 
       .speed = 0 
-    }
+    },
+    .facing = FACING_LEFT
   },
   [ACTION_LEFT_RUN] = {
     .deltaX = -2,
@@ -86,8 +133,9 @@ action_t actions[] = {
     .animation = {
       .start = 0, 
       .stop = 3,
-      .speed = 2 
-    }
+      .speed = 4
+    },
+    .facing = FACING_LEFT
   },
   [ACTION_RIGHT_STAND] = {
     .deltaX = 0,
@@ -97,7 +145,8 @@ action_t actions[] = {
       .start = 10, 
       .stop = 10,
       .speed = 0
-    }
+    },
+    .facing = FACING_RIGHT
   },
   [ACTION_RIGHT_RUN] = {
     .deltaX = 2,
@@ -106,54 +155,174 @@ action_t actions[] = {
     .animation = {
       .start = 6,
       .stop = 9,
-      .speed = 2 
-    }
+      .speed = 4 
+    },
+    .facing = FACING_RIGHT
   }
 };
 
 
 static 
-actor_t player = {
+player_t player = {
   .x = SCREEN_WIDTH-PLAYER_WIDTH,
   .y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3),
   .bobIndex = 4,
-  .action = ACTION_LEFT_STAND,
+  .actionId = -1,
   .deltaX = 0,
-  .deltaY = 0,
-  .moveCount = -1
+  .deltaY = 0
 };
 
 
 void 
 player_setAction(int action)
 {
-  action_t* a = &actions[action];
-  player.action = action;
-  player.deltaX = a->deltaX;
-  player.deltaY = a->deltaY;
-  player.bobIndex = a->animation.start;
-  player.moveCount = a->moveCount;
+  if (player.actionId != action) {
+    player.actionId = action;
+    player.action = &actions[player.actionId];
+    player.deltaX = player.action->deltaX;
+    player.deltaY = player.action->deltaY;
+    player.bobIndex = player.action->animation.start;
+  }
 }
 
-
-static void 
-player_switchAction(int action)
-{
-  action_t* a = &actions[action];
-  player.action = action;
-  player.deltaX = a->deltaX;
-  player.deltaY = a->deltaY;
-  player.bobIndex = a->animation.start;
-}
 
 void
 player_init(frame_buffer_t fb)
 {
-  player_setAction(player.action);
+  player_setAction(ACTION_LEFT_STAND);
   player.lastX = player.x;
   player.lastY = player.y;
   player.lastScrollY = screenScrollY;
   player_saveBackground(fb);
+  player_render(fb);
+}
+
+
+static int
+player_onGround(void)
+{
+  int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
+  int x = (player.x+PLAYER_WIDTH_FUZZY)/TILE_WIDTH;
+  if (background_tileAddresses[y][x] != 0) {
+    return 1;
+  }
+  x = ((player.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)/TILE_WIDTH);
+  return background_tileAddresses[y][x] != 0;
+}
+
+
+void
+player_updateDuringMove(void)
+{
+  static int lastJoystickPos = -1;
+
+  if (lastJoystickPos != hw_joystickPos) {
+
+    switch (hw_joystickPos) {
+    case JOYSTICK_POS_IDLE:
+      switch (player.actionId) {
+      case ACTION_LEFT_FALL_LEFT:
+	player_setAction(ACTION_LEFT_FALL);
+	break;
+      case ACTION_RIGHT_FALL_RIGHT:
+	player_setAction(ACTION_RIGHT_FALL);
+	break;
+      case ACTION_LEFT_RUN:
+	player_setAction(ACTION_LEFT_STAND);
+	break;
+      case ACTION_RIGHT_RUN:
+	player_setAction(ACTION_RIGHT_STAND);
+	break;
+      }
+      break;
+    case JOYSTICK_POS_LEFT:
+      if (player.deltaY == 0) {
+	player_setAction(ACTION_LEFT_RUN);
+      }
+      break;
+    case JOYSTICK_POS_RIGHT:
+      if (player.deltaY == 0) {
+	player_setAction(ACTION_RIGHT_RUN);
+      }
+      break;
+    case JOYSTICK_POS_UP:
+      if (player.onGround) {
+	if (player.action->facing == FACING_LEFT) {
+	  player_setAction(ACTION_LEFT_JUMP);
+	} else {
+	  player_setAction(ACTION_RIGHT_JUMP);
+	}
+	player.jumpStartY = player.y;
+      }
+      break;
+    }
+  }
+
+  lastJoystickPos = hw_joystickPos;
+  int currentActionId = player.actionId;
+  
+  if (player.deltaY < 0) { // Jumping
+    if (player.jumpStartY - player.y > 112) {
+      if (player.action->facing == FACING_LEFT) {
+	player_setAction(ACTION_LEFT_FALL);
+      } else {
+	player_setAction(ACTION_RIGHT_FALL);
+      }
+    }
+  } else if (player.deltaY > 0) { // Falling
+    if (player.onGround) {
+      if (player.action->facing == FACING_LEFT) {
+	player_setAction(ACTION_LEFT_STAND);
+      } else {
+	player_setAction(ACTION_RIGHT_STAND);
+      }
+    }
+  } else if (!player.onGround) { // Walking off platform
+    if (player.action->facing == FACING_LEFT) {
+      player_setAction(ACTION_LEFT_FALL);
+    } else {
+      player_setAction(ACTION_RIGHT_FALL);
+    }
+  } else { // On a platform
+    if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+      scrollCount = 1+((6*16)/SCROLL_PIXELS);
+    } 
+  }
+  
+  if (player.y == player.jumpStartY) {
+    if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+      scrollCount = 1+((6*16)/SCROLL_PIXELS);
+    } 
+  }
+
+  if (player.y-cameraY > SCREEN_HEIGHT-48) {
+    player.deltaY = 0;
+    player.y = SCREEN_HEIGHT-48+cameraY;
+  }
+  
+  if (currentActionId != player.actionId) {
+    lastJoystickPos = -1;
+  } 
+}
+
+
+void
+player_update(void)
+{
+  player.onGround = player_onGround();
+
+  player_updateDuringMove();
+
+  if (player.deltaX != 0 || player.deltaY != 0) {
+    player.x += player.deltaX;
+    player.y += player.deltaY;
+    if (frameCount % player.action->animation.speed == 0) {
+      player.bobIndex++;
+      if (player.bobIndex > player.action->animation.stop) {
+	player.bobIndex = player.action->animation.start;
+      }
+    }
+  }
 }
 
 
@@ -163,112 +332,11 @@ player_saveBackground(frame_buffer_t fb)
   bob_save(fb, player.x, player.y, player.bobIndex);
 }
 
+
 void
 player_restoreBackground(frame_buffer_t fb)
 {
   bob_clear(fb, player.lastX, player.lastY, player.bobIndex, player.lastScrollY);
-}
-
-static int
-player_onGround(void)
-{
-  int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
-  int x = player.x/TILE_WIDTH;
-  return background_tileAddresses[y][x] != 0;
-}
-
-void
-player_updateDuringMove(void)
-{
-  switch (hw_joystickPos) {
-  case JOYSTICK_POS_IDLE:
-    switch (player.action) {
-    case ACTION_FALL_LEFT:
-      player_switchAction(ACTION_FALL_FACING_LEFT);
-      break;
-    }
-    break;
-  case JOYSTICK_POS_LEFT:
-    switch (player.action) {
-    case ACTION_FALL_FACING_LEFT:
-      player_switchAction(ACTION_FALL_LEFT);
-      break;
-    }
-    break;
-  }
-
-  if (player.deltaY > 0) {
-    if (player_onGround()) {
-      player.moveCount = 0;
-    }
-  }
-
-  if (player.y-cameraY > SCREEN_HEIGHT-48) {
-    player.deltaY = 0;
-    player.y = SCREEN_HEIGHT-48+cameraY;
-  }
-}
-
-void
-player_updateAfterMove(void)
-{
-  int onGround = player_onGround();
-
-  if (!onGround) {
-    player_setAction(ACTION_FALL_FACING_LEFT);
-    return;
-  } else {
-    if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
-      scrollCount = 1+((6*16)/SCROLL_PIXELS);
-    } 
-  } 
-  
-  
-  switch (hw_joystickPos) {
-  case JOYSTICK_POS_LEFT:
-    player_setAction(ACTION_LEFT_RUN);
-    break;
-  case JOYSTICK_POS_RIGHT:
-    player_setAction(ACTION_RIGHT_RUN);
-    break;
-  case JOYSTICK_POS_UP:
-    player_setAction(ACTION_LEFT_JUMP);
-    break;
-  default:
-    switch (player.action) {
-    case ACTION_FALL_FACING_LEFT:       
-    case ACTION_LEFT_JUMP:
-    case ACTION_LEFT_STAND:
-    case ACTION_LEFT_RUN:
-      player_setAction(ACTION_LEFT_STAND);
-      break;
-    case ACTION_RIGHT_STAND:
-    case ACTION_RIGHT_RUN:
-      player_setAction(ACTION_RIGHT_STAND);
-      break;
-    }     
-  }
-}
-
-void
-player_update(void)
-{
-  player_updateDuringMove();
-
-  if (player.moveCount > 0) {
-    player.x += player.deltaX;
-    player.y += player.deltaY;
-    action_t* action = &actions[player.action];
-    if (player.moveCount % action->animation.speed == 0) {
-      player.bobIndex++;
-      if (player.bobIndex > action->animation.stop) {
-	player.bobIndex =  action->animation.start;
-      }
-    }
-    player.moveCount--;
-  } else if (player.moveCount == 0) {
-    player_updateAfterMove();
-  }
 }
 
 
