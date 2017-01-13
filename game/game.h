@@ -53,6 +53,7 @@ extern int cameraY;
 extern int screenScrollY;
 extern int scrollCount;
 extern volatile uint8_t* saveBuffer;
+extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 #include "registers.h"
 #include "hw.h"

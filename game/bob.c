@@ -112,10 +112,10 @@ bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 }
 
 void
-bob_clear(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
+bob_clear(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, int scrollY)
 {
   bob_t* bob = &bobs[b];
-  y = y-cameraY-screenScrollY;
+  y = y-cameraY-scrollY;
   if (y >= 0) {
     gfx_clearSprite(fb, x, y, bob->w, bob->h);
   } else {

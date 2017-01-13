@@ -19,6 +19,7 @@ typedef struct {
   int y;
   int lastX;
   int lastY;
+  int lastScrollY;
   int action;
   int bobIndex;
   int deltaX;
