@@ -71,6 +71,7 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 #include "bob.h"
 #include "actor.h"
 #include "player.h"
+#include "cloud.h"
 
 extern void game_init(void);
 extern void game_loop(void);

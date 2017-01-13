@@ -6,7 +6,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c player.c
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c player.c cloud.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
@@ -79,7 +79,7 @@ out/background-map.c: assets/background.tmx
 	@rm background-indexes.c
 
 out/sprite.bin: assets/sprite.png
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,0,0
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,153,238
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
 

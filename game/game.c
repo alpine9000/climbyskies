@@ -57,6 +57,7 @@ game_init()
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
   player_init(frameBuffer);
+  cloud_init(frameBuffer);
 }
 
 #if 0
@@ -138,11 +139,13 @@ game_loop()
 
     custom->color[0] = 0xff0;
     player_update();
+    cloud_update();
     custom->color[0] = 0x0;
 
     hw_waitVerticalBlank();
 
     player_restoreBackground(frameBuffer);
+    cloud_restoreBackground(frameBuffer);
 
     if (scrollCount > 1) {
       scrollBackground();
@@ -152,7 +155,9 @@ game_loop()
     }
 
     player_saveBackground(frameBuffer);
+    cloud_saveBackground(frameBuffer);
 
+    cloud_render(frameBuffer);
     player_render(frameBuffer);
     
 #if TRACKLOADER==0

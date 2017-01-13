@@ -202,3 +202,23 @@ gfx_renderTile2(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }
 
+void
+gfx_renderTile3(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+  
+  dest += dyOffsetsLUT[y] + (x>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
+  _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
+  _custom->bltapt = (uint8_t*)tile;
+  _custom->bltdpt = (uint8_t*)dest;
+  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | 1;
+}
+
