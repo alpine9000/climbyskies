@@ -1,9 +1,29 @@
 #ifndef __ACTOR_H
 #define __ACTOR_H
 
-void actor_init(frame_buffer_t fb);
-void actor_render(frame_buffer_t fb);
-void actor_left(void);
-void actor_right(void);
-void actor_jump(void);
+typedef struct {
+  int start;
+  int stop;
+  int speed;
+} animation_t;  
+
+typedef struct {
+  animation_t animation;
+  int deltaX;
+  int deltaY;
+  int moveCount;
+} action_t;
+
+typedef struct {
+  int x;
+  int y;
+  int lastX;
+  int lastY;
+  int action;
+  int bobIndex;
+  int deltaX;
+  int deltaY;
+  int moveCount;
+} actor_t;
+
 #endif

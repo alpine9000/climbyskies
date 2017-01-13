@@ -67,6 +67,7 @@ extern volatile uint8_t* saveBuffer;
 #include "music.h"
 #include "bob.h"
 #include "actor.h"
+#include "player.h"
 
 extern void game_init(void);
 extern void game_loop(void);

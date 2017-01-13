@@ -55,8 +55,8 @@ game_init()
   gfx_fillRect(frameBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(frameBuffer, (uint16_t*)&copper);
   tile_renderScreen(frameBuffer);
-  actor_init(frameBuffer);
-  actor_render(frameBuffer);
+  player_init(frameBuffer);
+  player_render(frameBuffer);
 }
 
 #if 0
@@ -137,23 +137,11 @@ game_loop()
     }
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
+    player_update();
 
     hw_waitVerticalBlank();
 
-    // 812
-    // 7 3
-    // 654 
-
-
-    if (hw_joystickPos == 1) {
-      actor_jump();
-    }
-    if (hw_joystickPos == 7) {
-      actor_left();
-    }
-    if (hw_joystickPos == 3) {
-      actor_right();
-    }
+    player_restoreBackground(frameBuffer);
 
     if (scrollCount > 1) {
       scrollBackground();
@@ -162,7 +150,9 @@ game_loop()
       scrollCount--;
     }
 
-    actor_render(frameBuffer);    
+    player_saveBackground(frameBuffer);
+
+    player_render(frameBuffer);
     
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();
