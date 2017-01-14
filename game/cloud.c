@@ -1,6 +1,8 @@
 #include "game.h"
 
 #define CLOUD_HEIGHT 32
+#define CLOUD_WIDTH 64
+#define NUM_CLOUDS 3
 
 typedef struct {
   int x;
@@ -13,66 +15,92 @@ typedef struct {
 } cloud_t;
 
 static
-cloud_t cloud = {
-//  .x = SCREEN_WIDTH/2,
-  .x = -0,
-  //  .y = WORLD_HEIGHT-200,
-  .y = WORLD_HEIGHT-SCREEN_HEIGHT+180,
-  .bobIndex = BOB_CLOUD_1,
-  .deltaX = 0,
-  .deltaY = 0  
+cloud_t clouds[NUM_CLOUDS] = {
+  {
+    .x = 0,
+    .y = WORLD_HEIGHT-SCREEN_HEIGHT+32,
+    .bobIndex = BOB_CLOUD_1,
+    .deltaX = 0,
+    .deltaY = 0  
+  },
+  {
+    .x = 64,
+    .y = WORLD_HEIGHT-(SCREEN_HEIGHT/4),
+    .bobIndex = BOB_CLOUD_1,
+    .deltaX = 0,
+    .deltaY = 0  
+  },
+  {
+    .x = SCREEN_WIDTH-CLOUD_WIDTH,
+    .y = WORLD_HEIGHT-SCREEN_HEIGHT+64,
+    .bobIndex = BOB_CLOUD_2,
+    .deltaX = 0,
+    .deltaY = 0  
+  }
 };
 
 
 void
 cloud_init(frame_buffer_t fb)
 {
-  cloud.saves[0].blit[0].size = 0;
-  cloud.saves[0].blit[1].size = 0;
-  cloud.saves[1].blit[0].size = 0;
-  cloud.saves[1].blit[1].size = 0;
-  cloud.save = &cloud.saves[0];
-
+  for (int i = 0; i < NUM_CLOUDS; i++) {
+    cloud_t* cloud = &clouds[i];
+    cloud->saves[0].blit[0].size = 0;
+    cloud->saves[0].blit[1].size = 0;
+    cloud->saves[1].blit[0].size = 0;
+    cloud->saves[1].blit[1].size = 0;
+    cloud->save = &cloud->saves[0];
+  }
   
   cloud_saveBackground(fb);
-  /*saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
-  cloud_saveBackground(fb);
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    */
-
   cloud_render(fb);
 }
 
 void
 cloud_saveBackground(frame_buffer_t fb)
 {
-  bob_save(fb, cloud.x, cloud.y, cloud.bobIndex, cloud.save);
-  
-  cloud.save = cloud.save == &cloud.saves[0] ? &cloud.saves[1] : &cloud.saves[0];
+  for (int i = 0; i < NUM_CLOUDS; i++) {  
+    cloud_t* cloud = &clouds[i];
+    bob_save(fb, cloud->x, cloud->y, cloud->bobIndex, cloud->save);  
+    cloud->save = cloud->save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
+  }
 }
 
 
 void
 cloud_restoreBackground(void)
 {
-
-    bob_clear(cloud.save);
-
-      //  }
+  for (int i = 0; i < NUM_CLOUDS; i++) {  
+    cloud_t* cloud = &clouds[i];
+    bob_clear(cloud->save);
+  }
 }
 
 
 void
 tile_render(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 {
+  int h = 16;
+  if (y < cameraY) {
+    int offset = cameraY - y;
+    h -= offset;
+    y += offset;
+    tile += offset*(FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH);
+    if (h <= 0) {
+      return;
+    }
+  }
+
+
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
-    gfx_renderTile3(fb, x, y, 16, tile);
+    gfx_renderTile3(fb, x, y, h, tile);
   } else {
-    if (y > -16) {
-      gfx_renderTile3(fb, x, y, 16+y, tile);
+    if (y > -h) {
+      gfx_renderTile3(fb, x, y, h+y, tile);
       gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
     } else {
-      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, 16, tile);
+      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
     }
   }
 }
@@ -80,14 +108,24 @@ tile_render(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 void
 cloud_render(frame_buffer_t fb)
 {
-  bob_render(fb, cloud.x, cloud.y, cloud.bobIndex);
-  int py = (cloud.y/TILE_HEIGHT);
-  int px = (cloud.x/TILE_WIDTH);
-  for (int x = 0; x < 4; x++) {
-    for (int y = 0; y < 3; y++) {
-      int tile = background_tileAddresses[py+y][px+x];
-      if (tile != 0) {
-	tile_render(fb, (px+x)*16, (py+y)*16, spriteFrameBuffer+tile);
+  for (int i = 0; i < NUM_CLOUDS; i++) {
+    cloud_t* cloud = &clouds[i];
+    bob_render(fb, cloud->x, cloud->y, cloud->bobIndex);
+#if 0
+    int py = (cloud->y/TILE_HEIGHT);
+    int px = (cloud->x/TILE_WIDTH);
+#else
+    int py = (cloud->y>>4);
+    int px = (cloud->x>>4);
+#endif
+    for (int x = 0; x < 3; x++) {
+      if (px+x < MAP_TILE_WIDTH) {
+	for (int y = 0; y < 3; y++) {	  
+	  int tile = background_tileAddresses[py+y][px+x];
+	  if (tile != 0) {
+	    tile_render(fb, (px+x)*16, (py+y)*16, spriteFrameBuffer+tile);
+	  }
+	}
       }
     }
   }
@@ -96,12 +134,15 @@ cloud_render(frame_buffer_t fb)
 void
 cloud_update(void)
 {
-  if (scrollCount > 0) {
-    cloud.y--;
-  }
 
-  if (cloud.y >= cameraY+SCREEN_HEIGHT) {
-     cloud.y = cameraY-32;
-    //cloud.x = 200;
+  for (int i = 0; i < NUM_CLOUDS; i++) {
+    cloud_t* cloud = &clouds[i];
+    if (scrollCount > 0) {
+      cloud->y--;
+    }
+    
+    if (cloud->y >= cameraY+SCREEN_HEIGHT) {
+      cloud->y = cameraY-CLOUD_HEIGHT;
+    }
   }
 }

@@ -27,7 +27,8 @@ typedef enum  {
   BOB_CLIMBER_RUN_RIGHT_4 = 9,
   BOB_CLIMBER_STAND_RIGHT = 10,
   BOB_CLIMBER_JUMP_RIGHT = 11,
-  BOB_CLOUD_1 = 12
+  BOB_CLOUD_1 = 12,
+  BOB_CLOUD_2 = 13
 } bob_id_t;
 
 

@@ -6,28 +6,12 @@
 #define NUM_SPRITES 4
 
 typedef struct {
-  uint16_t wait[2];
-  uint16_t pos[NUM_SPRITES*2];
-} sprite_pos_t;
-
-typedef struct {
-  uint16_t wait1[2];
-  uint16_t wait2[2];
-  uint16_t bpl[SCREEN_BIT_DEPTH*2*2];
-  sprite_pos_t sprite[NUM_SPRITE_COLUMNS];
-} copper_video_line_t;
-
-typedef struct {
-#ifndef SPRITE_BACKGROUND
+  //  uint16_t color1[2];
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
   uint16_t wait1[2];
   uint16_t wait2[2];
+  //  uint16_t color2[2];
   uint16_t bpl2[SCREEN_BIT_DEPTH*2*2];
-#else
-  uint16_t wait[2];
-  uint16_t sprites[AMIGA_SPRITES*4];
-  copper_video_line_t lines[SCREEN_HEIGHT];
-#endif
   uint16_t end[2];
 } copper_t;
 

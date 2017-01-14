@@ -46,6 +46,13 @@ copper_t copper = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
+  //  .color1 = {
+  //    COLOR01, 0x00f,
+  //  },
+  //  .color2 = {
+  //    COLOR01, 0xf00,
+  //  },
+
   .end = {0xFFFF, 0xFFFE}
 };
 
@@ -139,7 +146,7 @@ scrollBackground()
     if (tile_renderNextTile(tileY)) {
       if (scroll != 0) {
 	scroll = 0;
-	music_play(1);
+	//  music_play(1);
       }
     }
   }
@@ -164,8 +171,7 @@ game_loop()
     hw_readJoystick();
 
     if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
-      //      scrollCount = 1+((6*16)/SCROLL_PIXELS);
-      scrollCount = 2;
+      scrollCount = 2;//1+((6*16)/SCROLL_PIXELS);
       joystickDown = 1;
     }
     joystickDown = JOYSTICK_BUTTON_DOWN;
@@ -173,13 +179,10 @@ game_loop()
     player_update();
     cloud_update();
 
+
     hw_waitVerticalBlank();
-    //custom->color[0] = 0xf00;
+    //    custom->color[0] = 0xf00;
     switchFrameBuffers();
-
-    player_restoreBackground();
-    cloud_restoreBackground();
-
 
     if (scrollCount > 1) {
       scrollBackground();
@@ -187,15 +190,20 @@ game_loop()
     } else if (scrollCount > 0) {
       scrollCount--;
     }
+
+    player_restoreBackground();
+    cloud_restoreBackground();
     
     player_saveBackground(offScreenBuffer);
     cloud_saveBackground(offScreenBuffer);
 
+    //    custom->color[0] = 0x0f0;
     cloud_render(offScreenBuffer);
+    //    custom->color[0] = 0x0fF;
     player_render(offScreenBuffer);
     saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
 
-    // hw_waitBlitter();
+    hw_waitBlitter();
     custom->color[0] = 0x000;
 
 #if TRACKLOADER==0

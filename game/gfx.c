@@ -117,7 +117,6 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
   static volatile struct Custom* _custom = CUSTOM;
   blit->dest = saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
-  int shift = 0;//(dx&0xf);
   
   source += dyOffsetsLUT[dy] + (dx>>3);
 
@@ -128,8 +127,8 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
 
   hw_waitBlitter();
 
-  _custom->bltcon0 = (SRCA|DEST|0xf0|shift<<ASHIFTSHIFT);
-  _custom->bltcon1 = shift<<BSHIFTSHIFT;
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
@@ -143,12 +142,11 @@ void
 gfx_clearSprite(gfx_blit_t* blit)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  int shift = 0;//(dx&0xf);
 
   hw_waitBlitter();
 
-  _custom->bltcon0 = (SRCA|DEST|0xf0|shift<<ASHIFTSHIFT);
-  _custom->bltcon1 = shift<<BSHIFTSHIFT;
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;

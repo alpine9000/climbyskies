@@ -85,8 +85,14 @@ bob_t bobs[] = {
   [BOB_CLOUD_1]  = {
     .x = 0,
     .y = 32,
-    .w = 64,
-    .h = 32
+    .w = 48,
+    .h = 27
+  },
+  [BOB_CLOUD_2]  = {
+    .x = 48,
+    .y = 32,
+    .w = 48,
+    .h = 27
   },
 };
 
@@ -98,11 +104,16 @@ bob_save(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, bob_save_t* save)
   if (y < cameraY) {
     h -= (cameraY - y);
     y += (cameraY - y);
-    if (h <= 0) {
-      save->blit[0].size = 0;
-      save->blit[1].size = 0;
-      return;
-    }
+  }
+
+  if (y-cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-cameraY+h)-SCREEN_HEIGHT;
+  }
+
+  if (h <= 0) {
+    save->blit[0].size = 0;
+    save->blit[1].size = 0;
+    return;
   }
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
@@ -140,12 +151,15 @@ bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
     h -= (cameraY - y);
     by += (cameraY - y);
     y += (cameraY - y);
+  }
+
+  if (y-cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-cameraY+h)-SCREEN_HEIGHT;
+  }
+
     if (h <= 0) {
       return;
     }
-  }
-
-
     
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
