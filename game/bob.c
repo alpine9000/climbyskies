@@ -1,10 +1,10 @@
 #include "game.h"
 
 typedef struct {
-  uint16_t x;
-  uint16_t y;
-  uint16_t w;
-  uint16_t h;
+  int16_t x;
+  int16_t y;
+  int16_t w;
+  int16_t h;
 } bob_t;
 
 
@@ -91,52 +91,85 @@ bob_t bobs[] = {
 };
 
 void
-bob_save(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
+bob_save(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, bob_save_t* save)
 {
   bob_t* bob = &bobs[b];
-  y = y-cameraY-screenScrollY;
-  if (y >= 0) {
-    gfx_saveSprite(fb, x, y, bob->w, bob->h);
-  } else {
-    if (y > -bob->h) {
-      gfx_saveSprite(fb, x, 0, bob->w, bob->h+y);    
-      gfx_saveSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
-    } else {
-      gfx_saveSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h);    
+  int h = bob->h;
+  if (y < cameraY) {
+    h -= (cameraY - y);
+    y += (cameraY - y);
+    if (h <= 0) {
+      save->blit[0].size = 0;
+      save->blit[1].size = 0;
+      return;
     }
   }
+  y = y-cameraY-screenScrollY;
+  if (y >= 0) {
+    gfx_saveSprite(fb, &save->blit[0], x, y, bob->w, h);
+    save->blit[1].size = 0;
+  } else {
+    if (y > -h) {
+      gfx_saveSprite(fb, &save->blit[0], x, 0, bob->w, h+y);    
+      gfx_saveSprite(fb, &save->blit[1], x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
+    } else {
+      gfx_saveSprite(fb, &save->blit[0], x, FRAME_BUFFER_HEIGHT+y, bob->w, h);    
+      save->blit[1].size = 0;
+    }
+  }
+
 }
 
+
+
+/*
+
+  y = 10
+  cameraY = 20
+
+*/
+
+volatile int16_t d_by, d_sy, d_cy;
 void
 bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
 {
   bob_t* bob = &bobs[b];
+  int by = bob->y;
+  int h = bob->h;
+  if (y < cameraY) {
+    h -= (cameraY - y);
+    by += (cameraY - y);
+    y += (cameraY - y);
+    if (h <= 0) {
+      return;
+    }
+  }
+
+
+    
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
-    gfx_renderSprite(fb, bob->x, bob->y, x, y, bob->w, bob->h);
+    gfx_renderSprite(fb, bob->x, by, x, y, bob->w, h);
   } else {
-    if (y > -bob->h) {
-      gfx_renderSprite(fb, bob->x, bob->y-y, x, 0, bob->w, bob->h+y);    
-      gfx_renderSprite(fb, bob->x, bob->y, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
+    if (y > -h) {
+      gfx_renderSprite(fb, bob->x, by-y, x, 0, bob->w, h+y);    
+      gfx_renderSprite(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
     } else {
-      gfx_renderSprite(fb, bob->x, bob->y, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h);    
+      gfx_renderSprite(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, h);    
     }
   }
 }
 
+
 void
-bob_clear(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, int scrollY)
+bob_clear(bob_save_t* save)
 {
-  bob_t* bob = &bobs[b];
-  y = y-cameraY-scrollY;
-  if (y >= 0) {
-    gfx_clearSprite(fb, x, y, bob->w, bob->h);
-  } else {
-    if (y > -bob->h) {
-      gfx_clearSprite(fb, x, 0, bob->w, bob->h+y);
-      gfx_clearSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);
-    } else {
-      gfx_clearSprite(fb, x, FRAME_BUFFER_HEIGHT+y, bob->w, bob->h);
-    }
+  if (save->blit[0].size > 0) {
+    gfx_clearSprite(&save->blit[0]);
+  }
+
+  if (save->blit[1].size > 0) {
+    gfx_clearSprite(&save->blit[1]);
   }
 }
+

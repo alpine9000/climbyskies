@@ -112,15 +112,19 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
 }
 
 void
-gfx_saveSprite(frame_buffer_t source, int16_t dx, int16_t dy, int16_t w, int16_t h)
+gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t dest = saveBuffer;
+  blit->dest = saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
   int shift = 0;//(dx&0xf);
   
-  dest += dyOffsetsLUT[dy] + (dx>>3);
   source += dyOffsetsLUT[dy] + (dx>>3);
+
+  blit->dest += dyOffsetsLUT[dy] + (dx>>3);
+  blit->source = source;
+  blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  blit->mod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
 
   hw_waitBlitter();
 
@@ -128,23 +132,18 @@ gfx_saveSprite(frame_buffer_t source, int16_t dx, int16_t dy, int16_t w, int16_t
   _custom->bltcon1 = shift<<BSHIFTSHIFT;
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
-  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltapt = (uint8_t*)source;
-  _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  _custom->bltamod = blit->mod;
+  _custom->bltdmod = blit->mod;
+  _custom->bltapt = (uint8_t*)blit->source;
+  _custom->bltdpt = (uint8_t*)blit->dest;
+  _custom->bltsize = blit->size;
 }
 
 void
-gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t h)
+gfx_clearSprite(gfx_blit_t* blit)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = saveBuffer;
-  uint32_t widthWords =  ((w+15)>>4)+1;
   int shift = 0;//(dx&0xf);
-  
-  dest += dyOffsetsLUT[dy] + (dx>>3);
-  source += dyOffsetsLUT[dy] + (dx>>3);
 
   hw_waitBlitter();
 
@@ -152,11 +151,11 @@ gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t 
   _custom->bltcon1 = shift<<BSHIFTSHIFT;
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
-  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltapt = (uint8_t*)source;
-  _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  _custom->bltamod = blit->mod;
+  _custom->bltdmod = blit->mod;
+  _custom->bltapt = (uint8_t*)blit->dest;
+  _custom->bltdpt = (uint8_t*)blit->source;
+  _custom->bltsize = blit->size;
 }
 
 void

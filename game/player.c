@@ -32,12 +32,10 @@
 #define ACTION_RIGHT_FALL        8
 #define ACTION_RIGHT_FALL_RIGHT  9
 
+
 typedef struct {
   int x;
   int y;
-  int lastX;
-  int lastY;
-  int lastScrollY;
   int actionId;
   int bobIndex;
   int deltaX;
@@ -45,6 +43,8 @@ typedef struct {
   int jumpStartY;
   int onGround;
   action_t* action;
+  bob_save_t* save;
+  bob_save_t saves[2];
 } player_t;
 
 
@@ -182,10 +182,17 @@ void
 player_init(frame_buffer_t fb)
 {
   player_setAction(ACTION_LEFT_STAND);
-  player.lastX = player.x;
-  player.lastY = player.y;
-  player.lastScrollY = screenScrollY;
+
+  player.saves[0].blit[0].size = 0;
+  player.saves[0].blit[1].size = 0;
+  player.saves[1].blit[0].size = 0;
+  player.saves[1].blit[1].size = 0;
+  player.save = &player.saves[0];
+
   player_saveBackground(fb);
+  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
+  player_saveBackground(fb);
+  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
   player_render(fb);
 }
 
@@ -329,14 +336,15 @@ player_update(void)
 void
 player_saveBackground(frame_buffer_t fb)
 {
-  bob_save(fb, player.x, player.y, player.bobIndex);
+  bob_save(fb, player.x, player.y, player.bobIndex, player.save);
+  player.save = player.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
 }
 
 
 void
-player_restoreBackground(frame_buffer_t fb)
+player_restoreBackground(void)
 {
-  bob_clear(fb, player.lastX, player.lastY, player.bobIndex, player.lastScrollY);
+  bob_clear(player.save);
 }
 
 
@@ -344,7 +352,4 @@ void
 player_render(frame_buffer_t fb)
 {
   bob_render(fb, player.x, player.y, player.bobIndex);
-  player.lastX = player.x;
-  player.lastY = player.y;
-  player.lastScrollY = screenScrollY;
 }

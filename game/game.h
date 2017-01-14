@@ -8,7 +8,7 @@
 #define CUSTOM ((struct Custom*)0xdff000)
 #define SCREEN_WIDTH        224
 #define SCREEN_HEIGHT       256
-#define FRAME_BUFFER_OFFSCREEN_HEIGHT 32
+#define FRAME_BUFFER_OFFSCREEN_HEIGHT 64
 #define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)
 #define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
 #define TILE_WIDTH          16
@@ -53,7 +53,12 @@ extern int cameraY;
 extern int screenScrollY;
 extern int scrollCount;
 extern uint32_t frameCount;
-extern volatile uint8_t* saveBuffer;
+extern frame_buffer_t saveBuffer;
+extern frame_buffer_t offScreenBuffer;
+extern frame_buffer_t onScreenBuffer;
+extern frame_buffer_t saveBuffer;
+extern frame_buffer_t saveBuffer1;
+extern frame_buffer_t saveBuffer2;
 extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 

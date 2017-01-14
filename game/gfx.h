@@ -10,6 +10,15 @@ extern frame_buffer_t spriteFrameBuffer;
 extern frame_buffer_t spriteMask;
 extern const unsigned char font[];
 
+
+typedef struct {
+  frame_buffer_t dest;
+  frame_buffer_t source;
+  uint16_t mod;
+  uint16_t size;  
+} gfx_blit_t;
+
+
 void 
 gfx_init(void);
 void
@@ -17,9 +26,9 @@ gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
 void
 gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h);
 void
-gfx_saveSprite(frame_buffer_t source, int16_t dx, int16_t dy, int16_t w, int16_t h);
+gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h);
 void
-gfx_clearSprite(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t w, int16_t h);
+gfx_clearSprite(gfx_blit_t* blit);
 void
 gfx_renderTile(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy);
 void
