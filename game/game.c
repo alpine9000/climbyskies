@@ -62,7 +62,7 @@ game_init()
   screen_pokeCopperList(offScreenBuffer, copper.bpl1);
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
   //  gfx_fillRect(offScreenBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  screen_setup(offScreenBuffer, (uint16_t*)&copper);
+  screen_setup(onScreenBuffer, (uint16_t*)&copper);
   tile_renderScreen();
   player_init(offScreenBuffer);
   cloud_init(offScreenBuffer);

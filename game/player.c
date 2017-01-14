@@ -189,10 +189,10 @@ player_init(frame_buffer_t fb)
   player.saves[1].blit[1].size = 0;
   player.save = &player.saves[0];
 
+    player_saveBackground(fb);
+    /*saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
   player_saveBackground(fb);
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
-  player_saveBackground(fb);
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
+  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    */
   player_render(fb);
 }
 

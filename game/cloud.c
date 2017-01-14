@@ -33,10 +33,11 @@ cloud_init(frame_buffer_t fb)
   cloud.saves[1].blit[1].size = 0;
   cloud.save = &cloud.saves[0];
 
+  
   cloud_saveBackground(fb);
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
+  /*saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
   cloud_saveBackground(fb);
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
+  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    */
 
   cloud_render(fb);
 }
