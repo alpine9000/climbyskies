@@ -5,14 +5,19 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
+#define MAP_TILE_WIDTH      16
+#define MAP_TILE_HEIGHT     201
+#define TILE_WIDTH          16
+#define TILE_HEIGHT         16
+
+
 #define CUSTOM ((struct Custom*)0xdff000)
-#define SCREEN_WIDTH        224
+#define SCREEN_WIDTH        MAP_TILE_WIDTH*TILE_WIDTH
 #define SCREEN_HEIGHT       256
 #define FRAME_BUFFER_OFFSCREEN_HEIGHT TILE_HEIGHT*4
 #define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)
 #define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
-#define TILE_WIDTH          16
-#define TILE_HEIGHT         16
+
 #define SCREEN_HEIGHT_WORDS SCREEN_HEIGHT/16
 #define SCREEN_WIDTH_BYTES  (SCREEN_WIDTH/8)
 #define FRAME_BUFFER_WIDTH_BYTES  (FRAME_BUFFER_WIDTH/8)
@@ -24,8 +29,7 @@
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
 
-#define MAP_TILE_HEIGHT     201
-#define MAP_TILE_WIDTH      14
+
 #define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
 
 #define SCROLL_PIXELS 4

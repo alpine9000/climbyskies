@@ -68,30 +68,11 @@ game_init()
   saveBuffer2 = (uint8_t*)&_saveBuffer2;
   screen_pokeCopperList(offScreenBuffer, copper.bpl1);
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
-  //  gfx_fillRect(offScreenBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   screen_setup(onScreenBuffer, (uint16_t*)&copper);
   tile_renderScreen();
   player_init(offScreenBuffer);
   cloud_init(offScreenBuffer);
 }
-
-#if 0
-// check for joystick button up
-static uint16_t
-joystickPressed()
-{
-  if (JOYSTICK_BUTTON_DOWN) {
-    for (;;) {
-      hw_readJoystick();
-      if (!JOYSTICK_BUTTON_DOWN) {    
-	break;
-      }
-    }
-    return 1;
-  }
-  return 0;
-}
-#endif
 
 static
 void
@@ -108,7 +89,8 @@ switchFrameBuffers()
   }
 
 
-  screen_pokeCopperList(offScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
+  screen_pokeCopperList(offScreenBuffer+(int)dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
+  //  screen_pokeCopperList(offScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
   screen_pokeCopperList(offScreenBuffer, copper.bpl2);
 
 
@@ -135,7 +117,8 @@ scrollBackground()
     copper.wait2[0] = ((copperLine-256)<<8)|1;
   }
 
-  screen_pokeCopperList(onScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
+  screen_pokeCopperList(onScreenBuffer+(int)dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
+  //  screen_pokeCopperList(onScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
   screen_pokeCopperList(onScreenBuffer, copper.bpl2);
   
   static int tileY = 0;
@@ -181,7 +164,7 @@ game_loop()
 
 
     hw_waitVerticalBlank();
-    //    custom->color[0] = 0xf00;
+    //    custom->color[2] = 0xf00;
     switchFrameBuffers();
 
     if (scrollCount > 1) {
@@ -197,14 +180,14 @@ game_loop()
     player_saveBackground(offScreenBuffer);
     cloud_saveBackground(offScreenBuffer);
 
-    //    custom->color[0] = 0x0f0;
+    //    custom->color[2] = 0x0f0;
     cloud_render(offScreenBuffer);
-    //    custom->color[0] = 0x0fF;
+    //    custom->color[2] = 0x0fF;
     player_render(offScreenBuffer);
     saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
 
     hw_waitBlitter();
-    custom->color[0] = 0x000;
+    //    custom->color[2] = 0x000;
 
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();

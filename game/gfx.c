@@ -1,15 +1,18 @@
 #include "game.h"
 
-#define printf(...)
-#define dprintf(...)
-
-static uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
+//static 
+uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
+static uint16_t heightLUT[64];
 
 void 
 gfx_init()
 {
   for (uint16_t y = 0; y < FRAME_BUFFER_HEIGHT; y++) {
     dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
+  }
+  
+  for (uint16_t h = 0; h < 64; h++) {
+    heightLUT[h] = (h*SCREEN_BIT_DEPTH)<<6;
   }
 }
 
@@ -107,8 +110,9 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   _custom->bltbpt = (uint8_t*)source;
   _custom->bltcpt = (uint8_t*)dest;
   _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
-  USE(h);
+  //  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  _custom->bltsize = heightLUT[h] | widthWords;
+
 }
 
 void
@@ -122,7 +126,8 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
 
   blit->dest += dyOffsetsLUT[dy] + (dx>>3);
   blit->source = source;
-  blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  blit->size = heightLUT[h] | widthWords;
   blit->mod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
 
   hw_waitBlitter();
@@ -216,6 +221,34 @@ gfx_renderTile3(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buf
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltapt = (uint8_t*)tile;
   _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | 1;
+  //_custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | 1;
+  _custom->bltsize = heightLUT[h] | 1;
 }
 
+void
+gfx_renderTile4(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
+{
+  int h = 16;
+  if (y < cameraY) {
+    int offset = cameraY - y;
+    h -= offset;
+    y += offset;
+    tile += dyOffsetsLUT[offset];
+    if (h <= 0) {
+      return;
+    }
+  }
+
+
+  y = y-cameraY-screenScrollY;
+  if (y >= 0) {
+    gfx_renderTile3(fb, x, y, h, tile);
+  } else {
+    if (y > -h) {
+      gfx_renderTile3(fb, x, y, h+y, tile);
+      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
+    } else {
+      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
+    }
+  }
+}

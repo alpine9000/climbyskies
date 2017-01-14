@@ -92,33 +92,6 @@ cloud_restoreBackground(void)
 }
 
 
-void
-tile_render(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
-{
-  int h = 16;
-  if (y < cameraY) {
-    int offset = cameraY - y;
-    h -= offset;
-    y += offset;
-    tile += offset*(FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH);
-    if (h <= 0) {
-      return;
-    }
-  }
-
-
-  y = y-cameraY-screenScrollY;
-  if (y >= 0) {
-    gfx_renderTile3(fb, x, y, h, tile);
-  } else {
-    if (y > -h) {
-      gfx_renderTile3(fb, x, y, h+y, tile);
-      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
-    } else {
-      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
-    }
-  }
-}
 
 void
 cloud_render(frame_buffer_t fb)
@@ -138,7 +111,7 @@ cloud_render(frame_buffer_t fb)
 	for (int y = 0; y < 3; y++) {	  
 	  int tile = background_tileAddresses[py+y][px+x];
 	  if (tile != 0) {
-	    tile_render(fb, (px+x)*16, (py+y)*16, spriteFrameBuffer+tile);
+	    gfx_renderTile4(fb, (px+x)*16, (py+y)*16, spriteFrameBuffer+tile);
 	  }
 	}
       }
@@ -149,7 +122,6 @@ cloud_render(frame_buffer_t fb)
 void
 cloud_update(void)
 {
-
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (scrollCount > 0) {

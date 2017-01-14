@@ -74,12 +74,12 @@ $(ADF): out/bootblock.bin
 wb: bin/$(GAME_NAME)
 
 out/background-map.c: assets/background.tmx
-	../tools/mapgen/out/mapgen --c --depth=5 --input=assets/background.tmx
+	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background-map.c out
 	@rm background-indexes.c
 
 out/sprite.bin: assets/sprite.png
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,153,238
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,153,238
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
 

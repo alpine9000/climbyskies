@@ -194,19 +194,24 @@ player_init(frame_buffer_t fb)
 }
 
 
-static int
+static
+int
 player_onGround(void)
 {
   //  int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
   int y = ((player.y+PLAYER_HEIGHT)>>4);
   int x = (player.x+PLAYER_WIDTH_FUZZY);
   //  if (x >= 0 && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
-  if (x >= 0 && background_tileAddresses[y][x>>4] != 0) {
+
+  //if (x >= 0 && background_tileAddresses[y][x>>4] != 0) {
+  if (x >= 0 && BACKGROUND_TILE(x, y) != 0) {
     return 1;
   }
+
   x = player.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY;
   //if (x < SCREEN_WIDTH && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
-  if (x < SCREEN_WIDTH && background_tileAddresses[y][x>>4] != 0) {
+  //if (x < SCREEN_WIDTH && background_tileAddresses[y][x>>4] != 0) {
+  if (x < SCREEN_WIDTH && BACKGROUND_TILE(x,y) != 0) {
     return 1;
   } 
   return 0;

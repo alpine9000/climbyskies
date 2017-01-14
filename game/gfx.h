@@ -10,6 +10,7 @@ extern frame_buffer_t spriteFrameBuffer;
 extern frame_buffer_t spriteMask;
 extern const unsigned char font[];
 
+extern uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
 
 typedef struct {
   frame_buffer_t dest;
@@ -35,4 +36,6 @@ void
 gfx_renderTile2(frame_buffer_t dest, int16_t sx, int16_t sy, frame_buffer_t tile);
 void
 gfx_renderTile3(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile);
+void
+gfx_renderTile4(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile);
 #endif
