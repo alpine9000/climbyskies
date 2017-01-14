@@ -115,6 +115,32 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
 
 }
 
+
+void
+gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+  frame_buffer_t source = spriteFrameBuffer;
+  uint32_t widthWords =  ((w+15)>>4);
+  int shift = (dx&0xf);
+  
+  dest += dyOffsetsLUT[dy] + (dx>>3);
+  source += dyOffsetsLUT[sy] + (sx>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0|shift<<ASHIFTSHIFT);
+  _custom->bltcon1 = shift<<BSHIFTSHIFT;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltapt = (uint8_t*)source;
+  _custom->bltdpt = (uint8_t*)dest;
+  _custom->bltsize = heightLUT[h] | widthWords;
+
+}
+
 void
 gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {

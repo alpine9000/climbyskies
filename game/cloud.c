@@ -98,20 +98,15 @@ cloud_render(frame_buffer_t fb)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    bob_render(fb, cloud->x, cloud->y, cloud->bobIndex);
-#if 0
-    int py = (cloud->y/TILE_HEIGHT);
-    int px = (cloud->x/TILE_WIDTH);
-#else
-    int py = (cloud->y>>4);
-    int px = (cloud->x>>4);
-#endif
+    bob_renderNoMask(fb, cloud->x, cloud->y, cloud->bobIndex);
+    int py = (cloud->y>>4); // (cloud->y/TILE_HEIGHT);
+    int px = (cloud->x>>4); // (cloud->x/TILE_WIDTH);
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
 	  int tile = background_tileAddresses[py+y][px+x];
 	  if (tile != 0) {
-	    gfx_renderTile4(fb, (px+x)*16, (py+y)*16, spriteFrameBuffer+tile);
+	    gfx_renderTile4(fb, (px+x)<<4, (py+y)<<4, spriteFrameBuffer+tile);
 	  }
 	}
       }

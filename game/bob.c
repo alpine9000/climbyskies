@@ -140,9 +140,9 @@ bob_save(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, bob_save_t* save)
 
 */
 
-volatile int16_t d_by, d_sy, d_cy;
+
 void
-bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
+_bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h))
 {
   bob_t* bob = &bobs[b];
   int by = bob->y;
@@ -163,13 +163,13 @@ bob_render(frame_buffer_t fb, int16_t x, int16_t y, uint16_t b)
     
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
-    gfx_renderSprite(fb, bob->x, by, x, y, bob->w, h);
+    (*render)(fb, bob->x, by, x, y, bob->w, h);
   } else {
     if (y > -h) {
-      gfx_renderSprite(fb, bob->x, by-y, x, 0, bob->w, h+y);    
-      gfx_renderSprite(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
+      (*render)(fb, bob->x, by-y, x, 0, bob->w, h+y);    
+      (*render)(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, -y);    
     } else {
-      gfx_renderSprite(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, h);    
+      (*render)(fb, bob->x, by, x, FRAME_BUFFER_HEIGHT+y, bob->w, h);    
     }
   }
 }
