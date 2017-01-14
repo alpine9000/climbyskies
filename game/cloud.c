@@ -1,7 +1,7 @@
 #include "game.h"
 
 #define CLOUD_HEIGHT 32
-#define CLOUD_WIDTH 64
+#define CLOUD_WIDTH 16*3
 #define NUM_CLOUDS 3
 
 typedef struct {
@@ -13,6 +13,21 @@ typedef struct {
   bob_save_t* save;
   bob_save_t saves[2];
 } cloud_t;
+
+static
+int16_t cloudX[] = {
+  0, 
+  64, 
+  SCREEN_WIDTH-CLOUD_WIDTH,
+  16,
+  SCREEN_WIDTH-CLOUD_WIDTH-16,
+  64-16,
+  16,
+  ((SCREEN_WIDTH/2+CLOUD_WIDTH/2)/16)*16,
+  -1
+};
+
+static int cloudXIndex = 0;
 
 static
 cloud_t clouds[NUM_CLOUDS] = {
@@ -143,6 +158,11 @@ cloud_update(void)
     
     if (cloud->y >= cameraY+SCREEN_HEIGHT) {
       cloud->y = cameraY-CLOUD_HEIGHT;
+      if (cloudX[cloudXIndex] == -1) {
+	cloudXIndex = 0;
+      }
+      cloud->x = cloudX[cloudXIndex];
+      cloudXIndex++;
     }
   }
 }
