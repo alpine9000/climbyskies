@@ -6,11 +6,9 @@
 #define NUM_SPRITES 4
 
 typedef struct {
-  //  uint16_t color1[2];
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
   uint16_t wait1[2];
   uint16_t wait2[2];
-  //  uint16_t color2[2];
   uint16_t bpl2[SCREEN_BIT_DEPTH*2*2];
   uint16_t end[2];
 } copper_t;

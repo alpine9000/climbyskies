@@ -1,5 +1,13 @@
 #include "game.h"
 
+//#define SHOW_SPEED 1
+
+#ifdef SHOW_SPEED
+#define SPEED_COLOR(x) custom->color[1] = x;
+#else
+#define SPEED_COLOR(x) 
+#endif
+
 volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile __chip uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
@@ -46,13 +54,6 @@ copper_t copper = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
-  //  .color1 = {
-  //    COLOR01, 0x00f,
-  //  },
-  //  .color2 = {
-  //    COLOR01, 0xf00,
-  //  },
-
   .end = {0xFFFF, 0xFFFE}
 };
 
@@ -164,7 +165,7 @@ game_loop()
 
 
     hw_waitVerticalBlank();
-    //    custom->color[2] = 0xf00;
+    SPEED_COLOR(0xf00);
     switchFrameBuffers();
 
     if (scrollCount > 1) {
@@ -180,14 +181,15 @@ game_loop()
     player_saveBackground(offScreenBuffer);
     cloud_saveBackground(offScreenBuffer);
 
-    //    custom->color[2] = 0x0f0;
+    SPEED_COLOR(0x0f0);
     cloud_render(offScreenBuffer);
-    //    custom->color[2] = 0x0fF;
+    SPEED_COLOR(0x0ff);
     player_render(offScreenBuffer);
     saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
 
+
     hw_waitBlitter();
-    //    custom->color[2] = 0x000;
+    SPEED_COLOR(0x000);
 
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();
