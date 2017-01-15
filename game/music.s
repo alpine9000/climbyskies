@@ -83,14 +83,13 @@ modules:
 	dc.l	enddiskmoduleC-diskmoduleC
 	dc.l	diskmoduleC
 	
-	section	.bss
+	section	bss_c
 module:	
 	ds.b	MAX_P61_SIZE
 	ds.b	512
 	ds.b	512	
 
 	section	.noload
-
 moduleDiskData:
 	P61Module A,"assets/P61.climbyskies_ingame_00324_a_015.mod"
 	P61Module B,"assets/P61.jmd-songB"

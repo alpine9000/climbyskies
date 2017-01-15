@@ -35,7 +35,7 @@ static frame_buffer_t saveBuffer2;
 
 static int scroll;
 static int tileY;
-static copper_t copper = {
+static __chip copper_t copper = {
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,

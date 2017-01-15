@@ -36,6 +36,9 @@ QuitGame:
 
 	include "os.i"
 
+	if TRACKLOADER=0
+	section data_c
+	endif
 	align 4
 _spriteBitplanes:
 	incbin	"out/sprite.bin"
@@ -46,12 +49,16 @@ _spriteMask:
 	dc.l	spriteMask
 _spriteFrameBuffer:
 	dc.l	_spriteBitplanes
+
 	include "out/fade_in.s"
+
 	align 4
 _custom:
 	dc.l	CUSTOM
-	
-	section	.bss	
+
+	if TRACKLOADER=0	
+	section	bss
+	endif
 	align 4
 	if TRACKLOADER=1
 startUserstack:

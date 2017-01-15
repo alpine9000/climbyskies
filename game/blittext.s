@@ -216,10 +216,6 @@ fontAtlas:
 	CharAddress    126
 	CharAddress    127
 
-font:	
-	incbin	"out/font8x8.bin"
-	
-
 _text_intToAscii:
 ;;;  d0.l number
 ;;;  d2.l numb chars
@@ -252,3 +248,10 @@ _text_intToAscii:
 staticBuffer:
 	        dc.b    "000000000"
 	        dc.b    0
+
+	if TRACKLOADER=0
+	section data_c
+	endif
+font:	
+	incbin	"out/font8x8.bin"
+	

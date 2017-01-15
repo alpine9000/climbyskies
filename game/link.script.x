@@ -10,6 +10,7 @@ SECTIONS
         startCode = .;
         *(.text) 
         *(.data)
+	*(data_c)
         *(CODE)
         *(DATA)
 	*(CHIP_DATA)
@@ -25,6 +26,8 @@ SECTIONS
     bss (NOLOAD) : {
         . = endCode;
         *(.bss)
+	*(bss)
+	*(bss_c)
         *(BSS)
 	*(CHIP_BSS)
 	endRam = .;
