@@ -21,11 +21,12 @@ frame_buffer_t onScreenBuffer;
 frame_buffer_t saveBuffer;
 frame_buffer_t saveBuffer1;
 frame_buffer_t saveBuffer2;
-int cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
-int screenScrollY = 0;
-int scrollCount = 0;
-uint32_t frameCount = 0;
-static int scroll = SCROLL_PIXELS;
+int cameraY;
+int screenScrollY;
+int scrollCount;
+uint32_t frameCount;
+static int scroll;
+static int tileY;
 
 copper_t copper = {
   .bpl1 = {
@@ -80,6 +81,8 @@ copper_t copper = {
 
 static void
 switchFrameBuffers(void);
+static void
+newGame(void);
 
 void
 game_init()
@@ -96,24 +99,37 @@ game_init()
   screen_setup(onScreenBuffer, (uint16_t*)&copper);
   screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
 
-  switchFrameBuffers();
-
-  tile_renderScreen();
-  player_init(offScreenBuffer);
-  cloud_init(offScreenBuffer);
-
-  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
-
-  hw_waitBlitter();
-  hw_waitVerticalBlank();
-
   music_play(0);
    // Don't enable interrupts until music is set up
   hw_interruptsInit();
 
-  palette_fadeIn();
+  newGame();
 }
 
+
+static void
+newGame(void)
+{
+  cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+  screenScrollY = 0;
+  scrollCount = 0;
+  frameCount = 0;
+  scroll = SCROLL_PIXELS;
+  tileY = 0;
+
+  switchFrameBuffers();
+  
+  tile_renderScreen();
+  player_init(offScreenBuffer);
+  cloud_init(offScreenBuffer);
+  
+  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+  
+  hw_waitBlitter();
+  hw_waitVerticalBlank();
+
+  palette_fadeIn();
+}
 
 static void
 switchFrameBuffers(void)
@@ -146,8 +162,6 @@ switchFrameBuffers(void)
 static void
 scrollBackground()
 {
-  static int tileY = 0;
-
   cameraY -= scroll;
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
   
@@ -222,8 +236,6 @@ game_loop()
     if (scrollCount >= 1) {
       scrollBackground();
       scrollCount--;
-    } else if (scrollCount > 0) {
-      //scrollCount--;
     }
 
     //    text_restore();
@@ -247,5 +259,11 @@ game_loop()
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();
 #endif
+    if (mouse_leftButtonPressed()) {
+      while (mouse_leftButtonPressed());
+      palette_black();
+      newGame();
+      
+    }
   }
 }

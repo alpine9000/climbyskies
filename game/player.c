@@ -155,14 +155,7 @@ action_t actions[] = {
 
 
 static 
-player_t player = {
-  .x = SCREEN_WIDTH-PLAYER_WIDTH,
-  .y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3),
-  .bobIndex = 4,
-  .actionId = -1,
-  .deltaX = 0,
-  .deltaY = 0
-};
+player_t player;
 
 
 void 
@@ -181,6 +174,14 @@ player_setAction(int action)
 void
 player_init(frame_buffer_t fb)
 {
+
+  player.x = SCREEN_WIDTH-PLAYER_WIDTH;
+  player.y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3);
+  player.bobIndex = 4;
+  player.actionId = -1;
+  player.deltaX = 0;
+  player.deltaY = 0;
+
   player_setAction(ACTION_LEFT_STAND);
 
   player.saves[0].blit[0].size = 0;

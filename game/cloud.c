@@ -30,7 +30,10 @@ int16_t cloudX[] = {
 static int cloudXIndex = 0;
 
 static
-cloud_t clouds[NUM_CLOUDS] = {
+cloud_t clouds[NUM_CLOUDS];
+
+static
+cloud_t _clouds[NUM_CLOUDS] = {
   {
     .x = 0,
     .y = WORLD_HEIGHT-SCREEN_HEIGHT+32,
@@ -60,6 +63,7 @@ cloud_init(frame_buffer_t fb)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
+    clouds[i] = _clouds[i];
     cloud->saves[0].blit[0].size = 0;
     cloud->saves[0].blit[1].size = 0;
     cloud->saves[1].blit[0].size = 0;
