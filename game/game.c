@@ -83,6 +83,8 @@ static void
 switchFrameBuffers(void);
 static void
 newGame(void);
+static void
+game_render(void);
 
 void
 game_init()
@@ -120,14 +122,20 @@ newGame(void)
   switchFrameBuffers();
   
   tile_renderScreen();
-  player_init(offScreenBuffer);
-  cloud_init(offScreenBuffer);
+  player_init();
+  cloud_init();
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
   
   hw_waitBlitter();
-  hw_waitVerticalBlank();
 
+  game_render();
+
+  switchFrameBuffers();
+
+  game_render();
+
+  hw_waitVerticalBlank();
   palette_fadeIn();
 }
 
@@ -209,6 +217,19 @@ debug_showRasterLine(void)
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
 }
 
+static void
+game_render(void)
+{
+  player_saveBackground(offScreenBuffer);
+  cloud_saveBackground(offScreenBuffer);
+  
+  SPEED_COLOR(0x0f0);
+  cloud_render(offScreenBuffer);
+  SPEED_COLOR(0x0ff);
+  player_render(offScreenBuffer);
+  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
+}
+
 void
 game_loop()
 {
@@ -241,15 +262,8 @@ game_loop()
     //    text_restore();
     player_restoreBackground();
     cloud_restoreBackground();
-    
-    player_saveBackground(offScreenBuffer);
-    cloud_saveBackground(offScreenBuffer);
 
-    SPEED_COLOR(0x0f0);
-    cloud_render(offScreenBuffer);
-    SPEED_COLOR(0x0ff);
-    player_render(offScreenBuffer);
-    saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;    
+    game_render();
 
     hw_waitBlitter();
     SPEED_COLOR(0xfff);

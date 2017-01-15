@@ -172,7 +172,7 @@ player_setAction(int action)
 
 
 void
-player_init(frame_buffer_t fb)
+player_init(void)
 {
 
   player.x = SCREEN_WIDTH-PLAYER_WIDTH;
@@ -189,9 +189,6 @@ player_init(frame_buffer_t fb)
   player.saves[1].blit[0].size = 0;
   player.saves[1].blit[1].size = 0;
   player.save = &player.saves[0];
-
-  player_saveBackground(fb);
-  player_render(fb);
 }
 
 

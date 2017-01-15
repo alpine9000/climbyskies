@@ -2,7 +2,7 @@
 #define __CLOUD_H
 
 void 
-cloud_init(frame_buffer_t fb);
+cloud_init(void);
 void 
 cloud_saveBackground(frame_buffer_t fb);
 void 

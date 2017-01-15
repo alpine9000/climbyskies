@@ -59,7 +59,7 @@ cloud_t _clouds[NUM_CLOUDS] = {
 
 
 void
-cloud_init(frame_buffer_t fb)
+cloud_init(void)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
@@ -70,9 +70,6 @@ cloud_init(frame_buffer_t fb)
     cloud->saves[1].blit[1].size = 0;
     cloud->save = &cloud->saves[0];
   }
-  
-  cloud_saveBackground(fb);
-  cloud_render(fb);
 }
 
 void
