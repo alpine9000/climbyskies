@@ -126,7 +126,13 @@ main(int argc, char** argv)
   if (config.toFile) {
     FILE* fp = file_openRead(config.toFile);
     rgba_t* p = original;    
-    while (fscanf(fp, "%d %d %d %d", &p->r, &p->g, &p->b, &p->a) == 4) {
+
+    char buffer[255];
+    for (;;) {
+      char* line = fgets(buffer, 255, fp);
+      if (!line || sscanf(buffer, "%d %d %d %d", &p->r, &p->g, &p->b, &p->a) != 4) {
+	break;
+      }
       p++;
     }
     fclose(fp);
@@ -136,7 +142,12 @@ main(int argc, char** argv)
   if (config.fromFile) {
     FILE* fp = file_openRead(config.fromFile);   
     rgba_t* p = from;    
-    while (fscanf(fp, "%d %d %d %d", &p->r, &p->g, &p->b, &p->a) == 4) {
+    char buffer[255];
+    for (;;) {
+      char* line = fgets(buffer, 255, fp);
+      if (!line || sscanf(buffer, "%d %d %d %d", &p->r, &p->g, &p->b, &p->a) != 4) {
+	break;
+      }
       p++;
     }
     fclose(fp);
@@ -162,6 +173,9 @@ main(int argc, char** argv)
     }
   }
 
+  printf("    xdef _%sFadeTable\n", config.output);
+  printf("_%sFadeTable:\n", config.output);
+
   for (int s = 0; s < config.steps+1; s++) {
     printf(".step%d\n", s);
     for (int i = 0; i < config.numColors; i++) {
@@ -185,5 +199,5 @@ main(int argc, char** argv)
     }
   }
 
-  printf("%sFadeComplete:\n", config.output);
+  printf("_%sFadeComplete:\n", config.output);
 }

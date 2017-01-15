@@ -41,10 +41,10 @@ copper_t copper = {
     BPL5PTH,0x0000,
   },
   .wait1 = { 
-    0xffff,0xfffe 
+    0xffdf,0xfffe 
   },
   .wait2 = { 
-    0xffff,0xfffe
+    (RASTER_Y_START-1)<<8|1,0xfffe
   },
   .bpl2= {
     BPL1PTL,0x0000,
@@ -59,8 +59,8 @@ copper_t copper = {
     BPL5PTH,0x0000,
   },
    .wait3 = {     
-    (RASTER_Y_START)<<8|1, 0xFFFE,
-    (RASTER_Y_START)<<8|1, 0xFFFE,
+    (RASTER_Y_START)<<8|1, 0xfffe,
+    (RASTER_Y_START)<<8|1, 0xfffe,
     },
   .bpl3= {
     BPL1PTL,0x0000,
@@ -78,30 +78,45 @@ copper_t copper = {
 };
 
 
+static void
+switchFrameBuffers(void);
+
 void
 game_init()
 {
-  palette_install();
+  hw_waitVerticalBlank();
+  palette_black();
+
   onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
   offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
   saveBuffer = (frame_buffer_t)&_saveBuffer1;
   saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
   saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
-  screen_pokeCopperList(offScreenBuffer, copper.bpl1);
-  screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
   screen_setup(onScreenBuffer, (uint16_t*)&copper);
-  //  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
-  //  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+  screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
+
+  switchFrameBuffers();
 
   tile_renderScreen();
   player_init(offScreenBuffer);
   cloud_init(offScreenBuffer);
+
+  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+
+  hw_waitBlitter();
+  hw_waitVerticalBlank();
+
+  music_play(0);
+   // Don't enable interrupts until music is set up
+  hw_interruptsInit();
+
+  palette_fadeIn();
 }
 
-static
-void
-switchFrameBuffers()
+
+static void
+switchFrameBuffers(void)
 {
   uint16_t copperLine = RASTER_Y_START+screenScrollY;
   
@@ -113,54 +128,28 @@ switchFrameBuffers()
     copper.wait1[0] = 0xffdf;
     if (screenScrollY >= 256) {
       copper.wait2[0] = (RASTER_Y_START-1)<<8|1;
-      //copper.wait2[0] = 0xffff;
     } else {
       copper.wait2[0] = ((copperLine-256)<<8)|1;
     }
     copper.wait3[0] = (RASTER_Y_START)<<8|1;
   }
 
-
   screen_pokeCopperList(offScreenBuffer+(int)dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
-  //  screen_pokeCopperList(offScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
   screen_pokeCopperList(offScreenBuffer, copper.bpl2);
-
 
   frame_buffer_t save = onScreenBuffer;
   onScreenBuffer = offScreenBuffer;
   offScreenBuffer = save;
-
 }
 
-static
-void
+
+static void
 scrollBackground()
 {
+  static int tileY = 0;
+
   cameraY -= scroll;
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
-
-  /*
-  uint16_t copperLine = RASTER_Y_START+screenScrollY;
-
-if (copperLine < 256) {
-    copper.wait1[0] = (copperLine<<8)|1;
-    copper.wait2[0] = (copperLine<<8)|1;
-    copper.wait3[0] = 0xffdf;
-  } else if (copperLine >= 256) {
-    copper.wait1[0] = 0xffdf;
-    if (screenScrollY > 256) {
-      copper.wait2[0] = (RASTER_Y_START)<<8|1;
-    } else {
-      copper.wait2[0] = ((copperLine-256)<<8)|1;
-    }
-    copper.wait3[0] = (RASTER_Y_START)<<8|1;
-    }
-
-  screen_pokeCopperList(onScreenBuffer+(int)dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
-  //  screen_pokeCopperList(onScreenBuffer+((FRAME_BUFFER_HEIGHT-screenScrollY)*SCREEN_BIT_DEPTH*FRAME_BUFFER_WIDTH_BYTES), copper.bpl1);
-  screen_pokeCopperList(onScreenBuffer, copper.bpl2);
-  */
-  static int tileY = 0;
   
   int tileIndex = screenScrollY % TILE_HEIGHT;
 
@@ -180,7 +169,7 @@ if (copperLine < 256) {
 
 
 static void
-showRasterLine(void)
+debug_showRasterLine(void)
 {
 #define AVERAGE_LENGTH 16
   static int rasterLines[AVERAGE_LENGTH];
@@ -211,10 +200,6 @@ game_loop()
 {
   int done = 0;
   int joystickDown = 1;
-
-  music_play(0);
-  // Don't enable interrupts until music is set up
-   hw_interruptsInit();
 
   while (!done) {
     frameCount++;
@@ -256,7 +241,7 @@ game_loop()
 
     hw_waitBlitter();
     SPEED_COLOR(0xfff);
-    showRasterLine();
+    debug_showRasterLine();
     SPEED_COLOR(0x000);
 
 #if TRACKLOADER==0

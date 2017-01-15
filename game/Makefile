@@ -6,14 +6,14 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c player.c cloud.c
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c player.c cloud.c palette.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s blittext.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
 IMAGES=sprite.png font8x8.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) 
+ASSETS=$(IMAGEDATA) out/fade_in.s
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -86,6 +86,9 @@ out/bootblock.bin: out/bootblock.o
 out/font%.bin: assets/font%.png palette.pal
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=32 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
 
+out/fade_in.s: ./palette.pal
+	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palette.pal --output=fadeIn > $@
+
 out/bootblock.o: $(BOOTBLOCK_ASM) $(PROGRAM_BIN)
 	$(VASM) $(VASM_ARGS)  -DUSERSTACK_ADDRESS="\$$$(USERSTACK_ADDRESS)" -DBASE_ADDRESS="\$$$(BASE_ADDRESS)"  $< -o $@ -I$(AMIGA_INCLUDE)
 
@@ -124,7 +127,6 @@ out/workbench/%.o: %.c
 out/workbench/%.o: %.s
 	$(VASM)  -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make  -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/workbench/$*.d
-
 
 out/main.bin: out/adf/main.o $(ADF_OBJS)
 	vlink $(LINKER_OPTIONS)  -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@ 

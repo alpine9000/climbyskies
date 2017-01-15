@@ -46,6 +46,7 @@ _spriteMask:
 	dc.l	spriteMask
 _spriteFrameBuffer:
 	dc.l	_spriteBitplanes
+	include "out/fade_in.s"
 	align 4
 _custom:
 	dc.l	CUSTOM
