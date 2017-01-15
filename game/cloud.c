@@ -5,13 +5,10 @@
 #define NUM_CLOUDS 3
 
 typedef struct {
-  int x;
-  int y;
-  int bobIndex;
+  sprite_t sprite;
   int deltaX;
   int deltaY;
-  bob_save_t* save;
-  bob_save_t saves[2];
+  sprite_save_t saves[2];
 } cloud_t;
 
 static
@@ -35,23 +32,29 @@ cloud_t clouds[NUM_CLOUDS];
 static
 cloud_t _clouds[NUM_CLOUDS] = {
   {
-    .x = 0,
-    .y = WORLD_HEIGHT-SCREEN_HEIGHT+32,
-    .bobIndex = BOB_CLOUD_1,
+    .sprite = {
+      .x = 0,
+      .y = WORLD_HEIGHT-SCREEN_HEIGHT+32,
+      .imageIndex = SPRITE_CLOUD_1
+    },
     .deltaX = 0,
     .deltaY = 0  
   },
   {
-    .x = 64,
-    .y = WORLD_HEIGHT-(SCREEN_HEIGHT/4),
-    .bobIndex = BOB_CLOUD_1,
+    .sprite = {
+      .x = 64,
+      .y = WORLD_HEIGHT-(SCREEN_HEIGHT/4),
+      .imageIndex = SPRITE_CLOUD_1
+    },
     .deltaX = 0,
     .deltaY = 0  
   },
   {
-    .x = SCREEN_WIDTH-CLOUD_WIDTH,
-    .y = WORLD_HEIGHT-SCREEN_HEIGHT+64,
-    .bobIndex = BOB_CLOUD_2,
+    .sprite = {
+      .x = SCREEN_WIDTH-CLOUD_WIDTH,
+      .y = WORLD_HEIGHT-SCREEN_HEIGHT+64,
+      .imageIndex = SPRITE_CLOUD_2
+    },
     .deltaX = 0,
     .deltaY = 0  
   }
@@ -68,7 +71,7 @@ cloud_init(void)
     cloud->saves[0].blit[1].size = 0;
     cloud->saves[1].blit[0].size = 0;
     cloud->saves[1].blit[1].size = 0;
-    cloud->save = &cloud->saves[0];
+    cloud->sprite.save = &cloud->saves[0];
   }
 }
 
@@ -77,8 +80,8 @@ cloud_saveBackground(frame_buffer_t fb)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
-    bob_save(fb, cloud->x, cloud->y, cloud->bobIndex, cloud->save);  
-    cloud->save = cloud->save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
+    sprite_save(fb, &cloud->sprite);
+    cloud->sprite.save = cloud->sprite.save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
   }
 }
 
@@ -88,7 +91,7 @@ cloud_restoreBackground(void)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
-    bob_clear(cloud->save);
+    sprite_restore(cloud->sprite.save);
   }
 }
 
@@ -99,15 +102,15 @@ cloud_render(frame_buffer_t fb)
 {
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    bob_renderNoMask(fb, cloud->x, cloud->y, cloud->bobIndex);
-    int py = (cloud->y>>4); // (cloud->y/TILE_HEIGHT);
-    int px = (cloud->x>>4); // (cloud->x/TILE_WIDTH);
+    sprite_renderNoMask(fb, cloud->sprite);
+    int py = (cloud->sprite.y>>4); // (cloud->y/TILE_HEIGHT);
+    int px = (cloud->sprite.x>>4); // (cloud->x/TILE_WIDTH);
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
 	  int tile = background_tileAddresses[py+y][px+x];
 	  if (tile != 0) {
-	    gfx_renderTile4(fb, (px+x)<<4, (py+y)<<4, spriteFrameBuffer+tile);
+	    gfx_renderTile(fb, (px+x)<<4, (py+y)<<4, spriteFrameBuffer+tile);
 	  }
 	}
       }
@@ -121,15 +124,15 @@ cloud_update(void)
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (scrollCount > 0) {
-      cloud->y--;
+      cloud->sprite.y--;
     }
     
-    if (cloud->y >= cameraY+SCREEN_HEIGHT) {
-      cloud->y = cameraY-CLOUD_HEIGHT;
+    if (cloud->sprite.y >= cameraY+SCREEN_HEIGHT) {
+      cloud->sprite.y = cameraY-CLOUD_HEIGHT;
       if (cloudX[cloudXIndex] == -1) {
 	cloudXIndex = 0;
       }
-      cloud->x = cloudX[cloudXIndex];
+      cloud->sprite.x = cloudX[cloudXIndex];
       cloudXIndex++;
     }
   }

@@ -34,17 +34,14 @@
 
 
 typedef struct {
-  int x;
-  int y;
+  sprite_t sprite;
   int actionId;
-  int bobIndex;
   int deltaX;
   int deltaY;
   int jumpStartY;
   int onGround;
   action_t* action;
-  bob_save_t* save;
-  bob_save_t saves[2];
+  sprite_save_t saves[2];
   int flashCounter;
 } player_t;
 
@@ -55,8 +52,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = -4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_LEFT, 
-      .stop = BOB_CLIMBER_JUMP_LEFT, 
+      .start = SPRITE_CLIMBER_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -65,8 +62,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = -4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_RIGHT, 
-      .stop = BOB_CLIMBER_JUMP_RIGHT, 
+      .start = SPRITE_CLIMBER_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT
@@ -75,8 +72,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = 4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_LEFT, 
-      .stop = BOB_CLIMBER_JUMP_LEFT, 
+      .start = SPRITE_CLIMBER_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -85,8 +82,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = 4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_RIGHT, 
-      .stop = BOB_CLIMBER_JUMP_RIGHT, 
+      .start = SPRITE_CLIMBER_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT 
@@ -95,8 +92,8 @@ action_t actions[] = {
     .deltaX = 2,
     .deltaY = 4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_RIGHT, 
-      .stop = BOB_CLIMBER_JUMP_RIGHT, 
+      .start = SPRITE_CLIMBER_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
       .speed = 1
     },
     .facing = FACING_RIGHT
@@ -105,8 +102,8 @@ action_t actions[] = {
     .deltaX = -2,
     .deltaY = 4,
     .animation = { 
-      .start = BOB_CLIMBER_JUMP_LEFT, 
-      .stop = BOB_CLIMBER_JUMP_LEFT, 
+      .start = SPRITE_CLIMBER_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JUMP_LEFT, 
       .speed = 1
     },
     .facing = FACING_LEFT
@@ -116,8 +113,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = 0,
     .animation = {
-      .start = BOB_CLIMBER_STAND_LEFT, 
-      .stop = BOB_CLIMBER_STAND_LEFT, 
+      .start = SPRITE_CLIMBER_STAND_LEFT, 
+      .stop = SPRITE_CLIMBER_STAND_LEFT, 
       .speed = 0 
     },
     .facing = FACING_LEFT
@@ -126,8 +123,8 @@ action_t actions[] = {
     .deltaX = -2,
     .deltaY = 0,
     .animation = {
-      .start = BOB_CLIMBER_RUN_LEFT_1, 
-      .stop = BOB_CLIMBER_RUN_LEFT_4,
+      .start = SPRITE_CLIMBER_RUN_LEFT_1, 
+      .stop = SPRITE_CLIMBER_RUN_LEFT_4,
       .speed = 4
     },
     .facing = FACING_LEFT
@@ -136,8 +133,8 @@ action_t actions[] = {
     .deltaX = 0,
     .deltaY = 0,
     .animation = {
-      .start = BOB_CLIMBER_STAND_RIGHT, 
-      .stop = BOB_CLIMBER_STAND_RIGHT,
+      .start = SPRITE_CLIMBER_STAND_RIGHT, 
+      .stop = SPRITE_CLIMBER_STAND_RIGHT,
       .speed = 0
     },
     .facing = FACING_RIGHT
@@ -146,8 +143,8 @@ action_t actions[] = {
     .deltaX = 2,
     .deltaY = 0,
     .animation = {
-      .start = BOB_CLIMBER_RUN_RIGHT_1,
-      .stop = BOB_CLIMBER_RUN_RIGHT_4,
+      .start = SPRITE_CLIMBER_RUN_RIGHT_1,
+      .stop = SPRITE_CLIMBER_RUN_RIGHT_4,
       .speed = 4 
     },
     .facing = FACING_RIGHT
@@ -167,7 +164,7 @@ player_setAction(int action)
     player.action = &actions[player.actionId];
     player.deltaX = player.action->deltaX;
     player.deltaY = player.action->deltaY;
-    player.bobIndex = player.action->animation.start;
+    player.sprite.imageIndex = player.action->animation.start;
   }
 }
 
@@ -177,9 +174,9 @@ player_init(void)
 {
 
   player.flashCounter = 50;
-  player.x = SCREEN_WIDTH-PLAYER_WIDTH;
-  player.y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3);
-  player.bobIndex = 4;
+  player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH;
+  player.sprite.y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3);
+  player.sprite.imageIndex = 4;
   player.actionId = -1;
   player.deltaX = 0;
   player.deltaY = 0;
@@ -190,16 +187,16 @@ player_init(void)
   player.saves[0].blit[1].size = 0;
   player.saves[1].blit[0].size = 0;
   player.saves[1].blit[1].size = 0;
-  player.save = &player.saves[0];
+  player.sprite.save = &player.saves[0];
 }
 
 
 static int
 player_onGround(void)
 {
-  //  int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
-  int y = ((player.y+PLAYER_HEIGHT)>>4);
-  int x = (player.x+PLAYER_WIDTH_FUZZY);
+  //  int y = ((player.sprite.y+PLAYER_HEIGHT)/TILE_HEIGHT);
+  int y = ((player.sprite.y+PLAYER_HEIGHT)>>4);
+  int x = (player.sprite.x+PLAYER_WIDTH_FUZZY);
   //  if (x >= 0 && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
 
   //if (x >= 0 && background_tileAddresses[y][x>>4] != 0) {
@@ -207,7 +204,7 @@ player_onGround(void)
     return 1;
   }
 
-  x = player.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY;
+  x = player.sprite.x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY;
   //if (x < SCREEN_WIDTH && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
   //if (x < SCREEN_WIDTH && background_tileAddresses[y][x>>4] != 0) {
   if (x < SCREEN_WIDTH && BACKGROUND_TILE(x,y) != 0) {
@@ -258,7 +255,7 @@ player_updateDuringMove(void)
 	} else {
 	  player_setAction(ACTION_RIGHT_JUMP);
 	}
-	player.jumpStartY = player.y;
+	player.jumpStartY = player.sprite.y;
       }
       break;
     }
@@ -268,7 +265,7 @@ player_updateDuringMove(void)
   int currentActionId = player.actionId;
   
   if (player.deltaY < 0) { // Jumping
-    if (player.jumpStartY - player.y > PLAYER_JUMP_HEIGHT) {
+    if (player.jumpStartY - player.sprite.y > PLAYER_JUMP_HEIGHT) {
       if (player.action->facing == FACING_LEFT) {
 	player_setAction(ACTION_LEFT_FALL);
       } else {
@@ -290,20 +287,20 @@ player_updateDuringMove(void)
       player_setAction(ACTION_RIGHT_FALL);
     }
   } else { // On a platform
-    if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
       scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
   
-  if (player.y == player.jumpStartY) {
-    if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+  if (player.sprite.y == player.jumpStartY) {
+    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
       scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
 
-  if (player.y-cameraY > SCREEN_HEIGHT-48) {
+  if (player.sprite.y-cameraY > SCREEN_HEIGHT-48) {
     player.deltaY = 0;
-    player.y = SCREEN_HEIGHT-48+cameraY;
+    player.sprite.y = SCREEN_HEIGHT-48+cameraY;
   }
   
   if (currentActionId != player.actionId) {
@@ -324,17 +321,17 @@ player_update(void)
   player_updateDuringMove();
 
   if (player.deltaX != 0 || player.deltaY != 0) {
-    player.x += player.deltaX;
-    if (player.x > SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH) {
-      player.x = SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH;
-    } else if (player.x < -PLAYER_WIDTH_FUZZY) {
-      player.x = -PLAYER_WIDTH_FUZZY;
+    player.sprite.x += player.deltaX;
+    if (player.sprite.x > SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH) {
+      player.sprite.x = SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH;
+    } else if (player.sprite.x < -PLAYER_WIDTH_FUZZY) {
+      player.sprite.x = -PLAYER_WIDTH_FUZZY;
     }
-    player.y += player.deltaY;
+    player.sprite.y += player.deltaY;
     if (frameCount % player.action->animation.speed == 0) {
-      player.bobIndex++;
-      if (player.bobIndex > player.action->animation.stop) {
-	player.bobIndex = player.action->animation.start;
+      player.sprite.imageIndex++;
+      if (player.sprite.imageIndex > player.action->animation.stop) {
+	player.sprite.imageIndex = player.action->animation.start;
       }
     }
   }
@@ -344,15 +341,15 @@ player_update(void)
 void
 player_saveBackground(frame_buffer_t fb)
 {
-  bob_save(fb, player.x, player.y, player.bobIndex, player.save);
-  player.save = player.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
+  sprite_save(fb, &player.sprite);
+  player.sprite.save = player.sprite.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
 }
 
 
 void
 player_restoreBackground(void)
 {
-  bob_clear(player.save);
+  sprite_restore(player.sprite.save);
 }
 
 
@@ -360,9 +357,8 @@ void
 player_render(frame_buffer_t fb)
 {
   if (player.flashCounter == 0) {
-    bob_render(fb, player.x, player.y, player.bobIndex);
+    sprite_render(fb, player.sprite);
   } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
-    bob_render(fb, player.x, player.y, player.bobIndex);
+    sprite_render(fb, player.sprite);
   }
-
 }

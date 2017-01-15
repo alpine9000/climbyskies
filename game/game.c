@@ -80,9 +80,9 @@ copper_t copper = {
 
 
 static void
-switchFrameBuffers(void);
+game_switchFrameBuffers(void);
 static void
-newGame(void);
+game_newGame(void);
 static void
 game_render(void);
 
@@ -105,12 +105,12 @@ game_init()
    // Don't enable interrupts until music is set up
   hw_interruptsInit();
 
-  newGame();
+  game_newGame();
 }
 
 
 static void
-newGame(void)
+game_newGame(void)
 {
   cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   screenScrollY = 0;
@@ -119,7 +119,7 @@ newGame(void)
   scroll = SCROLL_PIXELS;
   tileY = 0;
 
-  switchFrameBuffers();
+  game_switchFrameBuffers();
   
   tile_renderScreen();
   player_init();
@@ -131,7 +131,7 @@ newGame(void)
 
   game_render();
 
-  switchFrameBuffers();
+  game_switchFrameBuffers();
 
   game_render();
 
@@ -140,7 +140,7 @@ newGame(void)
 }
 
 static void
-switchFrameBuffers(void)
+game_switchFrameBuffers(void)
 {
   uint16_t copperLine = RASTER_Y_START+screenScrollY;
   
@@ -252,7 +252,7 @@ game_loop()
 
     hw_waitVerticalBlank();
     SPEED_COLOR(0xf00);
-    switchFrameBuffers();
+    game_switchFrameBuffers();
 
     if (scrollCount >= 1) {
       scrollBackground();
@@ -276,7 +276,7 @@ game_loop()
     if (mouse_leftButtonPressed()) {
       while (mouse_leftButtonPressed());
       palette_black();
-      newGame();
+      game_newGame();
       
     }
   }

@@ -170,7 +170,7 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
 }
 
 void
-gfx_clearSprite(gfx_blit_t* blit)
+gfx_restoreSprite(gfx_blit_t* blit)
 {
   static volatile struct Custom* _custom = CUSTOM;
 
@@ -187,31 +187,9 @@ gfx_clearSprite(gfx_blit_t* blit)
   _custom->bltsize = blit->size;
 }
 
-void
-gfx_renderTile(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
-{
-  static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
-  
-  dest += dyOffsetsLUT[dy] + (dx>>3);
-  source += dyOffsetsLUT[sy] + (sx>>3);
-
-  hw_waitBlitter();
-
-  _custom->bltcon0 = (SRCA|DEST|0xf0);
-  _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
-  _custom->bltalwm = 0xffff;
-  _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
-  _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
-  _custom->bltapt = (uint8_t*)source;
-  _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
-}
-
 
 void
-gfx_renderTile2(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
+gfx_renderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
 {
   static volatile struct Custom* _custom = CUSTOM;
   
@@ -230,8 +208,8 @@ gfx_renderTile2(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }
 
-void
-gfx_renderTile3(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
+static void
+gfx_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
 {
   static volatile struct Custom* _custom = CUSTOM;
   
@@ -247,12 +225,11 @@ gfx_renderTile3(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buf
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltapt = (uint8_t*)tile;
   _custom->bltdpt = (uint8_t*)dest;
-  //_custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | 1;
   _custom->bltsize = heightLUT[h] | 1;
 }
 
 void
-gfx_renderTile4(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
+gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 {
   int h = 16;
   if (y < cameraY) {
@@ -268,13 +245,13 @@ gfx_renderTile4(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 
   y = y-cameraY-screenScrollY;
   if (y >= 0) {
-    gfx_renderTile3(fb, x, y, h, tile);
+    gfx_renderPartialTile(fb, x, y, h, tile);
   } else {
     if (y > -h) {
-      gfx_renderTile3(fb, x, y, h+y, tile);
-      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
+      gfx_renderPartialTile(fb, x, y, h+y, tile);
+      gfx_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
     } else {
-      gfx_renderTile3(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
+      gfx_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
     }
   }
 }
