@@ -8,27 +8,34 @@
 #define SPEED_COLOR(x) 
 #endif
 
-
-volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-volatile __chip uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-volatile __chip uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-volatile __chip uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
-
-frame_buffer_t scoreBoardFrameBuffer;
 frame_buffer_t offScreenBuffer;
 frame_buffer_t onScreenBuffer;
 frame_buffer_t saveBuffer;
-frame_buffer_t saveBuffer1;
-frame_buffer_t saveBuffer2;
+
 int cameraY;
 int screenScrollY;
 int scrollCount;
 uint32_t frameCount;
+
+static void
+game_switchFrameBuffers(void);
+static void
+game_newGame(void);
+static void
+game_render(void);
+
+static volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __chip uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __chip uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __chip uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
+static frame_buffer_t scoreBoardFrameBuffer;
+static frame_buffer_t saveBuffer1;
+static frame_buffer_t saveBuffer2;
+
 static int scroll;
 static int tileY;
-
-copper_t copper = {
+static copper_t copper = {
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -78,14 +85,6 @@ copper_t copper = {
   .end = {0xFFFF, 0xFFFE}
 };
 
-
-static void
-game_switchFrameBuffers(void);
-static void
-game_newGame(void);
-static void
-game_render(void);
-
 void
 game_init()
 {
@@ -98,12 +97,11 @@ game_init()
   saveBuffer = (frame_buffer_t)&_saveBuffer1;
   saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
   saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
-  screen_setup(onScreenBuffer, (uint16_t*)&copper);
+  screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
 
-  music_play(0);
-   // Don't enable interrupts until music is set up
-  hw_interruptsInit();
+  music_play(0);   
+  hw_interruptsInit(); // Don't enable interrupts until music is set up
 
   game_newGame();
 }
@@ -168,7 +166,7 @@ game_switchFrameBuffers(void)
 
 
 static void
-scrollBackground()
+game_scrollBackground()
 {
   cameraY -= scroll;
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
@@ -255,7 +253,7 @@ game_loop()
     game_switchFrameBuffers();
 
     if (scrollCount >= 1) {
-      scrollBackground();
+      game_scrollBackground();
       scrollCount--;
     }
 

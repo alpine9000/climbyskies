@@ -5,10 +5,10 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 static unsigned short* tilePtr;
 static int tileX;
 
+
 void 
 tile_renderScreen(void)
 {
-
   tileX = SCREEN_WIDTH-TILE_WIDTH;
 
   tilePtr = &background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];

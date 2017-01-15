@@ -1,7 +1,7 @@
-	xdef	LoadDiskData
+	xdef	_disk_LoadDiskData
 
 
-LoadDiskData:
+_disk_LoadDiskData:
 	;; a0 - destination address
 	;; a1 - start address
 	;; d0 - size

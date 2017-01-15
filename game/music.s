@@ -56,7 +56,7 @@ _music_play:
 	adda.w	d0,a1
 	move.l	(a1)+,d0
 	move.l	(a1),a1
-	jsr	LoadDiskData
+	jsr	_disk_LoadDiskData
 	lea     module,a0
         sub.l   a1,a1
         sub.l   a2,a2

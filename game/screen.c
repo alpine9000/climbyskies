@@ -1,7 +1,6 @@
 #include "game.h"
 
 
-
 void 
 screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
 {
@@ -18,9 +17,8 @@ screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
 
 
 void 
-screen_setup(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
+screen_setup(uint16_t volatile* copperPtr)
 {
-  USE(frameBuffer);
   volatile uint16_t scratch;
 
   /* set up playfield */
@@ -34,8 +32,6 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
   custom->bpl1mod = FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH-SCREEN_WIDTH_BYTES;
   custom->bpl2mod = FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH-SCREEN_WIDTH_BYTES;
 
-  //  screen_pokeCopperList(frameBuffer, copper);
-
   /* install copper list, then enable dma and selected interrupts */
   custom->cop1lc = (uint32_t)copperPtr;
   scratch = custom->copjmp1;
@@ -43,7 +39,5 @@ screen_setup(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
   USE(scratch);
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
-  //  custom->intena = (INTF_SETCLR|INTF_VERTB|INTF_INTEN);
-
 }
 

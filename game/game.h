@@ -61,11 +61,7 @@ extern uint32_t frameCount;
 extern frame_buffer_t saveBuffer;
 extern frame_buffer_t offScreenBuffer;
 extern frame_buffer_t onScreenBuffer;
-extern frame_buffer_t saveBuffer;
-extern frame_buffer_t saveBuffer1;
-extern frame_buffer_t saveBuffer2;
 extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
-
 
 #include "registers.h"
 #include "hw.h"
@@ -82,6 +78,7 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 #include "player.h"
 #include "cloud.h"
 #include "text.h"
+#include "disk.h"
 
 void
 game_init(void);

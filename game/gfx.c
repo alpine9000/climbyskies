@@ -1,6 +1,5 @@
 #include "game.h"
 
-//static 
 uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
 static uint16_t heightLUT[64];
 

@@ -26,11 +26,9 @@ int16_t cloudX[] = {
 
 static int cloudXIndex = 0;
 
-static
-cloud_t clouds[NUM_CLOUDS];
+static cloud_t clouds[NUM_CLOUDS];
 
-static
-cloud_t _clouds[NUM_CLOUDS] = {
+static cloud_t _clouds[NUM_CLOUDS] = {
   {
     .sprite = {
       .x = 0,
@@ -75,6 +73,7 @@ cloud_init(void)
   }
 }
 
+
 void
 cloud_saveBackground(frame_buffer_t fb)
 {
@@ -94,7 +93,6 @@ cloud_restoreBackground(void)
     sprite_restore(cloud->sprite.save);
   }
 }
-
 
 
 void
@@ -117,6 +115,7 @@ cloud_render(frame_buffer_t fb)
     }
   }
 }
+
 
 void
 cloud_update(void)

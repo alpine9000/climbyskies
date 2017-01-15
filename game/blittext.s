@@ -1,6 +1,6 @@
 	include "includes.i"
 	xdef _text_drawText8
-        xdef _text_intToAscii
+	xdef _text_intToAscii
 	xdef font
 	
 BLIT_LF_MINTERM		equ $ca		; cookie cut
