@@ -9,6 +9,7 @@
 	xdef _hw_joystickPos	
 	xdef _hw_interruptsInit
 	xdef _hw_waitScanLines
+	xdef _hw_getRasterLine
 	
 ciaa_pra  = $bfe001
 _joy1dat   = $dff00c
@@ -31,16 +32,22 @@ _hw_waitVerticalBlank:
 .loop:
 	move.l	$dff004,d0
 	and.l	#$1ff00,d0
-	cmp.l	#285<<8,d0	; wait for the scan line
+	cmp.l	#(285+16)<<8,d0	; wait for the scan line
 	bne.b	.loop
 .loop2:
 	move.l	$dff004,d0
 	and.l	#$1ff00,d0
-	cmp.l	#286<<8,d0	; wait for the scan line to pass (A4000 is fast!)
+	cmp.l	#(286+16)<<8,d0	; wait for the scan line to pass (A4000 is fast!)
 	beq.b	.loop2
 	movem.l (sp)+,d0
 	rts	
 
+
+_hw_getRasterLine:
+	move.l	$dff004,d0
+	and.l	#$1ff00,d0
+	lsr.l	#8,d0
+	rts
 
 _hw_waitRaster:		;wait for rasterline d0.w. Modifies d0-d2/a0.
 	movem.l d0-a6,-(sp)

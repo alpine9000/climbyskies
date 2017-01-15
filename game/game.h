@@ -28,6 +28,7 @@
 #define RASTER_Y_START	    0x1d /* vertical overscan */
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
+#define SCOREBOARD_HEIGHT   16
 
 
 #define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
@@ -81,6 +82,7 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 #include "actor.h"
 #include "player.h"
 #include "cloud.h"
+#include "text.h"
 
 extern void game_init(void);
 extern void game_loop(void);

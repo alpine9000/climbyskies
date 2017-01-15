@@ -292,13 +292,13 @@ player_updateDuringMove(void)
     }
   } else { // On a platform
     if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
-      scrollCount = 1+((6*16)/SCROLL_PIXELS);
+      scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
   
   if (player.y == player.jumpStartY) {
     if (scrollCount == 0 && (player.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
-      scrollCount = 1+((6*16)/SCROLL_PIXELS);
+      scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
 

@@ -7,11 +7,11 @@ BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c bob.c player.c cloud.c
-SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s blittext.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png
+IMAGES=sprite.png font8x8.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) 
 
@@ -78,10 +78,13 @@ out/background-map.c: assets/background.tmx
 	@mv background-map.c out
 	@rm background-indexes.c
 
-out/sprite.bin: assets/sprite.png
+out/sprite.bin: assets/sprite.png palette.pal
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,153,238
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
+
+out/font%.bin: assets/font%.png palette.pal
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=32 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
 
 out/bootblock.o: $(BOOTBLOCK_ASM) $(PROGRAM_BIN)
 	$(VASM) $(VASM_ARGS)  -DUSERSTACK_ADDRESS="\$$$(USERSTACK_ADDRESS)" -DBASE_ADDRESS="\$$$(BASE_ADDRESS)"  $< -o $@ -I$(AMIGA_INCLUDE)
