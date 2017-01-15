@@ -194,8 +194,7 @@ player_init(frame_buffer_t fb)
 }
 
 
-static
-int
+static int
 player_onGround(void)
 {
   //  int y = ((player.y+PLAYER_HEIGHT)/TILE_HEIGHT);
@@ -218,7 +217,7 @@ player_onGround(void)
 }
 
 
-void
+static void
 player_updateDuringMove(void)
 {
   static int lastJoystickPos = -1;

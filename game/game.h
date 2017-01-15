@@ -75,7 +75,6 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 #include "mouse.h"
 #include "palette.h"
 #include "tile.h"
-#include "sprite.h"
 #include "copper.h"
 #include "music.h"
 #include "bob.h"
@@ -84,7 +83,9 @@ extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 #include "cloud.h"
 #include "text.h"
 
-extern void game_init(void);
-extern void game_loop(void);
+void
+game_init(void);
+void 
+game_loop(void);
 
 #endif /* __GAME_H */

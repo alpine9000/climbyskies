@@ -13,12 +13,9 @@ volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*
 volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile __chip uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 volatile __chip uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-#if SCOREBOARD_HEIGHT > 0
 volatile __chip uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
-#endif
-#if SCOREBOARD_HEIGHT > 0
+
 frame_buffer_t scoreBoardFrameBuffer;
-#endif
 frame_buffer_t offScreenBuffer;
 frame_buffer_t onScreenBuffer;
 frame_buffer_t saveBuffer;
@@ -62,13 +59,8 @@ copper_t copper = {
     BPL5PTH,0x0000,
   },
    .wait3 = {     
-#if SCOREBOARD_HEIGHT > 0
     (RASTER_Y_START)<<8|1, 0xFFFE,
     (RASTER_Y_START)<<8|1, 0xFFFE,
-#else
-    0xffff, 0xfffe,
-    0xffff, 0xfffe,
-#endif
     },
   .bpl3= {
     BPL1PTL,0x0000,
@@ -82,10 +74,6 @@ copper_t copper = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
-  /*  .color2 = {
-    COLOR00, 0x00F,
-    COLOR01, 0x00F,
-    },*/
   .end = {0xFFFF, 0xFFFE}
 };
 
@@ -94,23 +82,18 @@ void
 game_init()
 {
   palette_install();
-  onScreenBuffer = (uint8_t*)&_frameBuffer1;
-#if SCOREBOARD_HEIGHT > 0
+  onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
-#endif
-
-  offScreenBuffer = (uint8_t*)&_frameBuffer2;
-  saveBuffer = (uint8_t*)&_saveBuffer1;
-  saveBuffer1 = (uint8_t*)&_saveBuffer1;
-  saveBuffer2 = (uint8_t*)&_saveBuffer2;
+  offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
+  saveBuffer = (frame_buffer_t)&_saveBuffer1;
+  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
+  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
   screen_pokeCopperList(offScreenBuffer, copper.bpl1);
-  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
-#if SCOREBOARD_HEIGHT > 0
-  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
   screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
-#endif
-
   screen_setup(onScreenBuffer, (uint16_t*)&copper);
+  //  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
+  //  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+
   tile_renderScreen();
   player_init(offScreenBuffer);
   cloud_init(offScreenBuffer);
