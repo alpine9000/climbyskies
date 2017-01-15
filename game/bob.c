@@ -12,75 +12,75 @@ static
 bob_t bobs[] = {
   [BOB_CLIMBER_RUN_LEFT_1] = { // 0. climber run left 1
     .x = 0,
-    .y = 80,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_LEFT_2] = { // 1. climber run left 2
     .x = 32,
-    .y = 80,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_LEFT_3] = { // 2. climber run left 3
     .x = 64,
-    .y = 80,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_LEFT_4] = { // 3. climber run left 4
     .x = 96,
-    .y = 80,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_STAND_LEFT] =  { // 4. climber stand left 
-    .x = 128,
-    .y = 80,
+    .x = 139,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_JUMP_LEFT] =  { // 5. climber jump left
     .x = 160,
-    .y = 80,
+    .y = 91,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_RIGHT_1] = { // 6. climber run right 1
     .x = 0,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_RIGHT_2] = { // 7. climber run right 2
     .x = 32,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_RIGHT_3] = { // 8. climber run right 3
     .x = 64,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_RUN_RIGHT_4] = { // 9. climber run right 4
     .x = 96,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_STAND_RIGHT] = { // 10. climber stand right 
     .x = 128,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLIMBER_JUMP_RIGHT]  = { // 11. climber jump right
     .x = 160,
-    .y = 128,
+    .y = 139,
     .w = 32,
-    .h = 48
+    .h = 37
   },
   [BOB_CLOUD_1]  = {
     .x = 0,

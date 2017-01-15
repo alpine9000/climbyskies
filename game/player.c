@@ -10,8 +10,8 @@
 #define JOYSTICK_POS_DOWNLEFT 6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
-#define PLAYER_HEIGHT 48
-#define PLAYER_WIDTH_FUZZY 5
+#define PLAYER_HEIGHT 37
+#define PLAYER_WIDTH_FUZZY 8
 #define PLAYER_WIDTH  32
 #define PLAYER_VISIBLE_WIDTH  (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
 #define PLAYER_JUMP_HEIGHT 112
@@ -45,6 +45,7 @@ typedef struct {
   action_t* action;
   bob_save_t* save;
   bob_save_t saves[2];
+  int flashCounter;
 } player_t;
 
 
@@ -175,6 +176,7 @@ void
 player_init(void)
 {
 
+  player.flashCounter = 50;
   player.x = SCREEN_WIDTH-PLAYER_WIDTH;
   player.y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3);
   player.bobIndex = 4;
@@ -313,6 +315,10 @@ player_updateDuringMove(void)
 void
 player_update(void)
 {
+  if (player.flashCounter > 0) {
+    player.flashCounter--;
+  }
+
   player.onGround = player_onGround();
 
   player_updateDuringMove();
@@ -353,5 +359,10 @@ player_restoreBackground(void)
 void
 player_render(frame_buffer_t fb)
 {
-  bob_render(fb, player.x, player.y, player.bobIndex);
+  if (player.flashCounter == 0) {
+    bob_render(fb, player.x, player.y, player.bobIndex);
+  } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
+    bob_render(fb, player.x, player.y, player.bobIndex);
+  }
+
 }
