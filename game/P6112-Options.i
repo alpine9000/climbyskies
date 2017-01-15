@@ -45,7 +45,7 @@ p61exec	=0	;0 if execbase is destroyed, such as in a trackmo.
 p61fade	=1	;enable channel volume fading from your demo
 
 	if SFX=1
-channels=4	;<4 for game sound effects in the higher channels. Incompatible
+channels=3	;<4 for game sound effects in the higher channels. Incompatible
 		; with splitchans/split4.
 	else
 channels=4

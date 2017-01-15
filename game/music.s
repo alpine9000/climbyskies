@@ -92,6 +92,6 @@ module:
 	section	.noload
 
 moduleDiskData:
-	P61Module A,"assets/P61.climbyskies_ingame_00324_a_014.mod"
+	P61Module A,"assets/P61.climbyskies_ingame_00324_a_015.mod"
 	P61Module B,"assets/P61.jmd-songB"
 	P61Module C,"assets/P61.jmd-songC"
