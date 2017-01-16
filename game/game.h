@@ -57,6 +57,7 @@ extern custom_t custom;
 extern int cameraY;
 extern int screenScrollY;
 extern int scrollCount;
+extern int scroll;
 extern uint32_t frameCount;
 extern frame_buffer_t saveBuffer;
 extern frame_buffer_t offScreenBuffer;
@@ -84,5 +85,7 @@ void
 game_init(void);
 void 
 game_loop(void);
+void
+game_setBackgroundScroll(int s);
 
 #endif /* __GAME_H */

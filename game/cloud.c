@@ -123,13 +123,26 @@ cloud_update(void)
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (scrollCount > 0) {
-      cloud->sprite.y--;
+      if (scroll > 0) {
+	cloud->sprite.y--;
+      } else if (scroll < 0) {
+	cloud->sprite.y++;
+      }
     }
     
     if (cloud->sprite.y >= cameraY+SCREEN_HEIGHT) {
       cloud->sprite.y = cameraY-CLOUD_HEIGHT;
       if (cloudX[cloudXIndex] == -1) {
 	cloudXIndex = 0;
+      }
+      cloud->sprite.x = cloudX[cloudXIndex];
+      cloudXIndex++;
+    }
+
+    if (cloud->sprite.y < cameraY-CLOUD_HEIGHT) {
+      cloud->sprite.y = cameraY+SCREEN_HEIGHT-1;
+      if (cloudX[cloudXIndex] == -1) {
+        cloudXIndex = 0;
       }
       cloud->sprite.x = cloudX[cloudXIndex];
       cloudXIndex++;

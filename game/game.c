@@ -1,4 +1,5 @@
 #include "game.h"
+#include "version/version.h"
 
 //#define SHOW_SPEED 1
 
@@ -15,6 +16,7 @@ frame_buffer_t saveBuffer;
 int cameraY;
 int screenScrollY;
 int scrollCount;
+int scroll;
 uint32_t frameCount;
 
 static void
@@ -33,7 +35,8 @@ static frame_buffer_t scoreBoardFrameBuffer;
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
 
-static int scroll;
+static uint32_t (*game_tileRender)(uint16_t hscroll);
+
 static int tileY;
 static __chip copper_t copper = {
   .bpl1 = {
@@ -115,6 +118,7 @@ game_newGame(void)
   scrollCount = 0;
   frameCount = 0;
   scroll = SCROLL_PIXELS;
+  game_tileRender = tile_renderNextTile;
   tileY = 0;
 
   game_switchFrameBuffers();
@@ -124,7 +128,9 @@ game_newGame(void)
   cloud_init();
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
-  
+
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
+
   hw_waitBlitter();
 
   game_render();
@@ -166,20 +172,32 @@ game_switchFrameBuffers(void)
 
 
 static void
-game_scrollBackground()
+game_scrollBackground(void)
 {
   cameraY -= scroll;
+
+  if (cameraY < 0) {
+    cameraY = 0;
+    scroll = 0;
+    scrollCount = 0;
+    return;
+  } else if (cameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
+    cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+    scroll = 0;
+    scrollCount = 0;
+    return;
+  }
+ 
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
   
   int tileIndex = screenScrollY % TILE_HEIGHT;
 
-  for (int s = 0;  s < scroll && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
-    if (tile_renderNextTile(tileY)) {
-      if (scroll != 0) {
-	scroll = 0;
-	//  music_play(1);
-      }
-    }
+#define abs(a) (a >= 0 ? a : -a)  
+
+  int count = abs(scroll);
+
+  for (int s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
+    (*game_tileRender)(tileY);
   }
 
   if (tileIndex == 0) {	 
@@ -229,8 +247,21 @@ game_render(void)
 }
 
 void
+game_setBackgroundScroll(int s)
+{
+  scroll = s;
+  if (scroll >= 0) {
+    game_tileRender = tile_renderNextTile;
+  } else {
+    game_tileRender = tile_renderNextTileDown;
+  }
+
+}
+
+void
 game_loop()
 {
+  static int lastJoystickPos = 0;
   int done = 0;
   int joystickDown = 1;
 
@@ -239,9 +270,18 @@ game_loop()
     hw_readJoystick();
 
     if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
-      scrollCount = 1;//1+((6*16)/SCROLL_PIXELS);
+      //  scrollCount = 1;//1+((6*16)/SCROLL_PIXELS);
+      scrollCount = 1000;
+      game_setBackgroundScroll(-scroll);
       joystickDown = 1;
     }
+
+    if (hw_joystickPos == 5 && lastJoystickPos != 5) {
+      scrollCount = 16;
+    }
+
+    lastJoystickPos = hw_joystickPos;
+
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
     player_update();
@@ -252,7 +292,7 @@ game_loop()
     SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
 
-    if (scrollCount >= 1) {
+    if (scrollCount > 0 && scroll != 0) {
       game_scrollBackground();
       scrollCount--;
     }

@@ -40,9 +40,14 @@ ALL_WORKBENCH_OBJS=out/workbench/main.o $(WORKBENCH_OBJS)
 ALL_DEPENDS=$(ALL_OBJS:.o=.d) $(ALL_WORKBENCH_OBJS:.o=.d)
 
 
-adf: bin out $(ALL_TOOLS) $(ADF)
+
+adf: version bin out $(ALL_TOOLS) $(ADF)
 
 all: adf 
+
+.PHONY: version
+version:
+	./version/version.sh
 
 gdrive: all
 	cp $(ADF) ~/Google\ Drive
@@ -71,7 +76,7 @@ $(ADF): out/bootblock.bin
 	$(MAKEADF) out/bootblock.bin > $(ADF)
 	@ls -lh out/bootblock.bin
 
-wb: bin/$(GAME_NAME)
+wb: version bin/$(GAME_NAME)
 
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<

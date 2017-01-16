@@ -51,3 +51,28 @@ tile_renderNextTile(uint16_t hscroll)
 
   return tilePtr <= &background_tileAddresses[0][0];
 }
+
+uint32_t
+tile_renderNextTileDown(uint16_t hscroll)
+{
+  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+
+  if (y < 0) {
+    y = FRAME_BUFFER_HEIGHT+y;
+  }
+
+  tilePtr = tilePtr+1;
+  tileX += TILE_WIDTH;
+
+  if (tileX > SCREEN_WIDTH-TILE_WIDTH) {
+    tileX = 0;
+  }
+
+#define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
+  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+*(tilePtr+OFFSET));
+  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+*(tilePtr+OFFSET));
+
+
+
+  return (tilePtr+1) > &background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
+}

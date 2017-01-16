@@ -14,6 +14,7 @@
 #define PLAYER_WIDTH_FUZZY 8
 #define PLAYER_WIDTH  32
 #define PLAYER_VISIBLE_WIDTH  (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
+#define PLAYER_INITIAL_Y      (WORLD_HEIGHT-PLAYER_HEIGHT-(16*3))
 #define PLAYER_JUMP_HEIGHT 112
 
 #define JOYSTICK_IDLE() (hw_joystickPos == 0)
@@ -43,6 +44,7 @@ typedef struct {
   action_t* action;
   sprite_save_t saves[2];
   int flashCounter;
+  int falling;
 } player_t;
 
 
@@ -172,10 +174,10 @@ player_setAction(int action)
 void
 player_init(void)
 {
-
+  player.falling = 0;
   player.flashCounter = 50;
   player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH;
-  player.sprite.y = WORLD_HEIGHT-PLAYER_HEIGHT-(16*3);
+  player.sprite.y = PLAYER_INITIAL_Y;
   player.sprite.imageIndex = 4;
   player.actionId = -1;
   player.deltaX = 0;
@@ -194,8 +196,7 @@ player_init(void)
 static int
 player_onGround(void)
 {
-  //  int y = ((player.sprite.y+PLAYER_HEIGHT)/TILE_HEIGHT);
-  int y = ((player.sprite.y+PLAYER_HEIGHT)>>4);
+  int y = ((player.sprite.y+PLAYER_HEIGHT)>>4); // ((player.sprite.y+PLAYER_HEIGHT)/TILE_HEIGHT);
   int x = (player.sprite.x+PLAYER_WIDTH_FUZZY);
   //  if (x >= 0 && background_tileAddresses[y][x/TILE_WIDTH] != 0) {
 
@@ -299,7 +300,10 @@ player_updateDuringMove(void)
   }
 
   if (player.sprite.y-cameraY > SCREEN_HEIGHT-48) {
-    player.deltaY = 0;
+    player.falling = 1;
+    game_setBackgroundScroll(-SCROLL_PIXELS);
+    scrollCount = 1000;
+    player.deltaY = SCROLL_PIXELS;
     player.sprite.y = SCREEN_HEIGHT-48+cameraY;
   }
   
@@ -316,9 +320,10 @@ player_update(void)
     player.flashCounter--;
   }
 
-  player.onGround = player_onGround();
-
-  player_updateDuringMove();
+  if (!player.falling) {
+    player.onGround = player_onGround();
+    player_updateDuringMove();
+  } 
 
   if (player.deltaX != 0 || player.deltaY != 0) {
     player.sprite.x += player.deltaX;
@@ -335,6 +340,19 @@ player_update(void)
       }
     }
   }
+
+  if (player.falling) {
+    if (player.sprite.y >= PLAYER_INITIAL_Y) {
+      player.sprite.y = PLAYER_INITIAL_Y;
+      scrollCount = 0;
+      player.deltaX = player.deltaY = 0;
+      if (player.action->facing == FACING_LEFT) {
+	player_setAction(ACTION_LEFT_STAND);
+      } else {
+	player_setAction(ACTION_RIGHT_STAND);
+      }      
+    }
+  }   
 }
 
 
