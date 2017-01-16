@@ -10,12 +10,16 @@
 #define JOYSTICK_POS_DOWNLEFT 6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
-#define PLAYER_HEIGHT 37
-#define PLAYER_WIDTH_FUZZY 8
-#define PLAYER_WIDTH  32
-#define PLAYER_VISIBLE_WIDTH  (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
-#define PLAYER_INITIAL_Y      (WORLD_HEIGHT-PLAYER_HEIGHT-(16*3))
-#define PLAYER_JUMP_HEIGHT 112
+#define PLAYER_HEIGHT               37
+#define PLAYER_WIDTH_FUZZY          8
+#define PLAYER_WIDTH                32
+#define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
+#define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
+#define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
+#define PLAYER_INITIAL_Y            (WORLD_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
+#define PLAYER_JUMP_HEIGHT          112
+#define PLAYER_SCROLL_THRESHOLD     (96+48)
+
 
 #define JOYSTICK_IDLE() (hw_joystickPos == 0)
 #define JOYSTICK_LEFT() (hw_joystickPos == 7)
@@ -288,23 +292,23 @@ player_updateDuringMove(void)
       player_setAction(ACTION_RIGHT_FALL);
     }
   } else { // On a platform
-    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
       scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
   
   if (player.sprite.y == player.jumpStartY) {
-    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-96-48)) {
+    if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) { 
       scrollCount = ((6*16)/SCROLL_PIXELS);
     } 
   }
 
-  if (player.sprite.y-cameraY > SCREEN_HEIGHT-48) {
+  if (player.deltaY > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
     player.falling = 1;
     game_setBackgroundScroll(-SCROLL_PIXELS);
     scrollCount = 1000;
     player.deltaY = SCROLL_PIXELS;
-    player.sprite.y = SCREEN_HEIGHT-48+cameraY;
+    player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY;
   }
   
   if (currentActionId != player.actionId) {
@@ -343,9 +347,12 @@ player_update(void)
 
   if (player.falling) {
     if (player.sprite.y >= PLAYER_INITIAL_Y) {
+      player.falling = 0;
       player.sprite.y = PLAYER_INITIAL_Y;
       scrollCount = 0;
-      player.deltaX = player.deltaY = 0;
+      game_setBackgroundScroll(SCROLL_PIXELS);
+      player.deltaX = 0;
+      player.deltaY = 0;
       if (player.action->facing == FACING_LEFT) {
 	player_setAction(ACTION_LEFT_STAND);
       } else {
