@@ -304,11 +304,13 @@ player_updateDuringMove(void)
   }
 
   if (player.deltaY > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
-    player.freeFalling = 1;
-    game_setBackgroundScroll(-SCROLL_PIXELS);
-    scrollCount = 1000;
-    player.deltaY = SCROLL_PIXELS;
-    player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
+    if (cameraY % 16 == 0) {
+      player.freeFalling = 1;
+      game_setBackgroundScroll(-SCROLL_PIXELS*2);
+      scrollCount = 1000;
+      player.deltaY = SCROLL_PIXELS*2;
+      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
+    }
   }
   
   if (currentActionId != player.actionId) {
@@ -346,7 +348,7 @@ player_update(void)
   }
 
   if (player.freeFalling) {
-    if (player.sprite.y >= PLAYER_INITIAL_Y) {
+    if (player.sprite.y >= PLAYER_INITIAL_Y) {      
       player.freeFalling = 0;
       player.sprite.y = PLAYER_INITIAL_Y;
       scrollCount = 0;
@@ -358,6 +360,7 @@ player_update(void)
       } else {
 	player_setAction(ACTION_RIGHT_STAND);
       }      
+      game_shakeScreen();
     }
   }   
 }

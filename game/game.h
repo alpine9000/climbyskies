@@ -87,5 +87,7 @@ void
 game_loop(void);
 void
 game_setBackgroundScroll(int s);
+void
+game_shakeScreen(void);
 
 #endif /* __GAME_H */

@@ -25,6 +25,10 @@ static void
 game_newGame(void);
 static void
 game_render(void);
+static void
+game_scrollBackground(void);
+static void
+game_setCamera(int offset);
 
 static volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
@@ -170,10 +174,29 @@ game_switchFrameBuffers(void)
 }
 
 
-static void
-game_scrollBackground(void)
+void 
+game_shakeScreen(void)
 {
-  cameraY -= scroll;
+  int offset = SCROLL_PIXELS;
+  const int delay = 200;
+  for (int c = 0; c < 4; c++) {
+    if (c > 0) {
+      hw_waitScanLines(delay);
+    }
+    hw_waitVerticalBlank();
+    game_switchFrameBuffers();
+    game_setCamera(offset);
+    player_restoreBackground();
+    cloud_restoreBackground();
+    game_render();
+    offset = -offset;
+  }
+  hw_waitScanLines(delay);
+}
+static void
+game_setCamera(int offset)
+{
+  cameraY -= offset;
 
   if (cameraY < 0) {
     cameraY = 0;
@@ -188,6 +211,12 @@ game_scrollBackground(void)
   }
  
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
+}
+
+static void
+game_scrollBackground(void)
+{
+  game_setCamera(scroll);
   
   int tileIndex = screenScrollY % TILE_HEIGHT;
 
@@ -259,7 +288,7 @@ game_setBackgroundScroll(int s)
 void
 game_loop()
 {
-  static int lastJoystickPos = 0;
+  //  static int lastJoystickPos = 0;
   int done = 0;
   int joystickDown = 1;
 
@@ -269,16 +298,16 @@ game_loop()
 
     if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
       //  scrollCount = 1;//1+((6*16)/SCROLL_PIXELS);
-      scrollCount = 1000;
-      game_setBackgroundScroll(-scroll);
+      //      scrollCount = 1000;
+      //      game_setBackgroundScroll(-scroll);
       joystickDown = 1;
     }
 
-    if (hw_joystickPos == 5 && lastJoystickPos != 5) {
+    /*    if (hw_joystickPos == 5 && lastJoystickPos != 5) {
       scrollCount = 16;
-    }
+      }*/
 
-    lastJoystickPos = hw_joystickPos;
+    //lastJoystickPos = hw_joystickPos;
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
