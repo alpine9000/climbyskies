@@ -308,7 +308,7 @@ player_updateDuringMove(void)
     game_setBackgroundScroll(-SCROLL_PIXELS);
     scrollCount = 1000;
     player.deltaY = SCROLL_PIXELS;
-    player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY;
+    player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
   }
   
   if (currentActionId != player.actionId) {
