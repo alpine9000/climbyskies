@@ -35,7 +35,7 @@ static frame_buffer_t scoreBoardFrameBuffer;
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
 
-static uint32_t (*game_tileRender)(uint16_t hscroll);
+static void (*game_tileRender)(uint16_t hscroll);
 
 static int tileY;
 static __chip copper_t copper = {
@@ -117,8 +117,7 @@ game_newGame(void)
   screenScrollY = 0;
   scrollCount = 0;
   frameCount = 0;
-  scroll = SCROLL_PIXELS;
-  game_tileRender = tile_renderNextTile;
+  game_setBackgroundScroll(SCROLL_PIXELS);
   tileY = 0;
 
   game_switchFrameBuffers();
@@ -255,7 +254,6 @@ game_setBackgroundScroll(int s)
   } else {
     game_tileRender = tile_renderNextTileDown;
   }
-
 }
 
 void

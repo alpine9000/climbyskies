@@ -5,9 +5,9 @@
 
 void 
 tile_renderScreen(void);
-uint32_t 
+void
 tile_renderNextTile(uint16_t hscroll);
-uint32_t
+void
 tile_renderNextTileDown(uint16_t hscroll);
 
 #endif
