@@ -48,7 +48,7 @@ typedef struct {
   action_t* action;
   sprite_save_t saves[2];
   int flashCounter;
-  int falling;
+  int freeFalling;
 } player_t;
 
 
@@ -178,7 +178,7 @@ player_setAction(int action)
 void
 player_init(void)
 {
-  player.falling = 0;
+  player.freeFalling = 0;
   player.flashCounter = 50;
   player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH;
   player.sprite.y = PLAYER_INITIAL_Y;
@@ -304,7 +304,7 @@ player_updateDuringMove(void)
   }
 
   if (player.deltaY > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
-    player.falling = 1;
+    player.freeFalling = 1;
     game_setBackgroundScroll(-SCROLL_PIXELS);
     scrollCount = 1000;
     player.deltaY = SCROLL_PIXELS;
@@ -324,7 +324,7 @@ player_update(void)
     player.flashCounter--;
   }
 
-  if (!player.falling) {
+  if (!player.freeFalling) {
     player.onGround = player_onGround();
     player_updateDuringMove();
   } 
@@ -345,9 +345,9 @@ player_update(void)
     }
   }
 
-  if (player.falling) {
+  if (player.freeFalling) {
     if (player.sprite.y >= PLAYER_INITIAL_Y) {
-      player.falling = 0;
+      player.freeFalling = 0;
       player.sprite.y = PLAYER_INITIAL_Y;
       scrollCount = 0;
       game_setBackgroundScroll(SCROLL_PIXELS);
