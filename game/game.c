@@ -173,26 +173,32 @@ game_switchFrameBuffers(void)
   offScreenBuffer = save;
 }
 
+static void
+ game_shakeScroll(int direction, int count)
+{
+  int delay = 100;
+  for (int c = 0; c < count; c++) {
+    hw_waitScanLines(delay);
+    hw_waitVerticalBlank();
+    game_switchFrameBuffers();
+    game_setCamera(direction);
+    player_restoreBackground();
+    cloud_restoreBackground();
+    game_render();
+  }
+  hw_waitScanLines(delay);
+}
 
 void 
 game_shakeScreen(void)
 {
-  int offset = SCROLL_PIXELS;
-  const int delay = 200;
-  for (int c = 0; c < 4; c++) {
-    if (c > 0) {
-      hw_waitScanLines(delay);
-    }
-    hw_waitVerticalBlank();
-    game_switchFrameBuffers();
-    game_setCamera(offset);
-    player_restoreBackground();
-    cloud_restoreBackground();
-    game_render();
-    offset = -offset;
+  int direction = 1;
+  for (int i = 0; i < 4; i++) {
+    game_shakeScroll(direction, SCROLL_PIXELS);
+    direction = -direction;
   }
-  hw_waitScanLines(delay);
 }
+
 static void
 game_setCamera(int offset)
 {
