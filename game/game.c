@@ -226,7 +226,6 @@ game_scrollBackground(void)
   
   int tileIndex = screenScrollY % TILE_HEIGHT;
 
-#define abs(a) (a >= 0 ? a : -a)  
 
   int count = abs(scroll);
 

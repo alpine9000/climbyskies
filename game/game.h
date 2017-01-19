@@ -5,6 +5,8 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
+#define abs(a) (a >= 0 ? a : -a)  
+
 #define MAP_TILE_WIDTH      16
 #define MAP_TILE_HEIGHT     201
 #define TILE_WIDTH          16

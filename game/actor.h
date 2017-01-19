@@ -15,10 +15,8 @@ typedef enum {
 
 typedef struct {
   animation_t animation;
-  int deltaX;
-  int deltaY;
   facing_direction_t facing;
-} action_t;
+} sprite_animation_t;
 
 
 #endif
