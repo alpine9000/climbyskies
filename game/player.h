@@ -11,7 +11,7 @@ void
 player_render(frame_buffer_t fb);
 void 
 player_update(void);
-void 
+void
 player_setAction(int action);
 
 #endif

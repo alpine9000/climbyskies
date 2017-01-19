@@ -38,18 +38,27 @@
 #define ANIM_RIGHT_FALL        8
 #define ANIM_RIGHT_FALL_RIGHT  9
 
+typedef enum {
+  PLAYER_STATE_DEFAULT,
+  PLAYER_STATE_FREEFALL,
+  PLAYER_STATE_ONGROUND,
+  PLAYER_STATE_HEADCONTACT
+} player_state_t;
+
+typedef struct {
+  int x;
+  int y;
+} velocity_t;
+
 typedef struct {
   sprite_t sprite;
   int animId;
-  int vX;
-  int vY;
-  int aX;
-  int aY;
+  velocity_t velocity;
   int jumpStartY;
   sprite_animation_t* anim;
   sprite_save_t saves[2];
   int flashCounter;
-  int freeFalling;
+  player_state_t state;
 } player_t;
 
 
@@ -147,9 +156,9 @@ sprite_animation_t animations[] = {
 static player_t player;
 
 static void
-player_setVx(int force);
+player_setSpeedX(int force);
 static void
-player_setVy(int force);
+player_setSpeedY(int force);
 
 
 static void 
@@ -166,13 +175,11 @@ player_setAnim(int anim)
 void
 player_init(void)
 {
-  player.aX = 0;
-  player.aY = 0;
-  player.vX = 0;
-  player.vY = 0;
-  player_setVx(0);
-  player_setVy(0);
-  player.freeFalling = 0;
+  player.velocity.x = 0;
+  player.velocity.y = 0;
+  player_setSpeedX(0);
+  player_setSpeedY(0);
+  player.state = PLAYER_STATE_DEFAULT;
   player.flashCounter = 50;
   player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH;
   player.sprite.y = PLAYER_INITIAL_Y;
@@ -210,16 +217,16 @@ player_tileCollision(int x, int y)
 
 
 static void
-player_setVx(int v)
+player_setSpeedX(int v)
 {
-  player.vX = v;
+  player.velocity.x = v;
 }
 
 
 static void
-player_setVy(int v)
+player_setSpeedY(int v)
 {
-  player.vY = v;
+  player.velocity.y = v;
 }
 
 
@@ -227,38 +234,39 @@ static
 void
 player_processJoystick(int collision)
 {
+  USE(collision);
   static int lastUp = 0;
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
-    player_setVx(0);
+    player_setSpeedX(0);
     lastUp = 0;
     break;
   case JOYSTICK_POS_LEFT:
-    player_setVx(-PHYSICS_VELOCITY_RUN);
+    player_setSpeedX(-PHYSICS_VELOCITY_RUN);
     lastUp = 0;
     break;
   case JOYSTICK_POS_RIGHT:
-    player_setVx(PHYSICS_VELOCITY_RUN);
+    player_setSpeedX(PHYSICS_VELOCITY_RUN);
     lastUp = 0;
     break;
   case JOYSTICK_POS_UP:
-    if (!lastUp && player.vY == 0 && collision) {
-      player_setVy(PHYSICS_VELOCITY_JUMP);
+    if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
     } 
     lastUp = 1;
     break;
   case JOYSTICK_POS_UPRIGHT:
-    player_setVx(PHYSICS_VELOCITY_RUN);
-    if (!lastUp && player.vY == 0 && collision) {
-      player_setVy(PHYSICS_VELOCITY_JUMP);
+    player_setSpeedX(PHYSICS_VELOCITY_RUN);
+    if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
     } 
     lastUp = 1;
     break;
   case JOYSTICK_POS_UPLEFT:
-    player_setVx(-PHYSICS_VELOCITY_RUN);
-    if (!lastUp &&  player.vY == 0 && collision) {
-      player_setVy(PHYSICS_VELOCITY_JUMP);
+    player_setSpeedX(-PHYSICS_VELOCITY_RUN);
+    if (!lastUp &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
     }
     lastUp = 1;
     break;
@@ -271,14 +279,15 @@ player_processJoystick(int collision)
 static int
 player_normalUpdate(void)
 {
-  player.vY += PHYSICS_VELOCITY_G;
+  player.velocity.y += PHYSICS_VELOCITY_G;
 
+  velocity_t intendedVelocity = player.velocity;
   int collision = 0;
 
-  if (player.vX != 0) {
-    int xInc = (player.vX > 0) ? 1 : -1;
+  if (player.velocity.x != 0) {
+    int xInc = (player.velocity.x > 0) ? 1 : -1;
     int x = player.sprite.x;
-    for (int c = 0; c != abs(player.vX); c++) {      
+    for (int c = 0; c != abs(player.velocity.x); c++) {      
       if (!player_tileCollision(x+xInc, player.sprite.y)) {
 	x += xInc;
       } else {
@@ -292,15 +301,15 @@ player_normalUpdate(void)
     } else if (x < -PLAYER_WIDTH_FUZZY) {
       x = -PLAYER_WIDTH_FUZZY;
     }
-    player.vX = x - player.sprite.x;
+    player.velocity.x = x - player.sprite.x;
     player.sprite.x = x;
   }
 
-  if (player.vY != 0) {
-    int vY = player.vY;
-    int yInc = (vY > 0) ? 1 : -1;
+  if (player.velocity.y != 0) {
+    int speedY = player.velocity.y;
+    int yInc = (speedY > 0) ? 1 : -1;
     int y = player.sprite.y;
-    for (int c = 0; c != abs(vY); c++) {      
+    for (int c = 0; c != abs(speedY); c++) {      
       if (!player_tileCollision(player.sprite.x, y+yInc)) {
 	y += yInc;
       } else {
@@ -308,14 +317,35 @@ player_normalUpdate(void)
 	break;
       }
     }
-    player.vY = y - player.sprite.y;
+    player.velocity.y = y - player.sprite.y;
     player.sprite.y = y;
   } 
+
+  if (collision && intendedVelocity.y > 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x) {
+    custom->color[0] = 0x000;
+    player.state = PLAYER_STATE_ONGROUND;
+  } else if (collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
+    player.velocity.y =0;
+    custom->color[0] = 0xf00;
+    player.state = PLAYER_STATE_HEADCONTACT;
+    int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)>>1))>>5)<<1;
+    int y = (PLAYER_OFFSET+(player.sprite.y-1))>>4;
+    background_tileAddresses[y][x] = 0;
+    background_tileAddresses[y][x+1] = 0;
+    gfx_renderTile(onScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
+    gfx_renderTile(offScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
+    gfx_renderTile(onScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
+    gfx_renderTile(offScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
+  } else {
+    player.state = PLAYER_STATE_DEFAULT;
+  }
+
   
-  if (player.vY == 0 && collision) {
-    if (player.vX < 0) {
+
+  if (player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (player.velocity.x < 0) {
       player_setAnim(ANIM_LEFT_RUN);
-    } else if (player.vX > 0) {
+    } else if (player.velocity.x > 0) {
       player_setAnim(ANIM_RIGHT_RUN);
     } else {
       if (player.anim->facing == FACING_LEFT) {
@@ -324,10 +354,10 @@ player_normalUpdate(void)
 	player_setAnim(ANIM_RIGHT_STAND);
       }
     }
-  } else if (player.vY > 0) {
-    if (player.vX < 0) {
+  } else if (player.velocity.y > 0) {
+    if (player.velocity.x < 0) {
 	player_setAnim(ANIM_LEFT_JUMP);
-    } else if (player.vX > 0) {
+    } else if (player.velocity.x > 0) {
     	player_setAnim(ANIM_RIGHT_JUMP);
     } else {  
       if (player.anim->facing == FACING_LEFT) {
@@ -336,10 +366,10 @@ player_normalUpdate(void)
 	player_setAnim(ANIM_RIGHT_JUMP);
       }
     }
-  } else if (player.vY < 0) {
-    if (player.vX < 0) {
+  } else if (player.velocity.y < 0) {
+    if (player.velocity.x < 0) {
 	player_setAnim(ANIM_LEFT_FALL);
-    } else if (player.vX > 0) {
+    } else if (player.velocity.x > 0) {
     	player_setAnim(ANIM_RIGHT_FALL);
     } else {  
       if (player.anim->facing == FACING_LEFT) {
@@ -350,7 +380,7 @@ player_normalUpdate(void)
     }
   }
 
-  if (player.vY != 0 || player.vX != 0) {
+  if (player.velocity.y != 0 || player.velocity.x != 0) {
     if (frameCount % player.anim->animation.speed == 0) {
       player.sprite.imageIndex++;
       if (player.sprite.imageIndex > player.anim->animation.stop) {
@@ -359,18 +389,18 @@ player_normalUpdate(void)
     }
   }
 
-  if (player.vY == 0 && collision) {
+  if (player.velocity.y == 0 && collision) {
     if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
       scrollCount = ((6*16)/SCROLL_PIXELS);
       game_setBackgroundScroll(SCROLL_PIXELS);
     } 
   }
 
-  if (player.vY > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
+  if (player.velocity.y > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
     if (cameraY % 16 == 0) {
-      player.freeFalling = 1;
-      player.vX = 0;
-      player.vY = (SCROLL_PIXELS*2);
+      player.state = PLAYER_STATE_FREEFALL;
+      player.velocity.x = 0;
+      player.velocity.y = (SCROLL_PIXELS*2);
       game_setBackgroundScroll(-SCROLL_PIXELS*2);
       scrollCount = 10000;
 
@@ -389,31 +419,23 @@ player_update(void)
   }
 
 
-  if (player.freeFalling) {
+  if (player.state == PLAYER_STATE_FREEFALL) {
 
-    player.sprite.y += player.vY;
-    custom->color[0] = 0xf00;
+    player.sprite.y += player.velocity.y;
     if (player.sprite.y >= PLAYER_INITIAL_Y) {      
-      custom->color[0] = 0x000;
-      player.freeFalling = 0;
+      player.state = PLAYER_STATE_DEFAULT;
       player.sprite.y = PLAYER_INITIAL_Y;
       scrollCount = 0;
       game_setBackgroundScroll(SCROLL_PIXELS);
-      player.vX = 0;
-      player.vY = 0;
+      player.velocity.x = 0;
+      player.velocity.y = 0;
       if (player.anim->facing == FACING_LEFT) {
 	player_setAnim(ANIM_LEFT_STAND);
       } else {
 	player_setAnim(ANIM_RIGHT_STAND);
       }      
       game_shakeScreen();
-  player.flashCounter = 50;
-      if (cameraY != WORLD_HEIGHT-SCREEN_HEIGHT) {
-	custom->color[0] = 0xF00;
-      } else {
-	custom->color[0] = 0xF0f;
-      }
-
+      player.flashCounter = 50;
       scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)/2;
       game_setBackgroundScroll(-2);
     }
