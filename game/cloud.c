@@ -62,6 +62,7 @@ static cloud_t _clouds[NUM_CLOUDS] = {
 void
 cloud_init(void)
 {
+  cloudXIndex = 0;
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     clouds[i] = _clouds[i];
@@ -123,11 +124,7 @@ cloud_update(void)
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (scrollCount > 0) {
-      if (scroll > 0) {
-	cloud->sprite.y--;
-      } else if (scroll < 0) {
-	cloud->sprite.y++;
-      }
+      cloud->sprite.y-=(scroll>>2);
     }
     
     if (cloud->sprite.y >= cameraY+SCREEN_HEIGHT) {

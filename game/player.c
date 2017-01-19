@@ -17,7 +17,7 @@
 #define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
 #define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
-#define PLAYER_INITIAL_Y            (WORLD_HEIGHT-PLAYER_INITIAL_Y_OFFSET-1)
+#define PLAYER_INITIAL_Y            (WORLD_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
 #define PLAYER_JUMP_HEIGHT          118 //112
 #define PLAYER_SCROLL_THRESHOLD     (96+48)
 
@@ -197,12 +197,13 @@ player_tileOverlaps(int x, int y)
 static int
 player_tileCollision(int x, int y)
 {
-  int detected = player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, (y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, (y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
-         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+#define PLAYER_OFFSET -1
+  int detected = player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y) ||
+         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
+         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
   return detected;
 }
@@ -226,27 +227,43 @@ static
 void
 player_processJoystick(int collision)
 {
-  static int lastJoystickPos = 0;
+  static int lastUp = 0;
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
     player_setVx(0);
+    lastUp = 0;
     break;
   case JOYSTICK_POS_LEFT:
     player_setVx(-PHYSICS_VELOCITY_RUN);
+    lastUp = 0;
     break;
   case JOYSTICK_POS_RIGHT:
     player_setVx(PHYSICS_VELOCITY_RUN);
+    lastUp = 0;
     break;
   case JOYSTICK_POS_UP:
-    if (lastJoystickPos != hw_joystickPos && player.vY == 0 && collision) {
+    if (!lastUp && player.vY == 0 && collision) {
+      player_setVy(PHYSICS_VELOCITY_JUMP);
+    } 
+    lastUp = 1;
+    break;
+  case JOYSTICK_POS_UPRIGHT:
+    player_setVx(PHYSICS_VELOCITY_RUN);
+    if (!lastUp && player.vY == 0 && collision) {
+      player_setVy(PHYSICS_VELOCITY_JUMP);
+    } 
+    lastUp = 1;
+    break;
+  case JOYSTICK_POS_UPLEFT:
+    player_setVx(-PHYSICS_VELOCITY_RUN);
+    if (!lastUp &&  player.vY == 0 && collision) {
       player_setVy(PHYSICS_VELOCITY_JUMP);
     }
+    lastUp = 1;
     break;
   }
 
-
-  lastJoystickPos = hw_joystickPos;
 
   return;
 }
@@ -345,17 +362,19 @@ player_normalUpdate(void)
   if (player.vY == 0 && collision) {
     if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
       scrollCount = ((6*16)/SCROLL_PIXELS);
+      game_setBackgroundScroll(SCROLL_PIXELS);
     } 
   }
 
   if (player.vY > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
     if (cameraY % 16 == 0) {
       player.freeFalling = 1;
-      game_setBackgroundScroll(-SCROLL_PIXELS*2);
-      scrollCount = 1000;
       player.vX = 0;
       player.vY = (SCROLL_PIXELS*2);
-      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
+      game_setBackgroundScroll(-SCROLL_PIXELS*2);
+      scrollCount = 10000;
+
+      //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
     }
   }
   
@@ -371,6 +390,7 @@ player_update(void)
 
 
   if (player.freeFalling) {
+
     player.sprite.y += player.vY;
     custom->color[0] = 0xf00;
     if (player.sprite.y >= PLAYER_INITIAL_Y) {      
@@ -387,6 +407,15 @@ player_update(void)
 	player_setAnim(ANIM_RIGHT_STAND);
       }      
       game_shakeScreen();
+  player.flashCounter = 50;
+      if (cameraY != WORLD_HEIGHT-SCREEN_HEIGHT) {
+	custom->color[0] = 0xF00;
+      } else {
+	custom->color[0] = 0xF0f;
+      }
+
+      scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)/2;
+      game_setBackgroundScroll(-2);
     }
   } else {
     player_processJoystick(player_normalUpdate());
