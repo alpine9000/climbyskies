@@ -10,10 +10,16 @@
 #define JOYSTICK_POS_DOWNLEFT 6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
+#define JOYSTICK_IDLE() (hw_joystickPos == 0)
+#define JOYSTICK_LEFT() (hw_joystickPos == 7)
+#define JOYSTICK_RIGHT() (hw_joystickPos == 3)
+#define JOYSTICK_UP() (hw_joystickPos == 1)
+
+#define PLAYER_WIDTH                32
 #define PLAYER_HEIGHT               37
 #define PLAYER_FUZZY_WIDTH          8
 #define PLAYER_FUZZY_BOTTOM         0
-#define PLAYER_WIDTH                32
+#define PLAYER_OFFSET_Y             -1
 #define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)
 #define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
@@ -21,11 +27,9 @@
 #define PLAYER_JUMP_HEIGHT          118 //112
 #define PLAYER_SCROLL_THRESHOLD     (96+48)
 
-
-#define JOYSTICK_IDLE() (hw_joystickPos == 0)
-#define JOYSTICK_LEFT() (hw_joystickPos == 7)
-#define JOYSTICK_RIGHT() (hw_joystickPos == 3)
-#define JOYSTICK_UP() (hw_joystickPos == 1)
+#define PHYSICS_VELOCITY_G     1
+#define PHYSICS_VELOCITY_RUN   2
+#define PHYSICS_VELOCITY_JUMP  -16
 
 #define ANIM_LEFT_JUMP         0
 #define ANIM_LEFT_STAND        1
@@ -54,17 +58,12 @@ typedef struct {
   sprite_t sprite;
   int animId;
   velocity_t velocity;
-  int jumpStartY;
   sprite_animation_t* anim;
   sprite_save_t saves[2];
   int flashCounter;
   player_state_t state;
 } player_t;
 
-
-#define PHYSICS_VELOCITY_G     1
-#define PHYSICS_VELOCITY_RUN   2
-#define PHYSICS_VELOCITY_JUMP  -16
 
 static
 sprite_animation_t animations[] = {
@@ -188,22 +187,24 @@ player_init(void)
   player.sprite.save = &player.saves[0];
 }
 
+
 static int
 player_tileOverlaps(int x, int y)
 {
   return x >= 0 && x < SCREEN_WIDTH && BACKGROUND_TILE(x, y>>4) != 0;
 }
 
+
 static int
 player_tileCollision(int x, int y)
 {
-#define PLAYER_OFFSET -1
-  int detected = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y) ||
-         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
-         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+
+  int detected = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y) ||
+         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
+         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
   return detected;
 }
@@ -211,23 +212,28 @@ player_tileCollision(int x, int y)
 
 static 
 void
-player_processJoystick(int collision)
+player_processJoystick(void)
 {
-  USE(collision);
   static int lastUp = 0;
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
     player.velocity.x = 0;
-    lastUp = 0;
+    if (player.state == PLAYER_STATE_ONGROUND) {
+      lastUp = 0;
+    }
     break;
   case JOYSTICK_POS_LEFT:
     player.velocity.x = -PHYSICS_VELOCITY_RUN;
-    lastUp = 0;
+    if (player.state == PLAYER_STATE_ONGROUND) {
+      lastUp = 0;
+    }
     break;
   case JOYSTICK_POS_RIGHT:
     player.velocity.x = PHYSICS_VELOCITY_RUN;
-    lastUp = 0;
+    if (player.state == PLAYER_STATE_ONGROUND) {
+      lastUp = 0;
+    }
     break;
   case JOYSTICK_POS_UP:
     if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
@@ -256,7 +262,7 @@ player_processJoystick(int collision)
 }
 
 static int
-player_normalUpdate(void)
+player_updateAlive(void)
 {
   player.velocity.y += PHYSICS_VELOCITY_G;
 
@@ -306,21 +312,16 @@ player_normalUpdate(void)
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
     int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
-    int y = (PLAYER_OFFSET+(player.sprite.y-1))>>4;
+    int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
     background_tileAddresses[y][x] = 0;
     background_tileAddresses[y][x+1] = 0;
-    //    gfx_renderTile(onScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
-    //    gfx_renderTile(offScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
-    //    gfx_renderTile(onScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
-    //    gfx_renderTile(offScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
-    tile_invalidateTile(x<<4, y<<4);
-    tile_invalidateTile((x+1)<<4, y<<4);
+    tile_invalidateTile(x<<4, y<<4, 0);
+    tile_invalidateTile((x+1)<<4, y<<4, 0);
   } else {
     player.state = PLAYER_STATE_DEFAULT;
   }
 
   
-
   if (player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
     if (player.velocity.x < 0) {
       player_setAnim(ANIM_LEFT_RUN);
@@ -382,13 +383,37 @@ player_normalUpdate(void)
       player.velocity.y = (SCROLL_PIXELS*2);
       game_setBackgroundScroll(-SCROLL_PIXELS*2);
       scrollCount = 10000;
-
       //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
     }
   }
   
   return collision;
 }
+
+
+static void
+player_updateFreeFall(void)
+{
+  player.sprite.y += player.velocity.y;
+  if (player.sprite.y >= PLAYER_INITIAL_Y) {      
+    player.state = PLAYER_STATE_DEFAULT;
+    player.sprite.y = PLAYER_INITIAL_Y;
+    scrollCount = 0;
+    game_setBackgroundScroll(SCROLL_PIXELS);
+    player.velocity.x = 0;
+    player.velocity.y = 0;
+    if (player.anim->facing == FACING_LEFT) {
+      player_setAnim(ANIM_LEFT_STAND);
+    } else {
+      player_setAnim(ANIM_RIGHT_STAND);
+    }      
+    game_shakeScreen();
+    player.flashCounter = 50;
+    scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)/2;
+    game_setBackgroundScroll(-2);
+  }
+}
+
 
 void
 player_update(void)
@@ -397,29 +422,11 @@ player_update(void)
     player.flashCounter--;
   }
 
-
   if (player.state == PLAYER_STATE_FREEFALL) {
-
-    player.sprite.y += player.velocity.y;
-    if (player.sprite.y >= PLAYER_INITIAL_Y) {      
-      player.state = PLAYER_STATE_DEFAULT;
-      player.sprite.y = PLAYER_INITIAL_Y;
-      scrollCount = 0;
-      game_setBackgroundScroll(SCROLL_PIXELS);
-      player.velocity.x = 0;
-      player.velocity.y = 0;
-      if (player.anim->facing == FACING_LEFT) {
-	player_setAnim(ANIM_LEFT_STAND);
-      } else {
-	player_setAnim(ANIM_RIGHT_STAND);
-      }      
-      game_shakeScreen();
-      player.flashCounter = 50;
-      scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)/2;
-      game_setBackgroundScroll(-2);
-    }
+    player_updateFreeFall();
   } else {
-    player_processJoystick(player_normalUpdate());
+    player_updateAlive();
+    player_processJoystick();
   }
 }
 

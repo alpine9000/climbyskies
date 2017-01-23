@@ -1,33 +1,39 @@
 #include "game.h"
+
 #define MAX_INVALID_TILES 100
 
 extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 static unsigned short* tilePtr;
 static int tileX;
 static tile_redraw_t* invalidTiles = 0;
-static tile_redraw_t* freeList = 0;
+static tile_redraw_t* invalidFreeList = 0;
 static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
+
 
 void
 tile_init(void)
 {
-  freeList = &invalidTileBuffers[0];
-  freeList->prev = 0;
-  freeList->next = 0;
-  tile_redraw_t* ptr = freeList;
+  invalidTiles = 0;
+  invalidFreeList = &invalidTileBuffers[0];
+  invalidFreeList->prev = 0;
+  invalidFreeList->next = 0;
+  tile_redraw_t* ptr = invalidFreeList;
   for (int i = 1; i < MAX_INVALID_TILES; i++) {
       ptr->next = &invalidTileBuffers[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
   }
 }
+
+
 static tile_redraw_t*
 tile_getFree(void)
 {
-  tile_redraw_t* entry = freeList;
-  freeList = freeList->next;
+  tile_redraw_t* entry = invalidFreeList;
+  invalidFreeList = invalidFreeList->next;
   return entry;
 }
+
 
 static void
 tile_addInvalid(tile_redraw_t* ptr)
@@ -61,27 +67,24 @@ tile_removeInvalid(tile_redraw_t* ptr)
 
 
 void
-tile_invalidateTile(int x, int y)
+tile_invalidateTile(int x, int y, int offset)
 {
   tile_redraw_t* ptr = tile_getFree();
   ptr->x = x;
   ptr->y = y;
+  ptr->offset = offset;
   ptr->count = 2;
   tile_addInvalid(ptr);
 }
+
 
 void
 tile_renderInvalidTiles(frame_buffer_t fb)
 {
   tile_redraw_t* ptr = invalidTiles;
 
-  if (ptr == 0) {
-    custom->color[0] = 0x0;
-  }
-
   while (ptr != 0) {
-    custom->color[0] = 0xf00;
-    gfx_renderTile(fb, ptr->x, ptr->y, spriteFrameBuffer);
+    gfx_renderTile(fb, ptr->x, ptr->y, spriteFrameBuffer+ptr->offset);
     ptr->count--;
     if (ptr->count == 0) {
       tile_removeInvalid(ptr);
@@ -113,6 +116,7 @@ tile_renderScreen(void)
   }
 }
 
+
 void
 tile_renderNextTile(uint16_t hscroll)
 {
@@ -133,6 +137,7 @@ tile_renderNextTile(uint16_t hscroll)
     tileX = SCREEN_WIDTH-TILE_WIDTH;
   }
 }
+
 
 void
 tile_renderNextTileDown(uint16_t hscroll)
