@@ -1,9 +1,94 @@
 #include "game.h"
-
+#define MAX_INVALID_TILES 100
 
 extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 static unsigned short* tilePtr;
 static int tileX;
+static tile_redraw_t* invalidTiles = 0;
+static tile_redraw_t* freeList = 0;
+static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
+
+void
+tile_init(void)
+{
+  freeList = &invalidTileBuffers[0];
+  freeList->prev = 0;
+  freeList->next = 0;
+  tile_redraw_t* ptr = freeList;
+  for (int i = 1; i < MAX_INVALID_TILES; i++) {
+      ptr->next = &invalidTileBuffers[i];
+      ptr->next->prev = ptr;
+      ptr = ptr->next;
+  }
+}
+static tile_redraw_t*
+tile_getFree(void)
+{
+  tile_redraw_t* entry = freeList;
+  freeList = freeList->next;
+  return entry;
+}
+
+static void
+tile_addInvalid(tile_redraw_t* ptr)
+{
+  if (invalidTiles == 0) {
+    invalidTiles = ptr;
+    ptr->next = 0;
+    ptr->prev = 0;
+  } else {
+    ptr->next = invalidTiles;
+    ptr->next->prev = ptr;
+    ptr->prev = 0;
+    invalidTiles = ptr;
+  }
+}
+
+
+static void
+tile_removeInvalid(tile_redraw_t* ptr)
+{
+  if (ptr->prev == 0) {
+    invalidTiles = ptr->next;
+    invalidTiles->prev = 0;
+  } else {
+    ptr->prev->next = ptr->next;
+    if (ptr->next != 0) {
+      ptr->next->prev = ptr->prev;
+    }
+  }
+}
+
+
+void
+tile_invalidateTile(int x, int y)
+{
+  tile_redraw_t* ptr = tile_getFree();
+  ptr->x = x;
+  ptr->y = y;
+  ptr->count = 2;
+  tile_addInvalid(ptr);
+}
+
+void
+tile_renderInvalidTiles(frame_buffer_t fb)
+{
+  tile_redraw_t* ptr = invalidTiles;
+
+  if (ptr == 0) {
+    custom->color[0] = 0x0;
+  }
+
+  while (ptr != 0) {
+    custom->color[0] = 0xf00;
+    gfx_renderTile(fb, ptr->x, ptr->y, spriteFrameBuffer);
+    ptr->count--;
+    if (ptr->count == 0) {
+      tile_removeInvalid(ptr);
+    }
+    ptr = ptr->next;
+  }
+}
 
 
 void 

@@ -126,7 +126,9 @@ game_newGame(void)
 
   game_switchFrameBuffers();
   
+  tile_init();
   tile_renderScreen();
+  
   player_init();
   cloud_init();
   
@@ -269,8 +271,12 @@ debug_showRasterLine(void)
 static void
 game_render(void)
 {
+  tile_renderInvalidTiles(offScreenBuffer);
+
   player_saveBackground(offScreenBuffer);
   cloud_saveBackground(offScreenBuffer);
+
+
   
   SPEED_COLOR(0x0f0);
   cloud_render(offScreenBuffer);

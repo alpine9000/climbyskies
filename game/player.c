@@ -11,10 +11,10 @@
 #define JOYSTICK_POS_DOWNRIGHT 4
 
 #define PLAYER_HEIGHT               37
-#define PLAYER_WIDTH_FUZZY          8
+#define PLAYER_FUZZY_WIDTH          8
 #define PLAYER_FUZZY_BOTTOM         0
 #define PLAYER_WIDTH                32
-#define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)
+#define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)
 #define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
 #define PLAYER_INITIAL_Y            (WORLD_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
@@ -155,11 +155,6 @@ sprite_animation_t animations[] = {
 
 static player_t player;
 
-static void
-player_setSpeedX(int force);
-static void
-player_setSpeedY(int force);
-
 
 static void 
 player_setAnim(int anim)
@@ -177,8 +172,6 @@ player_init(void)
 {
   player.velocity.x = 0;
   player.velocity.y = 0;
-  player_setSpeedX(0);
-  player_setSpeedY(0);
   player.state = PLAYER_STATE_DEFAULT;
   player.flashCounter = 50;
   player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH;
@@ -205,28 +198,14 @@ static int
 player_tileCollision(int x, int y)
 {
 #define PLAYER_OFFSET -1
-  int detected = player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
-         player_tileOverlaps(x+PLAYER_WIDTH_FUZZY, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+  int detected = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y) ||
+         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
+         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
+         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
   return detected;
-}
-
-
-static void
-player_setSpeedX(int v)
-{
-  player.velocity.x = v;
-}
-
-
-static void
-player_setSpeedY(int v)
-{
-  player.velocity.y = v;
 }
 
 
@@ -239,34 +218,34 @@ player_processJoystick(int collision)
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
-    player_setSpeedX(0);
+    player.velocity.x = 0;
     lastUp = 0;
     break;
   case JOYSTICK_POS_LEFT:
-    player_setSpeedX(-PHYSICS_VELOCITY_RUN);
+    player.velocity.x = -PHYSICS_VELOCITY_RUN;
     lastUp = 0;
     break;
   case JOYSTICK_POS_RIGHT:
-    player_setSpeedX(PHYSICS_VELOCITY_RUN);
+    player.velocity.x = PHYSICS_VELOCITY_RUN;
     lastUp = 0;
     break;
   case JOYSTICK_POS_UP:
     if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
-      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
+      player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
     lastUp = 1;
     break;
   case JOYSTICK_POS_UPRIGHT:
-    player_setSpeedX(PHYSICS_VELOCITY_RUN);
+    player.velocity.x =  PHYSICS_VELOCITY_RUN;
     if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
-      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
+      player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
     lastUp = 1;
     break;
   case JOYSTICK_POS_UPLEFT:
-    player_setSpeedX(-PHYSICS_VELOCITY_RUN);
+    player.velocity.x = -PHYSICS_VELOCITY_RUN;
     if (!lastUp &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
-      player_setSpeedY(PHYSICS_VELOCITY_JUMP);
+      player.velocity.y = PHYSICS_VELOCITY_JUMP;
     }
     lastUp = 1;
     break;
@@ -298,8 +277,8 @@ player_normalUpdate(void)
 
     if (x > SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH) {
       x = SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH;
-    } else if (x < -PLAYER_WIDTH_FUZZY) {
-      x = -PLAYER_WIDTH_FUZZY;
+    } else if (x < -PLAYER_FUZZY_WIDTH) {
+      x = -PLAYER_FUZZY_WIDTH;
     }
     player.velocity.x = x - player.sprite.x;
     player.sprite.x = x;
@@ -322,20 +301,20 @@ player_normalUpdate(void)
   } 
 
   if (collision && intendedVelocity.y > 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x) {
-    custom->color[0] = 0x000;
     player.state = PLAYER_STATE_ONGROUND;
   } else if (collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
     player.velocity.y =0;
-    custom->color[0] = 0xf00;
     player.state = PLAYER_STATE_HEADCONTACT;
-    int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_WIDTH_FUZZY)>>1))>>5)<<1;
+    int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
     int y = (PLAYER_OFFSET+(player.sprite.y-1))>>4;
     background_tileAddresses[y][x] = 0;
     background_tileAddresses[y][x+1] = 0;
-    gfx_renderTile(onScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
-    gfx_renderTile(offScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
-    gfx_renderTile(onScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
-    gfx_renderTile(offScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
+    //    gfx_renderTile(onScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
+    //    gfx_renderTile(offScreenBuffer, x<<4, y<<4, spriteFrameBuffer);
+    //    gfx_renderTile(onScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
+    //    gfx_renderTile(offScreenBuffer, (x+1)<<4, y<<4, spriteFrameBuffer);
+    tile_invalidateTile(x<<4, y<<4);
+    tile_invalidateTile((x+1)<<4, y<<4);
   } else {
     player.state = PLAYER_STATE_DEFAULT;
   }
