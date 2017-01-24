@@ -8,6 +8,7 @@ SECTIONS
 {
     load : { 
         startCode = .;
+        _startCode = .;
         *(.text) 
         *(.data)
 	*(data_c)

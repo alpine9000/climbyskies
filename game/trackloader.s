@@ -1,5 +1,5 @@
 *** MFMLoader.S by Photon ***	;requires a6=$dff002
-
+	xdef	_LoadMFMB
 	xdef 	LoadMFMB
 
 MFMsync		equ	$4489		;AmigaDOS standard sync marker.
@@ -14,7 +14,8 @@ MFMhead:	dc.w 0
 MFMdrv:		dc.w 0
 MFMchk:		dc.l 0
 
-LoadMFMB:		;loadsectors.a0=dst,d0=startsec.W,d1=nrsecs.W(-=Step0)
+_LoadMFMB:	
+LoadMFMB:		;loadsectors.a0=dst,d0=startsec.W,d1=nrsecs.W(-=Step0),a5=don't write past
 	MOVEM.L	D0-D7/A0-A6,-(SP)
 	lea	$bfd100,a4
 	bsr	MotorOn
@@ -180,7 +181,10 @@ LoadTrak:		;loadtrack+decode.a0=dst,d0=secoffs,d1=secsleft
 	eor.l	d5,d6			;EOR with checksum
 	add.l	d4,d4
 	or.l	d5,d4
+	cmp.l   a3,a5
+	ble	.skipit
 	move.l	d4,(a3)+
+.skipit:
 	dbf	d7,.DClup		;chksum should now be 0 if correct
 	lea	MFMchk(PC),a1
 	or.l	d6,(a1)			;or with track total chksum

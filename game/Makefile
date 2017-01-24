@@ -6,8 +6,8 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c
-SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s disk.s blittext.s
+C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c disk.c
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s blittext.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
@@ -134,8 +134,8 @@ out/workbench/%.o: %.s
 	@$(VASM) -depend=make  -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/workbench/$*.d
 
 out/main.bin: out/adf/main.o $(ADF_OBJS)
-	vlink $(LINKER_OPTIONS)  -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@ 
-	vlink $(LINKER_OPTIONS)  -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@  -M -o /tmp/main.bin > out/adf/main.txt
+	vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@ 
+	@vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@  -M -o /tmp/main.bin > out/adf/main.txt
 	@vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -M -o /tmp/main.bin | grep ", value " | cut -d " " -f3,7 | cut -d "," -f1 > $@.symbols
 	@cp $@.symbols ~/Projects/amiga/debugger.syms
 	@echo "RAM USAGE:" $$((16#`cat ~/Projects/amiga/debugger.syms | grep endRam | sed 's/0x//' | sed 's/endRam: //'`)) bytes

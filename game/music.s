@@ -56,7 +56,7 @@ _music_play:
 	adda.w	d0,a1
 	move.l	(a1)+,d0
 	move.l	(a1),a1
-	jsr	_disk_LoadDiskData
+	jsr	_disk_loadData
 	lea     module,a0
         sub.l   a1,a1
         sub.l   a2,a2
@@ -86,8 +86,7 @@ modules:
 	section	bss_c
 module:	
 	ds.b	MAX_P61_SIZE
-	ds.b	512
-	ds.b	512	
+	;; 	ds.b	1024
 
 	section	.noload
 moduleDiskData:

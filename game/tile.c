@@ -8,9 +8,9 @@ static tile_redraw_t* invalidTiles = 0;
 static tile_redraw_t* invalidFreeList = 0;
 static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
 
+extern uint16_t background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 uint16_t backgroundTiles[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
-extern uint16_t background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 void
 tile_init(void)
@@ -26,11 +26,16 @@ tile_init(void)
       ptr = ptr->next;
   }
 
+
+#if 0
   uint16_t* src = &background_tileAddresses[0][0];
   uint16_t* dest = &backgroundTiles[0][0];
   for (int i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
     *dest++ = *src++;
   }
+#else
+  disk_loadData(&backgroundTiles, &background_tileAddresses, sizeof(background_tileAddresses));
+#endif
 }
 
 
