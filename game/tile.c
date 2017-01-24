@@ -2,13 +2,15 @@
 
 #define MAX_INVALID_TILES 100
 
-extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 static unsigned short* tilePtr;
 static int tileX;
 static tile_redraw_t* invalidTiles = 0;
 static tile_redraw_t* invalidFreeList = 0;
 static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
 
+
+uint16_t backgroundTiles[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
+extern uint16_t background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 void
 tile_init(void)
@@ -22,6 +24,12 @@ tile_init(void)
       ptr->next = &invalidTileBuffers[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
+  }
+
+  uint16_t* src = &background_tileAddresses[0][0];
+  uint16_t* dest = &backgroundTiles[0][0];
+  for (int i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
+    *dest++ = *src++;
   }
 }
 
@@ -99,7 +107,7 @@ tile_renderScreen(void)
 {
   tileX = SCREEN_WIDTH-TILE_WIDTH;
 
-  tilePtr = &background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
+  tilePtr = &backgroundTiles[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
       gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+*tilePtr);

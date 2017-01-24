@@ -1,7 +1,9 @@
 #ifndef __TILE_H
 #define __TILE_H
 
-#define BACKGROUND_TILE(x,y) (*(&background_tileAddresses[0][0] + ((y<<4) + (x>>4))))
+extern uint16_t backgroundTiles[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
+
+#define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + ((y<<4) + (x>>4))))
 
 void
 tile_init(void);

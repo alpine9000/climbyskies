@@ -64,7 +64,6 @@ extern uint32_t frameCount;
 extern frame_buffer_t saveBuffer;
 extern frame_buffer_t offScreenBuffer;
 extern frame_buffer_t onScreenBuffer;
-extern unsigned short background_tileAddresses[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
 #include "registers.h"
 #include "hw.h"

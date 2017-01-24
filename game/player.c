@@ -313,8 +313,8 @@ player_updateAlive(void)
     player.state = PLAYER_STATE_HEADCONTACT;
     int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
     int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
-    background_tileAddresses[y][x] = 0;
-    background_tileAddresses[y][x+1] = 0;
+    backgroundTiles[y][x] = 0;
+    backgroundTiles[y][x+1] = 0;
     tile_invalidateTile(x<<4, y<<4, 0);
     tile_invalidateTile((x+1)<<4, y<<4, 0);
   } else {

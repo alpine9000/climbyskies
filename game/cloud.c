@@ -107,7 +107,7 @@ cloud_render(frame_buffer_t fb)
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
-	  int tile = background_tileAddresses[py+y][px+x];
+	  int tile = backgroundTiles[py+y][px+x];
 	  if (tile != 0) {
 	    gfx_renderTile(fb, (px+x)<<4, (py+y)<<4, spriteFrameBuffer+tile);
 	  }
