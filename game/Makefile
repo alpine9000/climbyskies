@@ -34,19 +34,20 @@ C_OBJS=$(C_SRCS:.c=.o)
 OBJS=$(ASM_OBJS) $(C_OBJS) 
 ADF_OBJS=$(addprefix out/adf/, $(OBJS)) out/adf/background-map.o
 WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) out/workbench/background-map.o
-ALL_TOOLS=$(MAKEADF) $(IMAGECON) $(MAPGEN) $(FADE) $(CROPPA) $(RESIZE)
 ALL_OBJS=out/adf/main.o $(ADF_OBJS)
 ALL_WORKBENCH_OBJS=out/workbench/main.o $(WORKBENCH_OBJS)
 ALL_DEPENDS=$(ALL_OBJS:.o=.d) $(ALL_WORKBENCH_OBJS:.o=.d)
 
 
+all: adf 
+
+include ../shared/externals.mk
 
 adf: version bin out $(ALL_TOOLS) $(ADF)
 
-all: adf 
-
 .PHONY: version
 version:
+	@echo $(ALL_TOOLS)
 	./version/version.sh
 
 gdrive: all
@@ -141,15 +142,15 @@ out/main.bin: out/adf/main.o $(ADF_OBJS)
 	@echo "RAM USAGE:" $$((16#`cat ~/Projects/amiga/debugger.syms | grep endRam | sed 's/0x//' | sed 's/endRam: //'`)) bytes
 
 bin/$(GAME_NAME): bin out $(ALL_TOOLS)  $(ALL_WORKBENCH_OBJS) 
-	#vlink $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2 -hunkattr DATA=2 -hunkattr CODE=2 -hunkattr .text=2 -hunkattr .code=2 -hunkattr .data=2	-hunkattr .noload=2 -hunkattr .bss=2 $(ALL_WORKBENCH_OBJS) -o $@
+        #vlink $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2 -hunkattr DATA=2 -hunkattr CODE=2 -hunkattr .text=2 -hunkattr .code=2 -hunkattr .data=2	-hunkattr .noload=2 -hunkattr .bss=2 $(ALL_WORKBENCH_OBJS) -o $@
 	vlink $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
 	cp $@ ~/A1200/BlockySkies
 	cp $@ ~/A4000/BlockySkies
-	#cp assets/BlockySkies.info bin
-	#cp assets/BlockySkiesDrawer.info bin
-	#cp assets/BlockySkies.info ~/A1200
-	#cp assets/BlockySkies.info ~/A4000
-	#ls -lh bin/BlockySkies
+        #cp assets/BlockySkies.info bin
+        #cp assets/BlockySkiesDrawer.info bin
+        #cp assets/BlockySkies.info ~/A1200
+        #cp assets/BlockySkies.info ~/A4000
+        #ls -lh bin/BlockySkies
 
 .PHONY: clean
 clean:	
@@ -162,5 +163,5 @@ depend:
 $(ALL_OBJS): Makefile
 $(ALL_WORKBENCH_OBJS): Makefile
 
-include externals.mk
-include run.mk
+
+include ../shared/run.mk
