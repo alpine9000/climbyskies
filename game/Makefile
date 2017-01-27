@@ -85,7 +85,7 @@ out/background-map.c: assets/background.tmx
 	@rm background-indexes.c
 
 out/sprite.bin: assets/sprite.png palette.pal
-	$(IMAGECON) --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=0,153,238
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224 #--transparent-color=80,192,224
 out/bootblock.bin: out/bootblock.o
 	vlink -brawbin1 $< -o $@
 

@@ -42,10 +42,19 @@ void palette_loadFile(imagecon_image_t* ic)
 		 &ic->palette[index].g,
 		 &ic->palette[index].b,
 		 &ic->palette[index].a);
+
+	if (config.verbose) {
+	  printf("b: r: %03d g: %03d b: %03d a: %03d\n", ic->palette[index].r, ic->palette[index].g, ic->palette[index].b, ic->palette[index].a);
+	}
+
+	  ic->palette[index].r = CLAMP8(((ic->palette[index].r+8)>>4)<<4);
+	  ic->palette[index].g = CLAMP8(((ic->palette[index].g+8)>>4)<<4);
+	  ic->palette[index].b = CLAMP8(((ic->palette[index].b+8)>>4)<<4);
+
 	}
 	
 	if (config.verbose) {
-	  printf("r: %03d g: %03d b: %03d a: %03d\n", ic->palette[index].r, ic->palette[index].g, ic->palette[index].b, ic->palette[index].a);
+	  printf("a: r: %03d g: %03d b: %03d a: %03d\n", ic->palette[index].r, ic->palette[index].g, ic->palette[index].b, ic->palette[index].a);
 	}
 	index++;
       }   
@@ -112,7 +121,7 @@ palette_output(imagecon_image_t* ic, char* outFilename)
       if (!config.fullColorPaletteFile) {
 	fprintf(paletteFP, "%03x\n",  RGB24TORGB12(ic->palette[i].r) << 8 | RGB24TORGB12(ic->palette[i].g) << 4 | RGB24TORGB12(ic->palette[i].b));
       } else {
-	fprintf(paletteFP, "%03d %03d %03d %03d\n",  ic->palette[i].r , ic->palette[i].g , ic->palette[i].b, ic->palette[i].a);
+	fprintf(paletteFP, "%03d %03d %03d %03d\n",  CLAMP8(((ic->palette[i].r+8)>>4)<<4) , CLAMP8(((ic->palette[i].g+8)>>4)<<4) , CLAMP8(((ic->palette[i].b+8)>>4)<<4), ic->palette[i].a);
       }
     }
     if (paletteAsmFP) {
