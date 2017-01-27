@@ -214,46 +214,47 @@ static
 void
 player_processJoystick(void)
 {
-  static int lastUp = 0;
+#define NOT_UP_THRESHOLD 1
+  static unsigned int notUpCount = NOT_UP_THRESHOLD;
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
     player.velocity.x = 0;
     if (player.state == PLAYER_STATE_ONGROUND) {
-      lastUp = 0;
+      notUpCount++;
     }
     break;
   case JOYSTICK_POS_LEFT:
     player.velocity.x = -PHYSICS_VELOCITY_RUN;
     if (player.state == PLAYER_STATE_ONGROUND) {
-      lastUp = 0;
+      notUpCount++;
     }
     break;
   case JOYSTICK_POS_RIGHT:
     player.velocity.x = PHYSICS_VELOCITY_RUN;
     if (player.state == PLAYER_STATE_ONGROUND) {
-      lastUp = 0;
+      notUpCount++;
     }
     break;
   case JOYSTICK_POS_UP:
-    if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
-    lastUp = 1;
+    notUpCount = 0;
     break;
   case JOYSTICK_POS_UPRIGHT:
     player.velocity.x =  PHYSICS_VELOCITY_RUN;
-    if (!lastUp && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
-    lastUp = 1;
+    notUpCount = 0;
     break;
   case JOYSTICK_POS_UPLEFT:
     player.velocity.x = -PHYSICS_VELOCITY_RUN;
-    if (!lastUp &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (notUpCount > NOT_UP_THRESHOLD &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     }
-    lastUp = 1;
+    notUpCount = 0;
     break;
   }
 
@@ -306,7 +307,7 @@ player_updateAlive(void)
     player.sprite.y = y;
   } 
 
-  if (collision && intendedVelocity.y > 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x) {
+  if (collision && intendedVelocity.y > 0 &&  intendedVelocity.y != player.velocity.y /*&& intendedVelocity.x == player.velocity.x*/) {
     player.state = PLAYER_STATE_ONGROUND;
   } else if (collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
     player.velocity.y =0;
@@ -317,7 +318,7 @@ player_updateAlive(void)
     backgroundTiles[y][x+1] = 0;
     tile_invalidateTile(x<<4, y<<4, 0);
     tile_invalidateTile((x+1)<<4, y<<4, 0);
-  } else {
+  } else {   
     player.state = PLAYER_STATE_DEFAULT;
   }
 
