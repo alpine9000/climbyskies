@@ -157,7 +157,7 @@ Level3InterruptHandler:
 
 .verticalBlank:
 	move.w	#INTF_VERTB,INTREQ(a6)	; clear interrupt bit	
-	;; add.l	#1,_verticalBlankCount
+	add.l	#1,_verticalBlankCount
 	cmp.w	#0,P61_Master
 	bne	.playMusic
 	move.w  #0,AUD0VOL(a6)

@@ -1,10 +1,10 @@
 #include "game.h"
 #include "version/version.h"
 
-//#define SHOW_SPEED 1
+#define SHOW_SPEED 1
 
 #ifdef SHOW_SPEED
-#define SPEED_COLOR(x) custom->color[1] = x;
+#define SPEED_COLOR(x) custom->color[0] = x;
 #else
 #define SPEED_COLOR(x) 
 #endif
@@ -18,6 +18,7 @@ int screenScrollY;
 int scrollCount;
 int scroll;
 uint32_t frameCount;
+uint32_t verticalBlankCount;
 
 static void
 game_switchFrameBuffers(void);
@@ -38,6 +39,8 @@ static volatile __chip uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN
 static frame_buffer_t scoreBoardFrameBuffer;
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
+static uint32_t lastVerticalBlankCount;
+static int turtle;
 
 static void (*game_tileRender)(uint16_t hscroll);
 
@@ -117,7 +120,10 @@ game_init()
 static void
 game_newGame(void)
 {
+  turtle = 0;
   cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+  verticalBlankCount = 0;
+  lastVerticalBlankCount = 0;
   screenScrollY = 0;
   scrollCount = 0;
   frameCount = 0;
@@ -241,15 +247,29 @@ game_scrollBackground(void)
 }
 
 
-static void
+static 
+void
 debug_showRasterLine(void)
 {
 #define AVERAGE_LENGTH 16
   static int rasterLines[AVERAGE_LENGTH];
   static int rasterLinesIndex = 0;
   static int maxRasterLine = 0;
-  
-  int line = hw_getRasterLine() - RASTER_Y_START;
+  static int average = 0;
+
+  if (turtle > 1) {
+    gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
+    turtle--;
+  } else if (turtle == 1) {
+    gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
+    turtle--;
+  }
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
+
+
+  int line = hw_getRasterLine() - RASTER_Y_START;  
+
   rasterLines[rasterLinesIndex++] = line;
   if (line > maxRasterLine) {
     maxRasterLine = line;
@@ -257,15 +277,16 @@ debug_showRasterLine(void)
   if (rasterLinesIndex >= AVERAGE_LENGTH) {
     rasterLinesIndex = 0;
   }
-  int average = 0;
+
+  average = 0;
   for (int i = 0; i < AVERAGE_LENGTH; i++) {
     average += rasterLines[i];
   }
-  average = average >> 4;
+  average = average >> 4 /* / AVERAGE_LENGTH */;
   
 
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
+
+  
 }
 
 static void
@@ -322,11 +343,28 @@ game_loop()
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
+    SPEED_COLOR(0xF0F);
     player_update();
+    SPEED_COLOR(0x0fF);
     cloud_update();
+    SPEED_COLOR(0x00);
+
+
+    SPEED_COLOR(0xfff);
+    debug_showRasterLine();
+    SPEED_COLOR(0x000);
 
 
     hw_waitVerticalBlank();
+
+    if (lastVerticalBlankCount == 0) {
+
+    } else if (verticalBlankCount-lastVerticalBlankCount > 1) {
+      turtle = 100;
+    }
+      
+    lastVerticalBlankCount = verticalBlankCount;
+
     SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
 
@@ -341,10 +379,9 @@ game_loop()
 
     game_render();
 
+    //       for (volatile int i = 0; i < 1000; i++);
+
     hw_waitBlitter();
-    SPEED_COLOR(0xfff);
-    debug_showRasterLine();
-    SPEED_COLOR(0x000);
 
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();

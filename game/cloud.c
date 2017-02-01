@@ -102,14 +102,14 @@ cloud_render(frame_buffer_t fb)
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     sprite_renderNoMask(fb, cloud->sprite);
-    int py = (cloud->sprite.y>>4); // (cloud->y/TILE_HEIGHT);
-    int px = (cloud->sprite.x>>4); // (cloud->x/TILE_WIDTH);
+    int py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
+    int px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
 	  int tile = backgroundTiles[py+y][px+x];
 	  if (tile != 0) {
-	    gfx_renderTile(fb, (px+x)<<4, (py+y)<<4, spriteFrameBuffer+tile);
+	    gfx_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
 	  }
 	}
       }
@@ -124,7 +124,7 @@ cloud_update(void)
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (scrollCount > 0) {
-      cloud->sprite.y-=(scroll>>2);
+      cloud->sprite.y-=(scroll>>2 /* /4 */);
     }
     
     if (cloud->sprite.y >= cameraY+SCREEN_HEIGHT) {

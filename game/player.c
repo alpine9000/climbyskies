@@ -191,27 +191,35 @@ player_init(void)
 static int
 player_tileOverlaps(int x, int y)
 {
-  return x >= 0 && x < SCREEN_WIDTH && BACKGROUND_TILE(x, y>>4) != 0;
+  if (x >= 0 && x < SCREEN_WIDTH && y >= 0) {
+    return BACKGROUND_TILE(x, y);
+  }
+  return 0;
 }
 
+static int overlappingTiles[6];
 
 static int
 player_tileCollision(int x, int y)
 {
+  overlappingTiles[0] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
+  overlappingTiles[1] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
+  overlappingTiles[2] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+  overlappingTiles[3] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+  overlappingTiles[4] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+  overlappingTiles[5] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
-  int detected = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y) ||
-         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) ||
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM)) || 
-         player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM) ||
-         player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
-
-  return detected;
+  for (int i = 0; i < 6; i++) {
+    if (overlappingTiles[i] != 0) {
+      return overlappingTiles[i];
+    }
+  }
+  
+  return 0;
 }
 
 
-static 
-void
+static void
 player_processJoystick(void)
 {
 #define NOT_UP_THRESHOLD 1
@@ -314,10 +322,14 @@ player_updateAlive(void)
     player.state = PLAYER_STATE_HEADCONTACT;
     int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
     int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
+    //int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
+    //int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
     backgroundTiles[y][x] = 0;
     backgroundTiles[y][x+1] = 0;
     tile_invalidateTile(x<<4, y<<4, 0);
     tile_invalidateTile((x+1)<<4, y<<4, 0);
+    // tile_invalidateTile(x*TILE_WIDTH, y*TILE_HEIGHT, 0);
+    // tile_invalidateTile((x+1)*(TILE_WIDTH), y*TILE_HEIGHT, 0);
   } else {   
     player.state = PLAYER_STATE_DEFAULT;
   }
@@ -410,7 +422,7 @@ player_updateFreeFall(void)
     }      
     game_shakeScreen();
     player.flashCounter = 50;
-    scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)/2;
+    scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)>>1;
     game_setBackgroundScroll(-2);
   }
 }

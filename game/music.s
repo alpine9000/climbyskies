@@ -16,7 +16,7 @@ _music_setVolume:
 	align 4
 	
 _music_play:
-	move.l	(4,a7),d0
+	;; 	move.l	(4,a7),d0
 	;; d0.w - module index
 .wait: 				; In case there is currently  fade in progress
 	jsr	_hw_waitVerticalBlank
