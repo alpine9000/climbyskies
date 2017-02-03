@@ -10,6 +10,8 @@
 	xdef _hw_interruptsInit
 	xdef _hw_waitScanLines
 	xdef _hw_getRasterLine
+	xdef _verticalBlankCount
+
 	
 ciaa_pra  = $bfe001
 _joy1dat   = $dff00c
@@ -183,6 +185,9 @@ _hw_joystickButton:
 	dc.b	0
 _hw_joystickPos:
 	dc.b	0
+
+_verticalBlankCount:
+	ds.l	0
 
 
 	

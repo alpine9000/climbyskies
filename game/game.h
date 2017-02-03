@@ -1,6 +1,10 @@
 #ifndef __GAME_H
 #define __GAME_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
@@ -37,12 +41,20 @@
 
 #define SCROLL_PIXELS 4
 
+
 #if defined(__GNUC__)
-#define __reg(x)
-#define __chip
+#if defined(GCC_CHECK)
+#define __section(x)
+#define __REG(reg, arg) arg
+#else
+#undef __chip
+#define __section(x) __attribute__ ((section (#x))) 
+#define __REG(reg, arg) arg __asm(reg)
+#endif
 #define USE(x) do { x = x; } while(0);
 #else
 #define USE(x)
+#define __REG(reg, arg) __reg(reg) arg
 #endif
 
 
@@ -91,4 +103,8 @@ game_setBackgroundScroll(int s);
 void
 game_shakeScreen(void);
 
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 #endif /* __GAME_H */

@@ -1,12 +1,12 @@
 #include "game.h"
 
-uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
+uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
 static uint16_t heightLUT[64];
 
 void 
 gfx_init()
 {
-  for (uint16_t y = 0; y < FRAME_BUFFER_HEIGHT; y++) {
+  for (uint16_t y = 0; y <= FRAME_BUFFER_HEIGHT; y++) {
     dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
   }
   
@@ -211,7 +211,9 @@ static void
 gfx_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  
+  if (y < 0) {
+    return;
+  }
   dest += dyOffsetsLUT[y] + (x>>3);
 
   hw_waitBlitter();

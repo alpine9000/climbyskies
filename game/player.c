@@ -373,6 +373,7 @@ player_updateAlive(void)
     }
   }
 
+#if 0
   if (player.velocity.y != 0 || player.velocity.x != 0) {
     if (frameCount % player.anim->animation.speed == 0) {
       player.sprite.imageIndex++;
@@ -381,6 +382,7 @@ player_updateAlive(void)
       }
     }
   }
+#endif
 
   if (player.velocity.y == 0 && collision) {
     if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {

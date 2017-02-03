@@ -10,7 +10,7 @@ extern frame_buffer_t spriteFrameBuffer;
 extern frame_buffer_t spriteMask;
 extern const unsigned char font[];
 
-extern uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT];
+extern uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
 
 typedef struct {
   frame_buffer_t dest;

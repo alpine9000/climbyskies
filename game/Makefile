@@ -6,8 +6,8 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=game.c gfx.c init.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c disk.c
-SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s music.s blittext.s
+C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c disk.c backgrounds.c
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
 
@@ -17,8 +17,8 @@ ASSETS=$(IMAGEDATA) out/fade_in.s
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+VASM_C_ARGS=-ldots -Fhunk
 AMIGA_INCLUDE=/usr/local/amiga/m68k-amigaos/ndk/include
-C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
 
 ADF=bin/$(GAME_NAME).adf
 MODULE=$(GAME_NAME).s
@@ -26,14 +26,30 @@ PROGRAM_BIN=out/main.bin
 
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
 EXTRA_DEFINES=
+
+USE_GCC=1
+
+ifdef USE_GCC
+
+CC=/usr/local/amiga6/bin/m68k-amigaos-gcc
+CFLAGS=-fomit-frame-pointer -noixemul -Wa,-m68000 -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -O3 -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
+C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
+
+else
+
+CC=vc
 CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) -fastcall
-GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/
+C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
+
+endif
+
+GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/ -DGCC_CHECK
 
 ASM_OBJS=$(SRCS:.s=.o)
 C_OBJS=$(C_SRCS:.c=.o)
 OBJS=$(ASM_OBJS) $(C_OBJS) 
-ADF_OBJS=$(addprefix out/adf/, $(OBJS)) out/adf/background-map.o
-WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) out/workbench/background-map.o
+ADF_OBJS=$(addprefix out/adf/, $(OBJS)) 
+WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) 
 ALL_OBJS=out/adf/main.o $(ADF_OBJS)
 ALL_WORKBENCH_OBJS=out/workbench/main.o $(WORKBENCH_OBJS)
 ALL_DEPENDS=$(ALL_OBJS:.o=.d) $(ALL_WORKBENCH_OBJS:.o=.d)
@@ -79,6 +95,8 @@ $(ADF): out/bootblock.bin
 
 wb: version bin/$(GAME_NAME)
 
+out/adf/backgrounds.o: out/background-map.c backgrounds.c
+
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background-map.c out
@@ -111,17 +129,29 @@ out/adf/%.o: %.s
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/adf/$*.d
 
 out/adf/%.o: out/%.c
-	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
+ifdef USE_GCC
+	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
+else
+	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE)  $< -o out/adf/$*.s 
+	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
+endif
+
 
 out/workbench/%.o: out/%.c
-	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/adf/%.o: %.c
+ifdef USE_GCC
+	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
+else
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/adf/" | cat - $*.dep > out/adf/$*.d
 	-@rm $*.dep
-	vc $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
+endif
 
 out/workbench/%.o: %.c
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)

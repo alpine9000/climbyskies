@@ -9,18 +9,21 @@ SECTIONS
     load : { 
         startCode = .;
         _startCode = .;
+        *(CODE)
         *(.text) 
         *(.data)
 	*(data_c)
-        *(CODE)
         *(DATA)
+        *(DATA_C)
 	*(CHIP_DATA)
+	*(COMMON)
         endCode = .;
     } > disk
 
     noload ALIGN(512) : {
         startData = .;
         *(.noload)
+        *(noload)
         endData = .;
     } > disk
 
@@ -30,6 +33,7 @@ SECTIONS
 	*(bss)
 	*(bss_c)
         *(BSS)
+        *(BSS_C)
 	*(CHIP_BSS)
 	endRam = .;
     } > ram;

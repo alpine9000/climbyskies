@@ -15,10 +15,10 @@ frame_buffer_t saveBuffer;
 
 int cameraY;
 int screenScrollY;
+char evil;
 int scrollCount;
 int scroll;
 uint32_t frameCount;
-uint32_t verticalBlankCount;
 
 static void
 game_switchFrameBuffers(void);
@@ -31,21 +31,29 @@ game_scrollBackground(void);
 static void
 game_setCamera(int offset);
 
-static volatile __chip uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __chip uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __chip uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __chip uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __chip uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
+static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
 static frame_buffer_t scoreBoardFrameBuffer;
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
 static uint32_t lastVerticalBlankCount;
 static int turtle;
 
+#define AVERAGE_LENGTH 16
+  static int rasterLines[AVERAGE_LENGTH];
+  static int rasterLinesIndex = 0;
+  static int maxRasterLine = 0;
+  static int average = 0;
+
+
 static void (*game_tileRender)(uint16_t hscroll);
 
 static int tileY;
-static __chip copper_t copper = {
+static __section(data_c)  copper_t copper  = {
+
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -93,6 +101,7 @@ static __chip copper_t copper = {
     BPL5PTH,0x0000,
   },
   .end = {0xFFFF, 0xFFFE}
+
 };
 
 void
@@ -131,10 +140,10 @@ game_newGame(void)
   tileY = 0;
 
   game_switchFrameBuffers();
-  
+    
   tile_init();
   tile_renderScreen();
-  
+
   player_init();
   cloud_init();
   
@@ -224,7 +233,7 @@ game_setCamera(int offset)
     return;
   }
  
-  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
+  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) );//% FRAME_BUFFER_HEIGHT);
 }
 
 static void
@@ -232,7 +241,7 @@ game_scrollBackground(void)
 {
   game_setCamera(scroll);
   
-  int tileIndex = screenScrollY % TILE_HEIGHT;
+  int tileIndex = screenScrollY ;// % TILE_HEIGHT;
 
 
   int count = abs(scroll);
@@ -246,16 +255,12 @@ game_scrollBackground(void)
   }
 }
 
-
 static 
 void
 debug_showRasterLine(void)
 {
-#define AVERAGE_LENGTH 16
-  static int rasterLines[AVERAGE_LENGTH];
-  static int rasterLinesIndex = 0;
-  static int maxRasterLine = 0;
-  static int average = 0;
+
+
 
   if (turtle > 1) {
     gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
@@ -394,3 +399,30 @@ game_loop()
     }
   }
 }
+
+
+#if defined(__GNUC__) && !defined(GCC_CHECK)
+void *memset(void *dst, int c, int n)
+{
+  if (n) {
+    char *d = dst;
+ 
+         do {
+             *d++ = c;
+         } while (--n);
+     }
+     return dst;
+ }
+
+
+void* memcpy(void* destination, void* source, int num)
+{
+  int i;
+  char* d = destination;
+  char* s = source;
+  for (i = 0; i < num; i++) {
+    d[i] = s[i];
+  }
+  return destination;
+}
+#endif

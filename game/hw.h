@@ -10,9 +10,9 @@ hw_interruptsInit(void);
 void 
 hw_waitBlitter(void);
 void 
-hw_waitRaster(__reg("d0") uint32_t);
+hw_waitRaster(__REG("d0", uint32_t));
 void 
-hw_waitScanLines(__reg("d2") uint32_t);
+hw_waitScanLines(__REG("d2", uint32_t));
 void 
 hw_readJoystick(void);
 void 
@@ -22,6 +22,7 @@ hw_getRasterLine(void);
 
 extern volatile uint8_t hw_joystickButton;
 extern volatile uint8_t hw_joystickPos;
+extern uint32_t verticalBlankCount;
 
 #define JOYSTICK_BUTTON_DOWN (hw_joystickButton&0x1)
 

@@ -1,11 +1,11 @@
 #include "game.h"
 
 extern void
-LoadMFMB(__reg("a0") void* dest, __reg("d0") uint32_t startSector, __reg("d1") int16_t nrsecs, __reg("a5") void* lastAddr, __reg("a6") uint32_t customBase);
+LoadMFMB(__REG("a0", void* dest), __REG("d0", uint32_t startSector), __REG("d1", int16_t nrsecs), __REG("a5", void* lastAddr), __REG("a6", uint32_t customBase));
 extern uint32_t startCode;
 
 void 
-disk_loadData(__reg("a0") void* dest, __reg("a1") void* src, __reg("d0") int16_t size)
+disk_loadData(__REG("a0", void* dest), __REG("a1", void* src), __REG("d0", int16_t size))
 {
 #if TRACKLOADER==1
   int startSector = ((((uint32_t)src)-((uint32_t)&startCode))>>9)+2; // +2 for bootblock
