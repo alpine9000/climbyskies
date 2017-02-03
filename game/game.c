@@ -128,8 +128,8 @@ game_init()
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
 
-  //music_play(0);   
-  //hw_interruptsInit(); // Don't enable interrupts until music is set up
+  music_play(0);   
+  hw_interruptsInit(); // Don't enable interrupts until music is set up
 
   game_newGame();
 }
@@ -139,6 +139,9 @@ static void
 game_newGame(void)
 {
   turtle = 0;
+  average = 0;
+  maxRasterLine = 0;
+  rasterLinesIndex = 0;
   cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
@@ -168,7 +171,7 @@ game_newGame(void)
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
 
-  // text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
 
   hw_waitBlitter();
 
@@ -209,7 +212,8 @@ game_switchFrameBuffers(void)
   offScreenBuffer = save;
 }
 
-static void
+static 
+void
  game_shakeScroll(int direction, int count)
 {
   int delay = 100;
@@ -290,12 +294,9 @@ game_scrollBackground(void)
   }
 }
 
-static 
-void
+static void
 debug_showRasterLine(void)
 {
-
-
 
   if (turtle > 1) {
     gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
@@ -304,9 +305,10 @@ debug_showRasterLine(void)
     gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
     turtle--;
   }
-  //  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
-  //text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
 
+
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
 
   int line = hw_getRasterLine() - RASTER_Y_START;  
 

@@ -8,7 +8,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c disk.c backgrounds.c
+C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c  backgrounds.c disk.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)

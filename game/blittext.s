@@ -18,7 +18,9 @@ _text_drawText8:
 	;; a1 - text
 	;; d0 - xpos
 	;; d1 - ypos	
-	movem.l	d0-d3/a1-a2,-(sp)
+	movem.l	d0-d3/a0-a2/a5-a6,-(sp)
+
+	lea	CUSTOM,a6
 	jsr	_hw_waitBlitter
 
 	;; blitter config that is shared for every character
@@ -29,6 +31,7 @@ _text_drawText8:
 	move.w	#$0000,BLTALWM(a6) 					; mask out extra word used for shifting
 	move.w	#$ffff,BLTADAT(a6) 					; preload source mask so only BLTA?WM mask is used
 
+	
 	move.l	#font,a5						; font pointer
 	move.l	a0,a2							; bitplane pointer
         mulu.w	#_BITPLANE_WIDTH_BYTES*_SCREEN_BIT_DEPTH,d1		; d1 = ypos bytes	
@@ -36,7 +39,7 @@ _text_drawText8:
  	move.w	d0,d1							; xpos
 	lsr.w	#3,d1							; d2 = xpos bytes
 	adda.w 	d1,a2							; dest += XPOS_BYTES
-	
+
 .loop:
 	moveq	#0,d1
 	move.b	(a1)+,d1				; get next character
@@ -77,7 +80,7 @@ _text_drawText8:
 	addq	#1,a2		; increment the dest buffer pointer
 	bra	.loop
 .done:
-	movem.l	(sp)+,d0-d3/a1-a2
+	movem.l	(sp)+,d0-d3/a0-a2/a5-a6
 	rts
 
 

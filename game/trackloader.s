@@ -15,8 +15,10 @@ MFMdrv:		dc.w 0
 MFMchk:		dc.l 0
 
 _LoadMFMB:	
-LoadMFMB:		;loadsectors.a0=dst,d0=startsec.W,d1=nrsecs.W(-=Step0),a5=don't write past
+LoadMFMB:		;loadsectors.a0=dst,d0=startsec.W,d1=nrsecs.W(-=Step0),a1=don't write past
 	MOVEM.L	D0-D7/A0-A6,-(SP)
+	move.l	a1,a5
+	lea	$dff002,a6
 	lea	$bfd100,a4
 	bsr	MotorOn
 	tst.w	d1			;if neg length,then Step0 first

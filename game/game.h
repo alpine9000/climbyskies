@@ -49,7 +49,7 @@ extern "C" {
 #else
 #undef __chip
 #define __section(x) __attribute__ ((section (#x))) 
-#define __REG(reg, arg) arg __asm(reg)
+#define __REG(reg, arg) register arg asm(reg)
 #endif
 #define USE(x) do { x = x; } while(0);
 #else
