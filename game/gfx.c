@@ -1,7 +1,7 @@
 #include "game.h"
 
 uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
-static uint16_t heightLUT[64];
+static uint16_t heightLUT[65];
 
 void 
 gfx_init()
@@ -10,7 +10,7 @@ gfx_init()
     dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
   }
   
-  for (uint16_t h = 0; h < 64; h++) {
+  for (uint16_t h = 0; h <= 64; h++) {
     heightLUT[h] = (h*SCREEN_BIT_DEPTH)<<6;
   }
 }

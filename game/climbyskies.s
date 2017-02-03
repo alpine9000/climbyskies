@@ -1,5 +1,6 @@
 	include "includes.i"
 
+	xdef _memset
 	xdef _custom
 	xdef _spriteMask
 	xdef _spriteFrameBuffer
@@ -34,6 +35,27 @@ QuitGame:
 	jmp	LongJump
 	endif
 
+	if USE_GCC=1
+	cnop    0,4
+_memset:	
+	movem.l .l387,-(a7)
+	move.l  (8+.l389,a7),d1
+	move.l  (12+.l389,a7),d0
+	move.l  (4+.l389,a7),a1
+	tst.l   d0
+	beq     .l371
+	move.l  a1,a0
+.l370
+	move.b  d1,(a0)+
+	subq.l  #1,d0
+	bne     .l370
+.l371
+	move.l  a1,d0
+.l387   reg
+.l389   equ     0
+        rts
+	endif
+	
 	include "os.i"
 
 	if TRACKLOADER=0
@@ -62,7 +84,7 @@ _custom:
 	align 4
 	if TRACKLOADER=1
 startUserstack:
-	ds.b	1000
+	ds.b	32768
 userstack:
 	endif
 	end

@@ -107,6 +107,15 @@ static __section(data_c)  copper_t copper  = {
 void
 game_init()
 {
+  extern char* startBSS;
+  extern char* endBSS;
+
+  char* ptr = startBSS;
+
+  while (ptr != endBSS) {
+    *ptr++ = 0;
+  }
+
   hw_waitVerticalBlank();
   palette_black();
 
@@ -119,8 +128,8 @@ game_init()
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
 
-  music_play(0);   
-  hw_interruptsInit(); // Don't enable interrupts until music is set up
+  //music_play(0);   
+  //hw_interruptsInit(); // Don't enable interrupts until music is set up
 
   game_newGame();
 }
@@ -140,16 +149,26 @@ game_newGame(void)
   tileY = 0;
 
   game_switchFrameBuffers();
-    
+
   tile_init();
   tile_renderScreen();
+
+#if 0
+  palette_fadeIn();
+  custom->color[1] = 0xf00;
+  custom->color[0] = 0x00f;
+  gfx_fillRect(offScreenBuffer, 0, 0, 100, 100, 1);
+  gfx_renderSprite(offScreenBuffer, 0, 0, 0, 0, 64, 64);
+  game_switchFrameBuffers();
+  for (;;);
+#endif
 
   player_init();
   cloud_init();
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
 
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
+  // text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
 
   hw_waitBlitter();
 
@@ -233,15 +252,31 @@ game_setCamera(int offset)
     return;
   }
  
-  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) );//% FRAME_BUFFER_HEIGHT);
+#if 0
+  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
+#else
+  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)));
+
+  while (screenScrollY >= FRAME_BUFFER_HEIGHT) {
+    screenScrollY -= FRAME_BUFFER_HEIGHT;
+  }
+#endif
 }
 
 static void
 game_scrollBackground(void)
 {
   game_setCamera(scroll);
+
+#if 0  
+  int tileIndex = screenScrollY % TILE_HEIGHT;
+#else
+  int tileIndex = screenScrollY;
   
-  int tileIndex = screenScrollY ;// % TILE_HEIGHT;
+  while (tileIndex >= TILE_HEIGHT) {
+    tileIndex -= TILE_HEIGHT;
+  }
+#endif
 
 
   int count = abs(scroll);
@@ -269,8 +304,8 @@ debug_showRasterLine(void)
     gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
     turtle--;
   }
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
+  //  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
+  //text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
 
 
   int line = hw_getRasterLine() - RASTER_Y_START;  
@@ -402,19 +437,6 @@ game_loop()
 
 
 #if defined(__GNUC__) && !defined(GCC_CHECK)
-void *memset(void *dst, int c, int n)
-{
-  if (n) {
-    char *d = dst;
- 
-         do {
-             *d++ = c;
-         } while (--n);
-     }
-     return dst;
- }
-
-
 void* memcpy(void* destination, void* source, int num)
 {
   int i;

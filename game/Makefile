@@ -1,3 +1,5 @@
+USE_GCC=1
+
 GAME_NAME=climbyskies
 
 # userstack used by bootblock
@@ -16,8 +18,8 @@ IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) out/fade_in.s
 
 LINKER_OPTIONS=-T link.script.x
-VASM_ARGS=-Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
-VASM_C_ARGS=-ldots -Fhunk
+VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+VASM_C_ARGS=-ldots -Fhunk -quiet -no-opt
 AMIGA_INCLUDE=/usr/local/amiga/m68k-amigaos/ndk/include
 
 ADF=bin/$(GAME_NAME).adf
@@ -27,20 +29,14 @@ PROGRAM_BIN=out/main.bin
 VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
 EXTRA_DEFINES=
 
-USE_GCC=1
-
-ifdef USE_GCC
-
+ifeq ($(USE_GCC), 1)
 CC=/usr/local/amiga6/bin/m68k-amigaos-gcc
 CFLAGS=-fomit-frame-pointer -noixemul -Wa,-m68000 -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -O3 -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
-
 else
-
 CC=vc
-CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) -fastcall
+CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) #-fastcall
 C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
-
 endif
 
 GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -o /tmp/blah.o -c -I /usr/local/amiga/m68k-amigaos/ndk/include/ -DGCC_CHECK
@@ -129,7 +125,7 @@ out/adf/%.o: %.s
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/adf/$*.d
 
 out/adf/%.o: out/%.c
-ifdef USE_GCC
+ifeq ($(USE_GCC), 1)
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else
@@ -142,7 +138,7 @@ out/workbench/%.o: out/%.c
 	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
 out/adf/%.o: %.c
-ifdef USE_GCC
+ifeq ($(USE_GCC), 1)
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else

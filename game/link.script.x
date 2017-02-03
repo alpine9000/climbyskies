@@ -29,12 +29,14 @@ SECTIONS
 
     bss (NOLOAD) : {
         . = endCode;
+	_startBSS = .;
         *(.bss)
 	*(bss)
 	*(bss_c)
         *(BSS)
         *(BSS_C)
 	*(CHIP_BSS)
+	_endBSS = .;
 	endRam = .;
     } > ram;
 }

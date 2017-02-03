@@ -27,7 +27,7 @@ tile_init(void)
   }
 
 
-#if 0
+#if 1
   uint16_t* src = &background_tileAddresses[0][0];
   uint16_t* dest = &backgroundTiles[0][0];
   for (int i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {

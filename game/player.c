@@ -61,6 +61,7 @@ typedef struct {
   sprite_animation_t* anim;
   sprite_save_t saves[2];
   int flashCounter;
+  int frameCounter;
   player_state_t state;
 } player_t;
 
@@ -162,6 +163,7 @@ player_setAnim(int anim)
     player.animId = anim;
     player.anim = &animations[player.animId];
     player.sprite.imageIndex = player.anim->animation.start;
+    player.frameCounter = 0;
   }
 }
 
@@ -373,16 +375,19 @@ player_updateAlive(void)
     }
   }
 
-#if 0
+
   if (player.velocity.y != 0 || player.velocity.x != 0) {
-    if (frameCount % player.anim->animation.speed == 0) {
+    if (player.frameCounter == player.anim->animation.speed) {
       player.sprite.imageIndex++;
+      player.frameCounter = 0;
       if (player.sprite.imageIndex > player.anim->animation.stop) {
 	player.sprite.imageIndex = player.anim->animation.start;
       }
+    } else {
+      player.frameCounter++;
     }
   }
-#endif
+
 
   if (player.velocity.y == 0 && collision) {
     if (scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
