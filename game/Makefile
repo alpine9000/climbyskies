@@ -26,11 +26,12 @@ ADF=bin/$(GAME_NAME).adf
 MODULE=$(GAME_NAME).s
 PROGRAM_BIN=out/main.bin
 
-VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
+VASM=/usr/local/amiga/vgcc/bin/vasmm68k_mot
+LD=/usr/local/amiga/vgcc/bin/vlink
 EXTRA_DEFINES=
 
 ifeq ($(USE_GCC), 1)
-CC=/usr/local/amiga6.1/bin/m68k-amigaos-gcc
+CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
 CFLAGS=-fomit-frame-pointer -noixemul -Wa,-m68000 -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -O3 -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
 else
@@ -102,7 +103,7 @@ out/background-map.c: assets/background.tmx
 out/sprite.bin: assets/sprite.png palette.pal
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224 #--transparent-color=80,192,224
 out/bootblock.bin: out/bootblock.o
-	vlink -brawbin1 $< -o $@
+	$(LD) -brawbin1 $< -o $@
 
 out/font%.bin: assets/font%.png palette.pal
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=32 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
@@ -149,7 +150,6 @@ ifeq ($(USE_GCC), 1)
 	sed -e 's/^ *//' -e 's/$$/:/' >> out/adf/$*.d
 	@rm -f $*.d.tmp
 	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
-	#$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
@@ -181,15 +181,15 @@ out/workbench/%.o: %.s
 	@$(VASM) -depend=make  -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/workbench/$*.d
 
 out/main.bin: out/adf/main.o $(ADF_OBJS)
-	vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@ 
-	@vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@  -M -o /tmp/main.bin > out/adf/main.txt
-	@vlink $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -M -o /tmp/main.bin | grep ", value " | cut -d " " -f3,7 | cut -d "," -f1 > $@.symbols
+	$(LD) $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@ 
+	@$(LD) $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -o $@  -M -o /tmp/main.bin > out/adf/main.txt
+	@$(LD) $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -M -o /tmp/main.bin | grep ", value " | cut -d " " -f3,7 | cut -d "," -f1 > $@.symbols
 	@cp $@.symbols ~/Projects/amiga/debugger.syms
 	@echo "RAM USAGE:" $$((16#`cat ~/Projects/amiga/debugger.syms | grep endRam | sed 's/0x//' | sed 's/endRam: //'`)) bytes
 
 bin/$(GAME_NAME): bin out $(ALL_TOOLS)  $(ALL_WORKBENCH_OBJS) 
-        #vlink $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2 -hunkattr DATA=2 -hunkattr CODE=2 -hunkattr .text=2 -hunkattr .code=2 -hunkattr .data=2	-hunkattr .noload=2 -hunkattr .bss=2 $(ALL_WORKBENCH_OBJS) -o $@
-	vlink $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
+        #$(LD) $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2 -hunkattr DATA=2 -hunkattr CODE=2 -hunkattr .text=2 -hunkattr .code=2 -hunkattr .data=2	-hunkattr .noload=2 -hunkattr .bss=2 $(ALL_WORKBENCH_OBJS) -o $@
+	$(LD) $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
 	cp $@ ~/A1200/BlockySkies
 	cp $@ ~/A4000/BlockySkies
         #cp assets/BlockySkies.info bin
