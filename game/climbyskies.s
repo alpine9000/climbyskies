@@ -84,7 +84,7 @@ _custom:
 	align 4
 	if TRACKLOADER=1
 startUserstack:
-	ds.b	32768
+	ds.b	1000
 userstack:
 	endif
 	end

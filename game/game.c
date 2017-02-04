@@ -1,7 +1,7 @@
 #include "game.h"
 #include "version/version.h"
 
-#define SHOW_SPEED 1
+//#define SHOW_SPEED 1
 
 #ifdef SHOW_SPEED
 #define SPEED_COLOR(x) custom->color[0] = x;
@@ -107,6 +107,7 @@ static __section(data_c)  copper_t copper  = {
 void
 game_init()
 {
+#if TRACKLOADER==1
   extern char* startBSS;
   extern char* endBSS;
 
@@ -115,6 +116,7 @@ game_init()
   while (ptr != endBSS) {
     *ptr++ = 0;
   }
+#endif
 
   hw_waitVerticalBlank();
   palette_black();

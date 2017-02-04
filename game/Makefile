@@ -92,6 +92,7 @@ $(ADF): out/bootblock.bin
 wb: version bin/$(GAME_NAME)
 
 out/adf/backgrounds.o: out/background-map.c backgrounds.c
+out/workbench/backgrounds.o: out/background-map.c backgrounds.c
 
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
@@ -126,8 +127,9 @@ out/adf/%.o: %.s
 
 out/adf/%.o: out/%.c
 ifeq ($(USE_GCC), 1)
-	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
-	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
+	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
+	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	#$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE)  $< -o out/adf/$*.s 
 	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
@@ -139,8 +141,15 @@ out/workbench/%.o: out/%.c
 
 out/adf/%.o: %.c
 ifeq ($(USE_GCC), 1)
-	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
-	$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
+	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
+	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d
+	@mv -f out/adf/$*.d $*.d.tmp
+	@sed -e 's|.*:|out/adf/$*.o:|' < $*.d.tmp > out/adf/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+	sed -e 's/^ *//' -e 's/$$/:/' >> out/adf/$*.d
+	@rm -f $*.d.tmp
+	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	#$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
@@ -150,11 +159,22 @@ else
 endif
 
 out/workbench/%.o: %.c
-	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
+ifeq ($(USE_GCC), 1)
+	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.o
+	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.d
+	@mv -f out/workbench/$*.d $*.d.tmp
+	@sed -e 's|.*:|out/workbench/$*.o:|' < $*.d.tmp > out/workbench/$*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+	sed -e 's/^ *//' -e 's/$$/:/' >> out/workbench/$*.d
+	@rm -f $*.d.tmp
+	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s 
+else
+	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=0 $(GCC_CHECK_CFLAGS)
 	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/workbench/" | cat - $*.dep > out/workbench/$*.d
 	-@rm $*.dep
 	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
+endif
 
 out/workbench/%.o: %.s
 	$(VASM)  -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE)
