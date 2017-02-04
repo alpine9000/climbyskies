@@ -30,7 +30,7 @@ VASM=/usr/local/amiga/m68k-amigaos/bin/vasmm68k_mot
 EXTRA_DEFINES=
 
 ifeq ($(USE_GCC), 1)
-CC=/usr/local/amiga6/bin/m68k-amigaos-gcc
+CC=/usr/local/amiga6.1/bin/m68k-amigaos-gcc
 CFLAGS=-fomit-frame-pointer -noixemul -Wa,-m68000 -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -O3 -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
 else

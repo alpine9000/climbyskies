@@ -17,8 +17,8 @@ tile_init(void)
 {
   invalidTiles = 0;
   invalidFreeList = &invalidTileBuffers[0];
-  invalidFreeList->prev = 0;
-  invalidFreeList->next = 0;
+   invalidFreeList->prev = 0;
+  //  invalidFreeList->next = 0;
   tile_redraw_t* ptr = invalidFreeList;
   for (int i = 1; i < MAX_INVALID_TILES; i++) {
       ptr->next = &invalidTileBuffers[i];
@@ -44,9 +44,24 @@ tile_getFree(void)
 {
   tile_redraw_t* entry = invalidFreeList;
   invalidFreeList = invalidFreeList->next;
+  invalidFreeList->prev = 0;
   return entry;
 }
 
+static void
+tile_addFree(tile_redraw_t* ptr)
+{
+  if (invalidFreeList == 0) {
+    invalidFreeList = ptr;
+    ptr->next = 0;
+    ptr->prev = 0;
+  } else {
+    ptr->next = invalidFreeList;
+    ptr->next->prev = ptr;
+    ptr->prev = 0;
+    invalidFreeList = ptr;
+  }
+}
 
 static void
 tile_addInvalid(tile_redraw_t* ptr)
@@ -64,12 +79,14 @@ tile_addInvalid(tile_redraw_t* ptr)
 }
 
 
-static void
+static  void
 tile_removeInvalid(tile_redraw_t* ptr)
 {
   if (ptr->prev == 0) {
     invalidTiles = ptr->next;
-    invalidTiles->prev = 0;
+    if (invalidTiles) {
+      invalidTiles->prev = 0;
+    }
   } else {
     ptr->prev->next = ptr->next;
     if (ptr->next != 0) {
@@ -91,18 +108,23 @@ tile_invalidateTile(int x, int y, int offset)
 }
 
 
+
+
 void
 tile_renderInvalidTiles(frame_buffer_t fb)
 {
+  USE(fb);
   tile_redraw_t* ptr = invalidTiles;
 
   while (ptr != 0) {
     gfx_renderTile(fb, ptr->x, ptr->y, spriteFrameBuffer+ptr->offset);
     ptr->count--;
-    if (ptr->count == 0) {
-      tile_removeInvalid(ptr);
-    }
+    tile_redraw_t* save = ptr;
     ptr = ptr->next;
+    if (save->count == 0) {
+      tile_removeInvalid(save);
+      tile_addFree(save);
+    }    
   }
 }
 
