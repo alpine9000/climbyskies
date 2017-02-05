@@ -258,7 +258,7 @@ game_setCamera(int offset)
     return;
   }
  
-#if 0
+#if 1
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
 #else
   screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)));
