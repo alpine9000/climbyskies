@@ -2,10 +2,6 @@ USE_GCC=1
 
 GAME_NAME=climbyskies
 
-ifeq ($(USE_GCC), 1)
-EXTRA_ASM=gcc.s
-endif
-
 # userstack used by bootblock
 USERSTACK_ADDRESS=7fffc
 # if you change this you must also change link.script.x
@@ -13,7 +9,7 @@ BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c  backgrounds.c disk.c
-SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s $(EXTRA_ASM)
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
@@ -42,7 +38,7 @@ REGPARAM=-mregparm=2
 VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
 C_OPT=-O3 
 CFLAGS=$(C_OPT) $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
-C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
+C_LIBS=libgcc/out/gcc.lib
 else
 CC=vc
 CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) #-fastcall
@@ -65,7 +61,7 @@ all: adf
 
 include ../shared/externals.mk
 
-adf: version bin out $(ALL_TOOLS) $(ADF)
+adf: libgcc/out/gcc.lib version bin out $(ALL_TOOLS) $(ADF)
 
 .PHONY: version
 version:
@@ -77,6 +73,9 @@ gdrive: all
 
 test: all
 	cp $(ADF) ~/Projects/amiga/test.adf
+
+libgcc/out/gcc.lib:
+	make -C libgcc
 
 go: test
 	 $(RUN_SCRIPT)
@@ -210,6 +209,7 @@ bin/$(GAME_NAME): bin out $(ALL_TOOLS)  $(ALL_WORKBENCH_OBJS)
 .PHONY: clean
 clean:	
 	rm -rf out bin *~
+	make -C libgcc clean
 
 depend:
 	echo $(ALL_DEPENDS)
