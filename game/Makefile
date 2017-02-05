@@ -39,7 +39,7 @@ ifeq ($(USE_GCC), 1)
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
 REGPARAM=-mregparm=2
 #VASM_OPTS=-Wa,-no-opt
-#VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
+VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
 C_OPT=-O3 
 CFLAGS=$(C_OPT) $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a

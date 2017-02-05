@@ -43,7 +43,6 @@ ___modsi3:
 	rts
 
 
-
 	xdef ___mulsi3
 	align 	1
 ___mulsi3:
@@ -59,10 +58,11 @@ ___mulsi3:
 	add.l	d1,d0
 	rts	
 	
+
 	xdef	___divsi3
+	align 	1
 ___divsi3:	
 	move.l	d2,-(sp)
-
 	moveq	#1,d2		; sign of result stored in d2 (=1 or =-1)
 	move.l	12(sp),d1	; d1 = divisor
 	bpl	.L1
@@ -72,26 +72,23 @@ ___divsi3:
 	bpl	.L2
 	neg.l	d0
 	neg.b	d2
-
 .L2:	move.l	d1,-(sp)
 	move.l	d0,-(sp)
 	jsr	___udivsi3	; divide abs(dividend) by abs(divisor)
 	addq.l	#8,sp
-
 	tst.b	d2
 	bpl	.L3
 	neg.l	d0
-
 .L3:	move.l	(sp)+,d2
 	rts
 
 
 	xdef	___udivsi3
+	align	1
 ___udivsi3:
 	move.l	d2,-(sp)
 	move.l	12(sp),d1	; d1 = divisor
 	move.l	8(sp),d0	; d0 = dividend
-
 	cmp.l	#$10000,d1 	; divisor >= 2 ^ 16 ?  
 	bcc	.L3		; then try next algorithm
 	move.l	d0,d2
@@ -104,7 +101,6 @@ ___udivsi3:
 	divu	d1,d2		; low quotient
 	move.w	d2,d0
 	bra	.L6
-
 .L3:	move.l	d1,d2		; use d2 as divisor backup
 .L4:	lsr.l	#1,d1		; shift divisor
 	lsr.l	#1,d0		; shift dividend
@@ -112,10 +108,9 @@ ___udivsi3:
 	bcc	.L4
 	divu	d1,d0		; now we have 16-bit divisor
 	and.l	#$ffff,d0 	; mask out divisor, ignore remainder
-
 	;; Multiply the 16-bit tentative quotient with the 32-bit divisor.  Because of
 	;; the operand ranges, this might give a 33-bit product.  If this product is 
-	;;  greater than the dividend, the tentative quotient was too large. */
+	;; greater than the dividend, the tentative quotient was too large. */
 	move.l	d2,d1
 	mulu	d0,d1		; low part, 32 bits
 	swap	d2
@@ -128,7 +123,6 @@ ___udivsi3:
 	cmp.l	8(sp),d1	; compare the sum with the dividend
 	bls	.L6		; if sum > dividend, quotient was too large
 .L5:	subq.l	#1,d0		; adjust quotient
-
 .L6:	move.l	(sp)+,d2
 	rts
 	
