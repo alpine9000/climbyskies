@@ -36,8 +36,9 @@ QuitGame:
 	endif
 
 	if USE_GCC=1
-	cnop    0,4
-_memset:	
+	if 0
+	cnop    0,4	
+__memset:	
 	movem.l .l387,-(a7)
 	move.l  (8+.l389,a7),d1
 	move.l  (12+.l389,a7),d0
@@ -54,8 +55,29 @@ _memset:
 .l387   reg
 .l389   equ     0
         rts
+	else
+	cnop    0,4
+_memset:
+	movem.l	a1,-(sp)
+	movem.l	l383,-(a7)
+	move.l	a0,a1
+	tst.l	d1
+	beq	l367
+l366
+	move.b	d0,(a0)+
+	subq.l	#1,d1
+	bne	l366
+l367
+	move.l	a1,d0
+l383	reg
+l385	equ	0
+	movem.l	(sp)+,a1
+	rts
 	endif
 	
+	endif ; USE_GCC
+
+	align 4
 	include "os.i"
 
 	if TRACKLOADER=0

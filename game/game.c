@@ -439,11 +439,24 @@ game_loop()
   }
 }
 
+#if 0
+void *__memset(__REG("a0", void *dst), __REG("d0", int c), __REG("d1", uint32_t n))
+{
+  if (n) {
+    char *d = dst;
+    
+    do {
+      *d++ = c;
+    } while (--n);
+  }
+  return dst;
+}
+#endif
 
 #if defined(__GNUC__) && !defined(GCC_CHECK)
-void* memcpy(void* destination, void* source, int num)
+void* memcpy(void* destination, void* source, size_t num)
 {
-  int i;
+  size_t i;
   char* d = destination;
   char* s = source;
   for (i = 0; i < num; i++) {

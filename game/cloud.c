@@ -63,15 +63,29 @@ void
 cloud_init(void)
 {
   cloudXIndex = 0;
-  for (int i = 0; i < NUM_CLOUDS; i++) {
-    cloud_t* cloud = &clouds[i];
-    clouds[i] = _clouds[i];
-    cloud->saves[0].blit[0].size = 0;
-    cloud->saves[0].blit[1].size = 0;
-    cloud->saves[1].blit[0].size = 0;
-    cloud->saves[1].blit[1].size = 0;
-    cloud->sprite.save = &cloud->saves[0];
-  }
+
+#if 1
+    memcpy(clouds, _clouds, sizeof(clouds));
+    for (int i = 0; i < NUM_CLOUDS; i++) {
+      cloud_t* cloud = &clouds[i];
+      cloud->sprite.save = &cloud->saves[0];
+    }
+#else
+    // crashes with -mregparm=2 and vasm default optimisations
+      for (int i = 0; i < NUM_CLOUDS; i++) {
+	cloud_t* cloud = &clouds[i];
+        clouds[i] = _clouds[i];
+#if 1
+	cloud->saves[0].blit[0].size = 0;
+	cloud->saves[0].blit[1].size = 0;
+	cloud->saves[1].blit[0].size = 0;
+	cloud->saves[1].blit[1].size = 0;
+#endif
+	cloud->sprite.save = &cloud->saves[0];
+      }
+#endif
+
+
 }
 
 

@@ -41,8 +41,16 @@ extern "C" {
 
 #define SCROLL_PIXELS 4
 
+typedef UBYTE uint8_t;
+typedef SHORT int16_t;
+typedef USHORT uint16_t;
+typedef LONG int32_t;
+typedef ULONG uint32_t;
+typedef ULONG size_t;
 
 #if defined(__GNUC__)
+extern void* memset(void *dst, int c, size_t n);
+extern void* memcpy(void* destination, void* source, size_t num);
 #if defined(GCC_CHECK)
 #define __section(x)
 #define __REG(reg, arg) arg
@@ -56,13 +64,6 @@ extern "C" {
 #define USE(x)
 #define __REG(reg, arg) __reg(reg) arg
 #endif
-
-
-typedef UBYTE uint8_t;
-typedef SHORT int16_t;
-typedef USHORT uint16_t;
-typedef LONG int32_t;
-typedef ULONG uint32_t;
 
 typedef volatile uint8_t * frame_buffer_t;
 

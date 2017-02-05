@@ -32,7 +32,10 @@ EXTRA_DEFINES=
 
 ifeq ($(USE_GCC), 1)
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
-CFLAGS=-O3 -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
+REGPARAM=-mregparm=2
+#VASM_OPTS=-Wa,-no-opt
+VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
+CFLAGS=$(REGPARAM) $(VASM_OPTS) -O3 -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=#/usr/local/amiga6//m68k-amigaos/lib/libnix/libnix13.a
 else
 CC=vc
@@ -152,7 +155,7 @@ ifeq ($(USE_GCC), 1)
 	@rm -f $*.d.tmp
 else
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=1 $(GCC_CHECK_CFLAGS)
-	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
+	-@$(CC) -deps $(CFLAGS) -S -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/adf/" | cat - $*.dep > out/adf/$*.d
 	-@rm $*.dep
 	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
@@ -170,10 +173,10 @@ ifeq ($(USE_GCC), 1)
 	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s 
 else
 	gcc $< $(EXTRA_DEFINES) -DTRACKLOADER=0 $(GCC_CHECK_CFLAGS)
-	-@vc -deps $(CFLAGS) -S -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s > /dev/null 2> /dev/null
+	-@$(CC) -deps $(CFLAGS) -S -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.s > /dev/null 2> /dev/null
 	-@/bin/echo -n "out/workbench/" | cat - $*.dep > out/workbench/$*.d
 	-@rm $*.dep
-	vc $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
+	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 endif
 
 out/workbench/%.o: %.s
