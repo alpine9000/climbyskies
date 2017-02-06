@@ -246,7 +246,7 @@ game_setCamera(int offset)
 {
   cameraY -= offset;
 
-  if (cameraY < 0) {
+  if (cameraY <= 0 && scrollCount == 0) {
     cameraY = 0;
     scroll = 0;
     scrollCount = 0;

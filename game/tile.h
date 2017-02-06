@@ -3,6 +3,8 @@
 
 extern uint16_t backgroundTiles[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 
+#define TILE_SKY 0xbba6
+#define TILE_COLLISION(x) (x < 0x1900)
 #define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + (((y>>4)<<4) + (x>>4))))
 //#define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + ((((y/TILE_HEIGHT)*TILE_WIDTH)) + (x/TILE_WIDTH))))
 
