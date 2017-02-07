@@ -1,7 +1,9 @@
 #include "game.h"
 #include "version/version.h"
 
-//#define SHOW_SPEED 1
+#define ENABLE_ENEMIES 1
+
+#define SHOW_SPEED 1
 
 #ifdef SHOW_SPEED
 #define SPEED_COLOR(x) custom->color[0] = x;
@@ -158,17 +160,10 @@ game_newGame(void)
   tile_init();
   tile_renderScreen();
 
-#if 0
-  palette_fadeIn();
-  custom->color[1] = 0xf00;
-  custom->color[0] = 0x00f;
-  gfx_fillRect(offScreenBuffer, 0, 0, 100, 100, 1);
-  gfx_renderSprite(offScreenBuffer, 0, 0, 0, 0, 64, 64);
-  game_switchFrameBuffers();
-  for (;;);
-#endif
-
   player_init();
+#ifdef ENABLE_ENEMIES
+  enemy_init();
+#endif
   cloud_init();
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
@@ -225,6 +220,9 @@ void
     game_switchFrameBuffers();
     game_setCamera(direction);
     player_restoreBackground();
+#ifdef ENABLE_ENEMIES
+    enemy_restoreBackground();
+#endif
     cloud_restoreBackground();
     game_render();
   }
@@ -296,17 +294,21 @@ game_scrollBackground(void)
   }
 }
 
-static void
+//static 
+void
 debug_showRasterLine(void)
 {
-
+#if 0
   if (turtle > 1) {
-    gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
+        gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
+    //    text_drawText8(scoreBoardFrameBuffer, "SLOW", 10*8, 4);  
     turtle--;
   } else if (turtle == 1) {
-    gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
+       gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
+    //    text_drawText8(scoreBoardFrameBuffer, "    ", 10*8, 4);  
     turtle--;
   }
+#endif
 
 
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
@@ -339,14 +341,21 @@ game_render(void)
   tile_renderInvalidTiles(offScreenBuffer);
 
   player_saveBackground(offScreenBuffer);
+#ifdef ENABLE_ENEMIES
+  enemy_saveBackground(offScreenBuffer);
+#endif
   cloud_saveBackground(offScreenBuffer);
 
 
   
-  SPEED_COLOR(0x0f0);
+  SPEED_COLOR(0x500);
   cloud_render(offScreenBuffer);
-  SPEED_COLOR(0x0ff);
+  SPEED_COLOR(0x005);
   player_render(offScreenBuffer);
+#ifdef ENABLE_ENEMIES
+  SPEED_COLOR(0x050);
+  enemy_render(offScreenBuffer);  
+#endif
   saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
@@ -390,12 +399,15 @@ game_loop()
     SPEED_COLOR(0xF0F);
     player_update();
     SPEED_COLOR(0x0fF);
+#ifdef ENABLE_ENEMIES
+    enemy_update();
+#endif
     cloud_update();
     SPEED_COLOR(0x00);
 
 
     SPEED_COLOR(0xfff);
-    debug_showRasterLine();
+    //    debug_showRasterLine();
     SPEED_COLOR(0x000);
 
 
@@ -417,9 +429,17 @@ game_loop()
       scrollCount--;
     }
 
+    SPEED_COLOR(0xf00);
     //    text_restore();
     player_restoreBackground();
+#ifdef ENABLE_ENEMIES
+    SPEED_COLOR(0x0f0);
+    enemy_restoreBackground();
+#endif
+    SPEED_COLOR(0x00f);
     cloud_restoreBackground();
+
+    SPEED_COLOR(0x000);
 
     game_render();
 

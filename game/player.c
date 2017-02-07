@@ -54,10 +54,6 @@ typedef enum {
   PLAYER_STATE_HEADCONTACT
 } player_state_t;
 
-typedef struct {
-  int x;
-  int y;
-} velocity_t;
 
 typedef struct {
   sprite_t sprite;

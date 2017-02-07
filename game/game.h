@@ -94,6 +94,7 @@ extern frame_buffer_t onScreenBuffer;
 #include "cloud.h"
 #include "text.h"
 #include "disk.h"
+#include "enemy.h"
 
 void
 game_init(void);

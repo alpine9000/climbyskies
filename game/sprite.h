@@ -10,6 +10,11 @@ typedef struct {
 typedef struct {
   int x;
   int y;
+} velocity_t;
+
+typedef struct {
+  int x;
+  int y;
   int imageIndex;
   sprite_save_t* save;
 } sprite_t;

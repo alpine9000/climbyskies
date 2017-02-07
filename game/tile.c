@@ -137,16 +137,18 @@ tile_renderScreen(void)
   tilePtr = &backgroundTiles[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-      gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+*tilePtr);
-      gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+*tilePtr);
+      unsigned long offset = *tilePtr;
+      gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
+      gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
       tilePtr--;
     }
   }
   
   int y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-    gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+*tilePtr);
-    gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+*tilePtr);
+    unsigned long offset = *tilePtr;
+    gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
+    gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
     tilePtr--;
   }
 }
@@ -161,8 +163,9 @@ tile_renderNextTile(uint16_t hscroll)
     y = FRAME_BUFFER_HEIGHT+y;
   }
 
-  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+*tilePtr);
-  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+*tilePtr);
+  unsigned long offset = *tilePtr;
+  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+offset);
+  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+offset);
   
   tilePtr = tilePtr-1;
 
@@ -191,6 +194,7 @@ tile_renderNextTileDown(uint16_t hscroll)
   }
 
 #define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
-  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+*(tilePtr+OFFSET));
-  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+*(tilePtr+OFFSET));
+  unsigned long offset = *(tilePtr+OFFSET);
+  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+offset);
+  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+offset);
 }
