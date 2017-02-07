@@ -1,14 +1,20 @@
 #ifndef __HW_H
 #define __HW_H
 
+#if defined(__GNUC__)
+#define hw_waitBlitter()  while (((volatile struct Custom*)CUSTOM)->dmaconr & 1<<14);
+#else
+#define hw_waitBlitter() _hw_waitBlitter();
+void 
+_hw_waitBlitter(void);
+#endif
+
 void 
 hw_waitVerticalBlank(void);
 void
 hw_setupPalette(void);
 void 
 hw_interruptsInit(void);
-void 
-hw_waitBlitter(void);
 void 
 hw_waitRaster(__REG("d0", uint32_t));
 void 

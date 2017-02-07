@@ -19,6 +19,14 @@ typedef struct {
   sprite_save_t* save;
 } sprite_t;
 
+typedef struct {
+  int16_t x;
+  int16_t y;
+  int16_t w;
+  int16_t h;
+} image_t;
+
+extern image_t imageAtlas[];
 
 void
 _sprite_render(frame_buffer_t fb, sprite_t* actor, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h));

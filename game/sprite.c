@@ -1,14 +1,8 @@
 #include "game.h"
 
-typedef struct {
-  int16_t x;
-  int16_t y;
-  int16_t w;
-  int16_t h;
-} image_t;
 
 
-static
+//static
 image_t imageAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = { // 0. climber run left 1
     .x = 0,

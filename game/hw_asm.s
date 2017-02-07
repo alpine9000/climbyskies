@@ -1,6 +1,6 @@
 	include "includes.i"
 
-	xdef _hw_waitBlitter
+	xdef __hw_waitBlitter
 	xdef _hw_waitVerticalBlank
 	xdef _hw_waitRaster
 	xdef _hw_readJoystick
@@ -19,7 +19,7 @@ potgor    = $dff016
 bit_joyb1 = 7
 bit_joyb2 = 14
 	
-_hw_waitBlitter:
+__hw_waitBlitter:
 	move.l	a6,-(sp)
 	lea 	CUSTOM,a6
 	tst 	DMACONR(a6)		;for compatibility
@@ -28,7 +28,7 @@ _hw_waitBlitter:
 	bne.s 	.waitblit
 	move.l	(sp)+,a6
 	rts
-	
+
 _hw_waitVerticalBlank:	
 	movem.l	d0,-(sp)
 .loop:

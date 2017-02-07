@@ -1,7 +1,7 @@
 #include "game.h"
 
 uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
-static uint16_t heightLUT[65];
+uint16_t heightLUT[65];
 
 void 
 gfx_init()

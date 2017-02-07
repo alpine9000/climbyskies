@@ -105,7 +105,6 @@ game_setBackgroundScroll(int s);
 void
 game_shakeScreen(void);
 
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

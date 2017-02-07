@@ -3,7 +3,7 @@
 
 #define ENABLE_ENEMIES 1
 
-#define SHOW_SPEED 1
+//#define SHOW_SPEED 1
 
 #ifdef SHOW_SPEED
 #define SPEED_COLOR(x) custom->color[0] = x;
@@ -407,7 +407,7 @@ game_loop()
 
 
     SPEED_COLOR(0xfff);
-    //    debug_showRasterLine();
+    debug_showRasterLine();
     SPEED_COLOR(0x000);
 
 

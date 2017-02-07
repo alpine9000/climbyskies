@@ -21,7 +21,7 @@ _text_drawText8:
 	movem.l	d0-d3/a0-a2/a5-a6,-(sp)
 
 	lea	CUSTOM,a6
-	jsr	_hw_waitBlitter
+	jsr	__hw_waitBlitter
 
 	;; blitter config that is shared for every character
 	move.w	#BC0F_SRCB|BC0F_SRCC|BC0F_DEST|BLIT_LF_MINTERM,d3 	; BLTCON0 value
@@ -48,7 +48,7 @@ _text_drawText8:
 	lsl.w	#2,d1					; font atlas index = char * 4		
  	move.l	d0,d2					; xpos
 	
-	jsr	_hw_waitBlitter
+	jsr	__hw_waitBlitter
 	
 	btst	#2,d1					; check if odd or even char
 	beq	.evenChar				;

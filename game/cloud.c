@@ -1,6 +1,6 @@
 #include "game.h"
 
-#define CLOUD_HEIGHT 32
+#define CLOUD_HEIGHT 27
 #define CLOUD_WIDTH 16*3
 #define NUM_CLOUDS 3
 
@@ -58,6 +58,7 @@ static cloud_t _clouds[NUM_CLOUDS] = {
   }
 };
 
+#include "cloud_inlines.h"
 
 void
 cloud_init(void)
@@ -92,10 +93,49 @@ cloud_init(void)
 void
 cloud_saveBackground(frame_buffer_t fb)
 {
+#if 0 // Slower
+  volatile struct Custom* _custom = CUSTOM;
+  // Risky?
+   hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+#endif
+
   for (int i = 0; i < NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
-    sprite_save(fb, &cloud->sprite);
+    cloud_save(fb, &cloud->sprite);
     cloud->sprite.save = cloud->sprite.save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
+  }
+}
+
+
+static inline void
+cloud_restoreSprite(gfx_blit_t* blit)
+{
+  volatile struct Custom* _custom = CUSTOM;
+
+  hw_waitBlitter();
+
+  _custom->bltamod = blit->mod;
+  _custom->bltdmod = blit->mod;
+  _custom->bltapt = (uint8_t*)blit->dest;
+  _custom->bltdpt = (uint8_t*)blit->source;
+  _custom->bltsize = blit->size;
+}
+
+
+static inline void
+cloud_restore(sprite_save_t* save)
+{
+  if (save->blit[0].size > 0) {
+    cloud_restoreSprite(&save->blit[0]);
+  }
+
+  if (save->blit[1].size > 0) {
+    cloud_restoreSprite(&save->blit[1]);
   }
 }
 
@@ -103,9 +143,18 @@ cloud_saveBackground(frame_buffer_t fb)
 void
 cloud_restoreBackground(void)
 {
+#if 1
+  volatile struct Custom* _custom = CUSTOM;
+  hw_waitBlitter();
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+#endif
+
   for (int i = 0; i < NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
-    sprite_restore(cloud->sprite.save);
+    cloud_restore(cloud->sprite.save);
   }
 }
 
@@ -113,17 +162,24 @@ cloud_restoreBackground(void)
 void
 cloud_render(frame_buffer_t fb)
 {
+  cloud_setupRenderSpriteNoMask();
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    sprite_renderNoMask(fb, cloud->sprite);
+    cloud_spriteRender(fb, &cloud->sprite);
+  }
+
+  cloud_setupRenderPartialTile();
+  for (int i = 0; i < NUM_CLOUDS; i++) {
+    cloud_t* cloud = &clouds[i];
     int py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
     int px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
+
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
 	  int tile = backgroundTiles[py+y][px+x];
 	  if (tile != TILE_SKY) {
-	    gfx_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
+	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
 	  }
 	}
       }
