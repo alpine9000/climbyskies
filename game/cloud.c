@@ -1,7 +1,6 @@
 #include "game.h"
 
-#define CLOUD_HEIGHT 27
-#define CLOUD_WIDTH 16*3
+
 #define NUM_CLOUDS 3
 
 typedef struct {

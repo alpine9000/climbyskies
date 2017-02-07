@@ -79,14 +79,14 @@ image_t imageAtlas[] = {
   [SPRITE_CLOUD_1]  = {
     .x = 0,
     .y = 32,
-    .w = 48,
-    .h = 27
+    .w = CLOUD_WIDTH,
+    .h = CLOUD_HEIGHT
   },
   [SPRITE_CLOUD_2]  = {
     .x = 48,
     .y = 32,
-    .w = 48,
-    .h = 27
+    .w = CLOUD_WIDTH,
+    .h = CLOUD_HEIGHT
   },
 };
 
