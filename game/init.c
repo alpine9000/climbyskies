@@ -1,7 +1,7 @@
 #include "game.h"
 
-void
-init_amiga(void)
+__EXTERNAL void
+init_amiga(void) 
 {
   custom->dmacon = 0x7ff;  /* disable all dma */
   custom->intena = 0x7fff; /* disable all interrupts */

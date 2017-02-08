@@ -17,13 +17,13 @@ cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, f
   if (y < 0) {
     return;
   }
-  dest += dyOffsetsLUT[y] + (x>>3);
+  dest += gfx_dyOffsetsLUT[y] + (x>>3);
 
   hw_waitBlitter();
 
   _custom->bltapt = (uint8_t*)tile;
   _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = heightLUT[h] | 1;
+  _custom->bltsize = gfx_heightLUT[h] | 1;
 }
 
 
@@ -35,7 +35,7 @@ cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
     int offset = cameraY - y;
     h -= offset;
     y += offset;
-    tile += dyOffsetsLUT[offset];
+    tile += gfx_dyOffsetsLUT[offset];
     if (h <= 0) {
       return;
     }
@@ -78,14 +78,14 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
   volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = spriteFrameBuffer;
   
-  dest += dyOffsetsLUT[dy] + (dx>>3);
-  source += dyOffsetsLUT[sy] + (sx>>3);
+  dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  source += gfx_dyOffsetsLUT[sy] + (sx>>3);
 
   hw_waitBlitter();
 
   _custom->bltapt = (uint8_t*)source;
   _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = heightLUT[h] | (CLOUD_WIDTH/16);
+  _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
 
 }
 
@@ -96,8 +96,8 @@ cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t s
   volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = spriteFrameBuffer;
   
-  dest += dyOffsetsLUT[dy] + (dx>>3);
-  source += dyOffsetsLUT[sy] + (sx>>3);
+  dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  source += gfx_dyOffsetsLUT[sy] + (sx>>3);
 
   hw_waitBlitter();
 
@@ -150,12 +150,12 @@ cloud_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy
   blit->dest = saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
   
-  source += dyOffsetsLUT[dy] + (dx>>3);
+  source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
-  blit->dest += dyOffsetsLUT[dy] + (dx>>3);
+  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   blit->source = source;
   //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
-  blit->size = heightLUT[h] | widthWords;
+  blit->size = gfx_heightLUT[h] | widthWords;
   blit->mod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
 
   hw_waitBlitter();

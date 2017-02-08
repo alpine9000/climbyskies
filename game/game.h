@@ -9,13 +9,21 @@ extern "C" {
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
+#define INLINE_EVERYTHING 1
+#ifdef INLINE_EVERYTHING
+#define INLINE static inline
+#define STATIC_INLINE static inline
+#else
+#define INLINE
+#define STATIC_INLINE static
+#endif
+
 #define abs(a) (a >= 0 ? a : -a)  
 
 #define MAP_TILE_WIDTH      16
 #define MAP_TILE_HEIGHT     202
 #define TILE_WIDTH          16
 #define TILE_HEIGHT         16
-
 
 #define CUSTOM ((struct Custom*)0xdff000)
 #define SCREEN_WIDTH        MAP_TILE_WIDTH*TILE_WIDTH
@@ -36,7 +44,6 @@ extern "C" {
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT
 #define SCOREBOARD_HEIGHT   16
 
-
 #define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
 
 #define SCROLL_PIXELS 4
@@ -47,6 +54,8 @@ typedef USHORT uint16_t;
 typedef LONG int32_t;
 typedef ULONG uint32_t;
 typedef ULONG size_t;
+
+#define __EXTERNAL __attribute__((externally_visible))
 
 #if defined(__GNUC__)
 extern void* memset(void *dst, int c, size_t n);
@@ -63,11 +72,12 @@ extern void* memcpy(void* destination, void* source, size_t num);
 #else
 #define USE(x)
 #define __REG(reg, arg) __reg(reg) arg
+#define __attribute__(x)
 #endif
 
 typedef volatile uint8_t * frame_buffer_t;
-
 typedef volatile struct Custom* custom_t;
+
 extern custom_t custom; 
 extern int cameraY;
 extern int screenScrollY;

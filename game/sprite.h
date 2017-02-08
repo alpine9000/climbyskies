@@ -28,12 +28,16 @@ typedef struct {
 
 extern image_t imageAtlas[];
 
+#ifndef INLINE_EVERYTHING
 void
 _sprite_render(frame_buffer_t fb, sprite_t* actor, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h));
 void 
 sprite_save(frame_buffer_t fb, sprite_t* a);
 void
 sprite_restore(sprite_save_t* save);
+#else
+#include "sprite_inlines.h"
+#endif
 
 #define sprite_render(fb, a) _sprite_render(fb, &a, gfx_renderSprite)
 #define sprite_renderNoMask(fb, a) _sprite_render(fb, &a, gfx_renderSpriteNoMask)

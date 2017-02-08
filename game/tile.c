@@ -2,8 +2,8 @@
 
 #define MAX_INVALID_TILES 100
 
-static unsigned short* tilePtr;
-static int tileX;
+unsigned short* tile_tilePtr;
+int tile_tileX;
 static tile_redraw_t* invalidTiles = 0;
 static tile_redraw_t* invalidFreeList = 0;
 static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
@@ -132,69 +132,28 @@ tile_renderInvalidTiles(frame_buffer_t fb)
 void 
 tile_renderScreen(void)
 {
-  tileX = SCREEN_WIDTH-TILE_WIDTH;
+  tile_tileX = SCREEN_WIDTH-TILE_WIDTH;
 
-  tilePtr = &backgroundTiles[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
+  tile_tilePtr = &backgroundTiles[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-      unsigned long offset = *tilePtr;
+      unsigned long offset = *tile_tilePtr;
       gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
       gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
-      tilePtr--;
+      tile_tilePtr--;
     }
   }
   
   int y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-    unsigned long offset = *tilePtr;
+    unsigned long offset = *tile_tilePtr;
     gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
     gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
-    tilePtr--;
+    tile_tilePtr--;
   }
 }
 
 
-void
-tile_renderNextTile(uint16_t hscroll)
-{
-  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
-
-  if (y < 0) {
-    y = FRAME_BUFFER_HEIGHT+y;
-  }
-
-  unsigned long offset = *tilePtr;
-  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+offset);
-  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+offset);
-  
-  tilePtr = tilePtr-1;
-
-  tileX -= TILE_WIDTH;
-
-  if (tileX < 0) {
-    tileX = SCREEN_WIDTH-TILE_WIDTH;
-  }
-}
-
-
-void
-tile_renderNextTileDown(uint16_t hscroll)
-{
-  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
-
-  if (y < 0) {
-    y = FRAME_BUFFER_HEIGHT+y;
-  }
-
-  tilePtr = tilePtr+1;
-  tileX += TILE_WIDTH;
-
-  if (tileX > SCREEN_WIDTH-TILE_WIDTH) {
-    tileX = 0;
-  }
-
-#define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
-  unsigned long offset = *(tilePtr+OFFSET);
-  gfx_renderTileOffScreen(offScreenBuffer, tileX, y, spriteFrameBuffer+offset);
-  gfx_renderTileOffScreen(onScreenBuffer, tileX, y, spriteFrameBuffer+offset);
-}
+#ifndef INLINE_EVERYTHING
+#include "tile_inlines.h"
+#endif

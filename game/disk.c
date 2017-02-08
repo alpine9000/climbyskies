@@ -4,7 +4,7 @@ extern void
 LoadMFMB(__REG("a0", void* dest), __REG("d0", uint32_t startSector), __REG("d1", int16_t nrsecs), __REG("a1", void* lastAddr));
 extern uint32_t startCode;
 
-void 
+__EXTERNAL void
 disk_loadData(__REG("a0", void* dest), __REG("a1", void* src), __REG("d0", int16_t size))
 {
 #if TRACKLOADER==1

@@ -14,11 +14,11 @@ typedef struct enemy {
   int width;
 } enemy_t;
 
-#define ANIM_RIGHT_RUN 0
-#define ANIM_LEFT_RUN  1
+#define CLOUD_ANIM_RIGHT_RUN 0
+#define CLOUD_ANIM_LEFT_RUN  1
 
 sprite_animation_t enemy_animations[] = {
-  [ANIM_RIGHT_RUN] = {
+  [CLOUD_ANIM_RIGHT_RUN] = {
     .animation = {
     .start = SPRITE_CLIMBER_RUN_RIGHT_1,
     .stop = SPRITE_CLIMBER_RUN_RIGHT_4,
@@ -26,7 +26,7 @@ sprite_animation_t enemy_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-  [ANIM_LEFT_RUN] = {
+  [CLOUD_ANIM_LEFT_RUN] = {
     .animation = {
       .start = SPRITE_CLIMBER_RUN_LEFT_1, 
       .stop = SPRITE_CLIMBER_RUN_LEFT_4,
@@ -124,7 +124,7 @@ enemy_add(int x, int y, int anim)
   ptr->sprite.x = x;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
-  if (anim == ANIM_LEFT_RUN) {
+  if (anim == CLOUD_ANIM_LEFT_RUN) {
     ptr->velocity.x = -1;
   } else {
     ptr->velocity.x = 1;
@@ -153,9 +153,9 @@ enemy_init(void)
       ptr = ptr->next;
   }
 
-  enemy_add(-32, WORLD_HEIGHT-128, ANIM_LEFT_RUN);
-  enemy_add(128, WORLD_HEIGHT-SCREEN_HEIGHT+32, ANIM_RIGHT_RUN);
-  //enemy_add(SCREEN_WIDTH/3, WORLD_HEIGHT-128+64, ANIM_RIGHT_RUN);
+  enemy_add(-32, WORLD_HEIGHT-128, CLOUD_ANIM_LEFT_RUN);
+  enemy_add(128, WORLD_HEIGHT-SCREEN_HEIGHT+32, CLOUD_ANIM_RIGHT_RUN);
+  //enemy_add(SCREEN_WIDTH/3, WORLD_HEIGHT-128+64, CLOUD_ANIM_RIGHT_RUN);
 }
 
 

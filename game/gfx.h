@@ -10,8 +10,8 @@ extern frame_buffer_t spriteFrameBuffer;
 extern frame_buffer_t spriteMask;
 extern const unsigned char font[];
 
-extern uint16_t dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
-extern uint16_t heightLUT[65];
+extern uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
+extern uint16_t gfx_heightLUT[65];
 
 typedef struct {
   frame_buffer_t dest;
@@ -23,6 +23,8 @@ typedef struct {
 
 void 
 gfx_init(void);
+
+#ifndef INLINE_EVERYTHING
 void
 gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
 void
@@ -38,5 +40,10 @@ gfx_renderTileOffScreen(frame_buffer_t dest, int16_t sx, int16_t sy, frame_buffe
 void
 gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile);
 
+#else
+
+#include "gfx_inlines.h"
+
+#endif
 
 #endif

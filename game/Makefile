@@ -1,4 +1,5 @@
 USE_GCC=1
+USE_BIG=1
 
 GAME_NAME=climbyskies
 
@@ -36,7 +37,12 @@ CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
 REGPARAM=-mregparm=2
 #VASM_OPTS=-Wa,-no-opt
 VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
-C_OPT=-O3 
+
+ifeq ($(USE_BIG), 1)
+WHOLE_PROGRAM=-fwhole-program
+endif
+
+C_OPT=-O3 $(WHOLE_PROGRAM)
 CFLAGS=$(C_OPT) $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 else
@@ -49,8 +55,14 @@ GCC_CHECK_CFLAGS= -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow
 
 ASM_OBJS=$(SRCS:.s=.o)
 C_OBJS=$(C_SRCS:.c=.o)
+ifeq ($(USE_BIG), 1)
+OBJS=$(ASM_OBJS) big.o #$(C_OBJS) 
+else
 OBJS=$(ASM_OBJS) $(C_OBJS) 
+endif
+ADF_C_OBJS=$(addprefix out/adf/, $(C_OBJS)) 
 ADF_OBJS=$(addprefix out/adf/, $(OBJS)) 
+WORKBENCH_C_OBJS=$(addprefix out/workbench/, $(C_OBJS)) 
 WORKBENCH_OBJS=$(addprefix out/workbench/, $(OBJS)) 
 ALL_OBJS=out/adf/main.o $(ADF_OBJS)
 ALL_WORKBENCH_OBJS=out/workbench/main.o $(WORKBENCH_OBJS)
@@ -66,7 +78,7 @@ adf: libgcc/out/gcc.lib version bin out $(ALL_TOOLS) $(ADF)
 .PHONY: version
 version:
 	@echo $(ALL_TOOLS)
-	./version/version.sh
+	#./version/version.sh
 
 gdrive: all
 	cp $(ADF) ~/Google\ Drive
@@ -147,6 +159,17 @@ endif
 
 out/workbench/%.o: out/%.c
 	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
+
+out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background-map.c
+	cat $(C_SRCS) > big.c
+	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
+	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
+	-@rm big.c
+
+out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background-map.c
+	cat $(C_SRCS) > big.c
+	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
+	-@rm big.c
 
 out/adf/%.o: %.c
 ifeq ($(USE_GCC), 1)

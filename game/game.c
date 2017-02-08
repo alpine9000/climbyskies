@@ -106,7 +106,7 @@ static __section(data_c)  copper_t copper  = {
 
 };
 
-void
+__EXTERNAL void
 game_init()
 {
 #if TRACKLOADER==1
@@ -201,7 +201,7 @@ game_switchFrameBuffers(void)
     copper.wait3[0] = (RASTER_Y_START)<<8|1;
   }
 
-  screen_pokeCopperList(offScreenBuffer+(int)dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
+  screen_pokeCopperList(offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
   screen_pokeCopperList(offScreenBuffer, copper.bpl2);
 
   frame_buffer_t save = onScreenBuffer;
@@ -370,7 +370,7 @@ game_setBackgroundScroll(int s)
   }
 }
 
-void
+__EXTERNAL void
 game_loop()
 {
   //  static int lastJoystickPos = 0;
@@ -443,9 +443,7 @@ game_loop()
 
     game_render();
 
-    //       for (volatile int i = 0; i < 1000; i++);
-
-    hw_waitBlitter();
+    //    hw_waitBlitter();
 
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();
