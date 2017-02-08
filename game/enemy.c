@@ -17,7 +17,7 @@ typedef struct enemy {
 #define CLOUD_ANIM_RIGHT_RUN 0
 #define CLOUD_ANIM_LEFT_RUN  1
 
-sprite_animation_t enemy_animations[] = {
+static sprite_animation_t enemy_animations[] = {
   [CLOUD_ANIM_RIGHT_RUN] = {
     .animation = {
     .start = SPRITE_CLIMBER_RUN_RIGHT_1,
@@ -67,8 +67,7 @@ enemy_getFree(void)
   return entry;
 }
 
-//static 
-void
+static void
 enemy_addFree(enemy_t* ptr)
 {
   if (freeEnemies == 0) {
@@ -99,9 +98,8 @@ enemy_addEnemy(enemy_t* ptr)
 }
 
 
-//static 
- void
-enemy_removeInvalid(enemy_t* ptr)
+static  void
+enemy_remove(enemy_t* ptr)
 {
   if (ptr->prev == 0) {
     enemies = ptr->next;
@@ -223,9 +221,9 @@ enemy_update(void)
 
     enemy_t* save = ptr;
     ptr = ptr->next;
-    if (scrollCount == 0) {
-      if ((save->sprite.y-cameraY) > SCREEN_HEIGHT) {
-	enemy_removeInvalid(save);
+    if (game_scrollCount == 0) {
+      if ((save->sprite.y-game_cameraY) > SCREEN_HEIGHT) {
+	enemy_remove(save);
 	enemy_addFree(save);
 	removedCount++;
       }
@@ -233,7 +231,7 @@ enemy_update(void)
   }
 
   while (removedCount--) {
-    enemy_add(-32, cameraY+yOffsets[yOffsetIndex], animationIndexes[yOffsetIndex]);
+    enemy_add(-32, game_cameraY+yOffsets[yOffsetIndex], animationIndexes[yOffsetIndex]);
     yOffsetIndex++;
     if (yOffsetIndex >= MAX_Y_OFFSETS) {
       yOffsetIndex = 0;

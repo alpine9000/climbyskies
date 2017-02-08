@@ -1,6 +1,7 @@
 	include "includes.i"
-
+	if USE_GCC=1
 	xdef _memset
+	endif
 	xdef _custom
 	xdef _spriteMask
 	xdef _spriteFrameBuffer

@@ -1,16 +1,16 @@
 INLINE void
 sprite_save(frame_buffer_t fb, sprite_t* a)
 {
-  image_t* image = &imageAtlas[a->imageIndex];
+  image_t* image = &sprite_imageAtlas[a->imageIndex];
   int h = image->h;
   int y = a->y;
-  if (y < cameraY) {
-    h -= (cameraY - y);
-    y += (cameraY - y);
+  if (y < game_cameraY) {
+    h -= (game_cameraY - y);
+    y += (game_cameraY - y);
   }
 
-  if (y-cameraY + h > SCREEN_HEIGHT) {
-    h -= (y-cameraY+h)-SCREEN_HEIGHT;
+  if (y-game_cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-game_cameraY+h)-SCREEN_HEIGHT;
   }
 
   if (h <= 0) {
@@ -18,7 +18,7 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
     a->save->blit[1].size = 0;
     return;
   }
-  y = y-cameraY-screenScrollY;
+  y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
     gfx_saveSprite(fb, &a->save->blit[0], a->x, y, image->w, h);
     a->save->blit[1].size = 0;
@@ -37,25 +37,25 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
 INLINE void
 _sprite_render(frame_buffer_t fb, sprite_t* sprite, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h))
 {
-  image_t* image = &imageAtlas[sprite->imageIndex];
+  image_t* image = &sprite_imageAtlas[sprite->imageIndex];
   int by = image->y;
   int h = image->h;
   int y = sprite->y;
-  if (y < cameraY) {
-    h -= (cameraY - y);
-    by += (cameraY - y);
-    y += (cameraY - y);
+  if (y < game_cameraY) {
+    h -= (game_cameraY - y);
+    by += (game_cameraY - y);
+    y += (game_cameraY - y);
   }
 
-  if (y-cameraY + h > SCREEN_HEIGHT) {
-    h -= (y-cameraY+h)-SCREEN_HEIGHT;
+  if (y-game_cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-game_cameraY+h)-SCREEN_HEIGHT;
   }
 
     if (h <= 0) {
       return;
     }
     
-  y = y-cameraY-screenScrollY;
+  y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
     (*render)(fb, image->x, by, sprite->x, y, image->w, h);
   } else {

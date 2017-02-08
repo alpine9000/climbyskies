@@ -138,8 +138,8 @@ tile_renderScreen(void)
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
       unsigned long offset = *tile_tilePtr;
-      gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
-      gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
+      gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
+      gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
       tile_tilePtr--;
     }
   }
@@ -147,8 +147,8 @@ tile_renderScreen(void)
   int y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
     unsigned long offset = *tile_tilePtr;
-    gfx_renderTileOffScreen(onScreenBuffer, x, y, spriteFrameBuffer+offset);
-    gfx_renderTileOffScreen(offScreenBuffer, x, y, spriteFrameBuffer+offset);
+    gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
+    gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
     tile_tilePtr--;
   }
 }

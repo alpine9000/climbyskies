@@ -26,7 +26,7 @@ typedef struct {
   int16_t h;
 } image_t;
 
-extern image_t imageAtlas[];
+extern image_t sprite_imageAtlas[];
 
 #ifndef INLINE_EVERYTHING
 void

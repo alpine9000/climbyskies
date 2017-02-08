@@ -126,7 +126,7 @@ INLINE void
 gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  blit->dest = saveBuffer;
+  blit->dest = game_saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
   
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
@@ -215,8 +215,8 @@ INLINE void
 gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 {
   int h = 16;
-  if (y < cameraY) {
-    int offset = cameraY - y;
+  if (y < game_cameraY) {
+    int offset = game_cameraY - y;
     h -= offset;
     y += offset;
     tile += gfx_dyOffsetsLUT[offset];
@@ -226,7 +226,7 @@ gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
   }
 
 
-  y = y-cameraY-screenScrollY;
+  y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
     gfx_renderPartialTile(fb, x, y, h, tile);
   } else {

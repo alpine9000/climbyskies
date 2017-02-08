@@ -533,31 +533,31 @@ player_updateAlive(void)
 
 
   if (player.velocity.y == 0 && collision) {
-    if (cameraY > 0 && player.state == PLAYER_STATE_ONGROUND && scrollCount == 0 && (player.sprite.y-cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-      scrollCount = ((6*16)/SCROLL_PIXELS);
+    if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND && game_scrollCount == 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
+      game_scrollCount = ((6*16)/SCROLL_PIXELS);
       game_setBackgroundScroll(SCROLL_PIXELS);
-    } else if (scrollCount == 0 && ((player.sprite.y-cameraY) > (SCREEN_HEIGHT - 64))) {
+    } else if (game_scrollCount == 0 && ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
 #ifndef FREEFALL_MODE      
-      scrollCount = ((6*16)/SCROLL_PIXELS)/2;
+      game_scrollCount = ((6*16)/SCROLL_PIXELS)/2;
       game_setBackgroundScroll(-SCROLL_PIXELS*2);
 #endif
     }
-  } else if (player.velocity.y > 0 && scrollCount == 0 && ((player.sprite.y-cameraY) > (SCREEN_HEIGHT - 64))) {
+  } else if (player.velocity.y > 0 && game_scrollCount == 0 && ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
 #ifndef FREEFALL_MODE      
-    scrollCount = (((6*16)/SCROLL_PIXELS)/2);
+    game_scrollCount = (((6*16)/SCROLL_PIXELS)/2);
     game_setBackgroundScroll(-SCROLL_PIXELS*2);
 #endif
   }
 
 #ifdef FREEFALL_MODE
-  if (player.velocity.y > 0 && player.sprite.y-cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
-    if (cameraY % 16 == 0) {
+  if (player.velocity.y > 0 && player.sprite.y-game_cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
+    if (game_cameraY % 16 == 0) {
       player.state = PLAYER_STATE_FREEFALL;
       player.velocity.x = 0;
       player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
       game_setBackgroundScroll(-SCROLL_PIXELS*2);
-      scrollCount = 10000;
-      //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+cameraY-1;
+      game_scrollCount = 10000;
+      //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+game_cameraY-1;
     }
   }
 #endif
@@ -573,7 +573,7 @@ player_updateFreeFall(void)
   if (player.sprite.y >= PLAYER_INITIAL_Y) {      
     player.state = PLAYER_STATE_DEFAULT;
     player.sprite.y = PLAYER_INITIAL_Y;
-    scrollCount = 0;
+    game_scrollCount = 0;
     game_setBackgroundScroll(SCROLL_PIXELS);
     player.velocity.x = 0;
     player.velocity.y = 0;
@@ -584,7 +584,7 @@ player_updateFreeFall(void)
     }      
     game_shakeScreen();
     player.flashCounter = 50;
-    scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - cameraY)>>1;
+    game_scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - game_cameraY)>>1;
     game_setBackgroundScroll(-2);
   }
 }

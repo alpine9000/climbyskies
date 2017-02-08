@@ -11,16 +11,14 @@
 #define SPEED_COLOR(x) 
 #endif
 
-frame_buffer_t offScreenBuffer;
-frame_buffer_t onScreenBuffer;
-frame_buffer_t saveBuffer;
+frame_buffer_t game_offScreenBuffer;
+frame_buffer_t game_onScreenBuffer;
+frame_buffer_t game_saveBuffer;
 
-int cameraY;
-int screenScrollY;
-char evil;
-int scrollCount;
-int scroll;
-uint32_t frameCount;
+int game_cameraY;
+int game_screenScrollY;
+int game_scrollCount;
+int game_scroll;
 
 static void
 game_switchFrameBuffers(void);
@@ -45,11 +43,10 @@ static uint32_t lastVerticalBlankCount;
 static int turtle;
 
 #define AVERAGE_LENGTH 16
-  static int rasterLines[AVERAGE_LENGTH];
-  static int rasterLinesIndex = 0;
-  static int maxRasterLine = 0;
-  static int average = 0;
-
+static int rasterLines[AVERAGE_LENGTH];
+static int rasterLinesIndex = 0;
+static int maxRasterLine = 0;
+static int average = 0;
 
 static void (*game_tileRender)(uint16_t hscroll);
 
@@ -123,10 +120,10 @@ game_init()
   hw_waitVerticalBlank();
   palette_black();
 
-  onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
+  game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
-  offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
-  saveBuffer = (frame_buffer_t)&_saveBuffer1;
+  game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
+  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
   saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
   saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
   screen_setup((uint16_t*)&copper);
@@ -146,12 +143,11 @@ game_newGame(void)
   average = 0;
   maxRasterLine = 0;
   rasterLinesIndex = 0;
-  cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
-  verticalBlankCount = 0;
+  game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+  hw_verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
-  screenScrollY = 0;
-  scrollCount = 0;
-  frameCount = 0;
+  game_screenScrollY = 0;
+  game_scrollCount = 0;
   game_setBackgroundScroll(SCROLL_PIXELS);
   tileY = 0;
 
@@ -185,7 +181,7 @@ game_newGame(void)
 static void
 game_switchFrameBuffers(void)
 {
-  uint16_t copperLine = RASTER_Y_START+screenScrollY;
+  uint16_t copperLine = RASTER_Y_START+game_screenScrollY;
   
   if (copperLine < 256) {
     copper.wait1[0] = (copperLine<<8)|1;
@@ -193,7 +189,7 @@ game_switchFrameBuffers(void)
     copper.wait3[0] = 0xffdf;
   } else if (copperLine >= 256) {
     copper.wait1[0] = 0xffdf;
-    if (screenScrollY >= 256) {
+    if (game_screenScrollY >= 256) {
       copper.wait2[0] = (RASTER_Y_START-1)<<8|1;
     } else {
       copper.wait2[0] = ((copperLine-256)<<8)|1;
@@ -201,12 +197,12 @@ game_switchFrameBuffers(void)
     copper.wait3[0] = (RASTER_Y_START)<<8|1;
   }
 
-  screen_pokeCopperList(offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-screenScrollY], copper.bpl1);
-  screen_pokeCopperList(offScreenBuffer, copper.bpl2);
+  screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+  screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
 
-  frame_buffer_t save = onScreenBuffer;
-  onScreenBuffer = offScreenBuffer;
-  offScreenBuffer = save;
+  frame_buffer_t save = game_onScreenBuffer;
+  game_onScreenBuffer = game_offScreenBuffer;
+  game_offScreenBuffer = save;
 }
 
 static 
@@ -242,27 +238,27 @@ game_shakeScreen(void)
 static void
 game_setCamera(int offset)
 {
-  cameraY -= offset;
+  game_cameraY -= offset;
 
-  if (cameraY <= 0 && scrollCount == 0) {
-    cameraY = 0;
-    scroll = 0;
-    scrollCount = 0;
+  if (game_cameraY <= 0 && game_scrollCount == 0) {
+    game_cameraY = 0;
+    game_scroll = 0;
+    game_scrollCount = 0;
     return;
-  } else if (cameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
-    cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
-    scroll = 0;
-    scrollCount = 0;
+  } else if (game_cameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
+    game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+    game_scroll = 0;
+    game_scrollCount = 0;
     return;
   }
  
 #if 1
-  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
+  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
 #else
-  screenScrollY = -((cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)));
+  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)));
 
-  while (screenScrollY >= FRAME_BUFFER_HEIGHT) {
-    screenScrollY -= FRAME_BUFFER_HEIGHT;
+  while (game_screenScrollY >= FRAME_BUFFER_HEIGHT) {
+    game_screenScrollY -= FRAME_BUFFER_HEIGHT;
   }
 #endif
 }
@@ -270,12 +266,12 @@ game_setCamera(int offset)
 static void
 game_scrollBackground(void)
 {
-  game_setCamera(scroll);
+  game_setCamera(game_scroll);
 
-#if 0  
-  int tileIndex = screenScrollY % TILE_HEIGHT;
+#if 1
+  int tileIndex = game_screenScrollY % TILE_HEIGHT;
 #else
-  int tileIndex = screenScrollY;
+  int tileIndex = game_screenScrollY;
   
   while (tileIndex >= TILE_HEIGHT) {
     tileIndex -= TILE_HEIGHT;
@@ -283,19 +279,18 @@ game_scrollBackground(void)
 #endif
 
 
-  int count = abs(scroll);
+  int count = abs(game_scroll);
 
   for (int s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     (*game_tileRender)(tileY);
   }
 
   if (tileIndex == 0) {	 
-     tileY = screenScrollY;
+     tileY = game_screenScrollY;
   }
 }
 
-//static 
-void
+static void
 debug_showRasterLine(void)
 {
 #if 0
@@ -338,32 +333,32 @@ debug_showRasterLine(void)
 static void
 game_render(void)
 {
-  tile_renderInvalidTiles(offScreenBuffer);
+  tile_renderInvalidTiles(game_offScreenBuffer);
 
-  player_saveBackground(offScreenBuffer);
+  player_saveBackground(game_offScreenBuffer);
 #ifdef ENABLE_ENEMIES
-  enemy_saveBackground(offScreenBuffer);
+  enemy_saveBackground(game_offScreenBuffer);
 #endif
-  cloud_saveBackground(offScreenBuffer);
+  cloud_saveBackground(game_offScreenBuffer);
 
 
   
   SPEED_COLOR(0x500);
-  cloud_render(offScreenBuffer);
+  cloud_render(game_offScreenBuffer);
   SPEED_COLOR(0x005);
-  player_render(offScreenBuffer);
+  player_render(game_offScreenBuffer);
 #ifdef ENABLE_ENEMIES
   SPEED_COLOR(0x050);
-  enemy_render(offScreenBuffer);  
+  enemy_render(game_offScreenBuffer);  
 #endif
-  saveBuffer = saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
+  game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
 void
 game_setBackgroundScroll(int s)
 {
-  scroll = s;
-  if (scroll >= 0) {
+  game_scroll = s;
+  if (game_scroll >= 0) {
     game_tileRender = tile_renderNextTile;
   } else {
     game_tileRender = tile_renderNextTileDown;
@@ -378,18 +373,17 @@ game_loop()
   int joystickDown = 1;
 
   while (!done) {
-    frameCount++;
     hw_readJoystick();
 
-    if (scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
-      //  scrollCount = 1;//1+((6*16)/SCROLL_PIXELS);
-      //      scrollCount = 1000;
+    if (game_scrollCount == 0 && !joystickDown && JOYSTICK_BUTTON_DOWN) {    
+      //  game_scrollCount = 1;//1+((6*16)/SCROLL_PIXELS);
+      //      game_scrollCount = 1000;
       //      game_setBackgroundScroll(-scroll);
       joystickDown = 1;
     }
 
     /*    if (hw_joystickPos == 5 && lastJoystickPos != 5) {
-      scrollCount = 16;
+      game_scrollCount = 16;
       }*/
 
     //lastJoystickPos = hw_joystickPos;
@@ -415,18 +409,18 @@ game_loop()
 
     if (lastVerticalBlankCount == 0) {
 
-    } else if (verticalBlankCount-lastVerticalBlankCount > 1) {
+    } else if (hw_verticalBlankCount-lastVerticalBlankCount > 1) {
       turtle = 100;
     }
       
-    lastVerticalBlankCount = verticalBlankCount;
+    lastVerticalBlankCount = hw_verticalBlankCount;
 
     SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
 
-    if (scrollCount > 0 && scroll != 0) {
+    if (game_scrollCount > 0 && game_scroll != 0) {
       game_scrollBackground();
-      scrollCount--;
+      game_scrollCount--;
     }
 
     SPEED_COLOR(0xf00);

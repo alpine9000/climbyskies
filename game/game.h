@@ -1,10 +1,6 @@
 #ifndef __GAME_H
 #define __GAME_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <hardware/custom.h>
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
@@ -45,8 +41,7 @@ extern "C" {
 #define SCOREBOARD_HEIGHT   16
 
 #define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
-
-#define SCROLL_PIXELS 4
+#define SCROLL_PIXELS       4
 
 typedef UBYTE uint8_t;
 typedef SHORT int16_t;
@@ -57,9 +52,10 @@ typedef ULONG size_t;
 
 #define __EXTERNAL __attribute__((externally_visible))
 
+extern void* memcpy(void* destination, void* source, size_t num);
+
 #if defined(__GNUC__)
 extern void* memset(void *dst, int c, size_t n);
-extern void* memcpy(void* destination, void* source, size_t num);
 #if defined(GCC_CHECK)
 #define __section(x)
 #define __REG(reg, arg) arg
@@ -79,14 +75,14 @@ typedef volatile uint8_t * frame_buffer_t;
 typedef volatile struct Custom* custom_t;
 
 extern custom_t custom; 
-extern int cameraY;
-extern int screenScrollY;
-extern int scrollCount;
-extern int scroll;
-extern uint32_t frameCount;
-extern frame_buffer_t saveBuffer;
-extern frame_buffer_t offScreenBuffer;
-extern frame_buffer_t onScreenBuffer;
+extern int game_cameraY;
+extern int game_screenScrollY;
+extern int game_scrollCount;
+extern int game_scroll;
+extern uint32_t game_frameCount;
+extern frame_buffer_t game_saveBuffer;
+extern frame_buffer_t game_offScreenBuffer;
+extern frame_buffer_t game_onScreenBuffer;
 
 #include "registers.h"
 #include "hw.h"
@@ -115,7 +111,4 @@ game_setBackgroundScroll(int s);
 void
 game_shakeScreen(void);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
 #endif /* __GAME_H */

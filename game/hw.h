@@ -28,7 +28,7 @@ hw_getRasterLine(void);
 
 extern volatile uint8_t hw_joystickButton;
 extern volatile uint8_t hw_joystickPos;
-extern uint32_t verticalBlankCount;
+extern uint32_t hw_verticalBlankCount;
 
 #define JOYSTICK_BUTTON_DOWN (hw_joystickButton&0x1)
 

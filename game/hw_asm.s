@@ -10,7 +10,7 @@
 	xdef _hw_interruptsInit
 	xdef _hw_waitScanLines
 	xdef _hw_getRasterLine
-	xdef _verticalBlankCount
+	xdef _hw_verticalBlankCount
 
 	
 ciaa_pra  = $bfe001
@@ -159,7 +159,7 @@ Level3InterruptHandler:
 
 .verticalBlank:
 	move.w	#INTF_VERTB,INTREQ(a6)	; clear interrupt bit	
-	add.l	#1,_verticalBlankCount
+	add.l	#1,_hw_verticalBlankCount
 	cmp.w	#0,P61_Master
 	bne	.playMusic
 	move.w  #0,AUD0VOL(a6)
@@ -185,8 +185,7 @@ _hw_joystickButton:
 	dc.b	0
 _hw_joystickPos:
 	dc.b	0
-
-_verticalBlankCount:
+_hw_verticalBlankCount:
 	ds.l	0
 
 

@@ -1,9 +1,6 @@
 #include "game.h"
 
-
-
-//static
-image_t imageAtlas[] = {
+image_t sprite_imageAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = { // 0. climber run left 1
     .x = 0,
     .y = 91,
