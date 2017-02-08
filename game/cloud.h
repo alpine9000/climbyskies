@@ -2,8 +2,9 @@
 #ifndef __CLOUD_H
 #define __CLOUD_H
 
-#define CLOUD_HEIGHT 27
-#define CLOUD_WIDTH  16*3
+#define CLOUD_HEIGHT      27
+#define CLOUD_WIDTH       16*3
+#define CLOUD_WIDTH_WORDS (CLOUD_WIDTH/16)
 
 void 
 cloud_init(void);

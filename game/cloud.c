@@ -10,6 +10,8 @@ typedef struct {
   sprite_save_t saves[2];
 } cloud_t;
 
+static uint16_t cloud_sizeLUT[65];
+
 static
 int16_t cloudX[] = {
   0, 
@@ -63,6 +65,10 @@ void
 cloud_init(void)
 {
   cloudXIndex = 0;
+
+  for (uint16_t h = 0; h <= 64; h++) {
+    cloud_sizeLUT[h] = (h)<<6 | (CLOUD_WIDTH/16);;
+  }
 
 #if 1
     memcpy(clouds, _clouds, sizeof(clouds));
@@ -145,6 +151,7 @@ cloud_restoreBackground(void)
 #if 1
   volatile struct Custom* _custom = CUSTOM;
   hw_waitBlitter();
+
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
   _custom->bltafwm = 0xffff;

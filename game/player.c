@@ -1,9 +1,5 @@
 #include "game.h"
 
-#define NEW_TILE_COLLISION 1
-//#define FREEFALL_MODE      1
-#define PLAYER_HEADSMASH   0
-
 #define JOYSTICK_POS_IDLE      0
 #define JOYSTICK_POS_UP        1
 #define JOYSTICK_POS_LEFT      7

@@ -5,7 +5,23 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
-#define INLINE_EVERYTHING 1
+
+#define NEW_TILE_COLLISION        1
+//#define FREEFALL_MODE           1
+//#define ENABLE_PLAYER_HEADSMASH 1
+#define INLINE_EVERYTHING         1
+#define ENABLE_ENEMIES            1
+//#define SHOW_SPEED              1
+//#define CLOUD_FULLCOLOR         1
+
+
+#ifdef ENABLE_PLAYER_HEADSMASH
+#define PLAYER_HEADSMASH 1
+#else
+#define PLAYER_HEADSMASH 0
+#endif
+
+
 #ifdef INLINE_EVERYTHING
 #define INLINE static inline
 #define STATIC_INLINE static inline

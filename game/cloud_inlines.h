@@ -67,8 +67,13 @@ cloud_setupRenderSpriteNoMask(void)
   _custom->bltcon1 = 0; //shift<<BSHIFTSHIFT;
   _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
+#ifdef CLOUD_FULLCOLOR
   _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-((CLOUD_WIDTH/16)<<1));
   _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-((CLOUD_WIDTH/16)<<1));
+#else
+  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-((CLOUD_WIDTH/16)<<1))+(FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH-1));
+  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-((CLOUD_WIDTH/16)<<1))+(FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH-1));
+#endif
 }
 
 
@@ -81,11 +86,35 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
 
+#ifdef CLOUD_FULLCOLOR
   hw_waitBlitter();
 
   _custom->bltapt = (uint8_t*)source;
   _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
+#else
+
+  source += FRAME_BUFFER_WIDTH_BYTES;
+  dest += FRAME_BUFFER_WIDTH_BYTES;
+
+  hw_waitBlitter();
+
+  _custom->bltapt = (uint8_t*)source;
+  _custom->bltdpt = (uint8_t*)dest;
+  //  _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
+  _custom->bltsize = cloud_sizeLUT[h];
+
+  source += FRAME_BUFFER_WIDTH_BYTES;
+  dest += FRAME_BUFFER_WIDTH_BYTES;
+
+  hw_waitBlitter();
+
+  _custom->bltapt = (uint8_t*)source;
+  _custom->bltdpt = (uint8_t*)dest;
+  //  _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
+  _custom->bltsize = cloud_sizeLUT[h];
+
+#endif
 
 }
 
@@ -146,10 +175,12 @@ cloud_spriteRender(frame_buffer_t fb, sprite_t* sprite)
 static inline void
 cloud_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
-  static volatile struct Custom* _custom = CUSTOM;
+  volatile struct Custom* _custom = CUSTOM;
   blit->dest = game_saveBuffer;
-  uint32_t widthWords =  ((w+15)>>4)+1;
-  
+  //  uint32_t widthWords =  ((w+15)>>4)+1;
+  USE(w);
+  uint32_t widthWords =  CLOUD_WIDTH_WORDS;//((w+15)>>4)+1;
+
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
   blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);

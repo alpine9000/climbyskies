@@ -1,10 +1,6 @@
 #include "game.h"
 #include "version/version.h"
 
-#define ENABLE_ENEMIES 1
-
-//#define SHOW_SPEED 1
-
 #ifdef SHOW_SPEED
 #define SPEED_COLOR(x) custom->color[0] = x;
 #else
@@ -290,10 +286,11 @@ game_scrollBackground(void)
   }
 }
 
-static void
+//static 
+void
 debug_showRasterLine(void)
 {
-#if 0
+#if 1
   if (turtle > 1) {
         gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
     //    text_drawText8(scoreBoardFrameBuffer, "SLOW", 10*8, 4);  

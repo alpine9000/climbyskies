@@ -110,7 +110,7 @@ $(ADF): out/bootblock.bin
 	$(MAKEADF) out/bootblock.bin > $(ADF)
 	@ls -lh out/bootblock.bin
 
-wb: version bin/$(GAME_NAME)
+wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 
 out/adf/backgrounds.o: out/background-map.c backgrounds.c
 out/workbench/backgrounds.o: out/background-map.c backgrounds.c
@@ -121,7 +121,7 @@ out/background-map.c: assets/background.tmx
 	@rm background-indexes.c
 
 out/sprite.bin: assets/sprite.png palette.pal
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224 #--transparent-color=80,192,224
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@
 
@@ -150,7 +150,6 @@ out/adf/%.o: out/%.c
 ifeq ($(USE_GCC), 1)
 	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
-	#$(VASM) $(VASM_C_ARGS)  out/adf/$*.s -o $@
 else
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE)  $< -o out/adf/$*.s 
 	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
@@ -217,10 +216,15 @@ out/main.bin: out/adf/main.o $(ADF_OBJS)
 	@$(LD) $(LINKER_OPTIONS) -brawbin1 $< $(ADF_OBJS) $(C_LIBS) -M -o /tmp/main.bin | grep ", value " | cut -d " " -f3,7 | cut -d "," -f1 > $@.symbols
 	@cp $@.symbols ~/Projects/amiga/debugger.syms
 	@echo "RAM USAGE:" $$((16#`cat ~/Projects/amiga/debugger.syms | grep endRam | sed 's/0x//' | sed 's/endRam: //'`)) bytes
+ifeq ($(USE_BIG), 1)	
+	-@rm out/adf/big.o
+endif
 
 bin/$(GAME_NAME): bin out $(ALL_TOOLS)  $(ALL_WORKBENCH_OBJS) 
-        #$(LD) $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2 -hunkattr DATA=2 -hunkattr CODE=2 -hunkattr .text=2 -hunkattr .code=2 -hunkattr .data=2	-hunkattr .noload=2 -hunkattr .bss=2 $(ALL_WORKBENCH_OBJS) -o $@
 	$(LD) $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
+ifeq ($(USE_BIG), 1)	
+	-@rm out/workbench/big.o
+endif
 	cp $@ ~/A1200/BlockySkies
 	cp $@ ~/A4000/BlockySkies
         #cp assets/BlockySkies.info bin
