@@ -1,6 +1,7 @@
 USE_GCC=1
 USE_BIG=1
-
+SFX=0
+PLACEHOLDER_MUSIC=0
 GAME_NAME=climbyskies
 
 # userstack used by bootblock
@@ -13,14 +14,14 @@ C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c pa
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 
-MAX_P61_SIZE=$(shell ls -Sl assets/P61.* | awk '{print $$5}' | head -1)
+MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
 IMAGES=sprite.png font8x8.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) out/fade_in.s
 
 LINKER_OPTIONS=-T link.script.x
-VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DSFX=1 -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
 VASM_C_ARGS=-ldots -Fhunk -quiet -no-opt
 AMIGA_INCLUDE=/usr/local/amiga/m68k-amigaos/ndk/include
 

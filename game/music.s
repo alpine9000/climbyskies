@@ -56,8 +56,12 @@ _music_play:
 	adda.w	d0,a1
 	move.l	(a1)+,d0
 	move.l	(a1),a1
+	if PLACEHOLDER_MUSIC=1	
+	lea	prova,a0
+	else
 	jsr	_disk_loadData
 	lea     module,a0
+	endif
         sub.l   a1,a1
         sub.l   a2,a2
         moveq   #0,d0
@@ -77,19 +81,27 @@ modules:
 	dc.l	enddiskmoduleA-diskmoduleA
 	dc.l	diskmoduleA
 
+	if PLACEHOLDER_MUSIC=1
 	dc.l	enddiskmoduleB-diskmoduleB
 	dc.l	diskmoduleB
+	endif
 
-	dc.l	enddiskmoduleC-diskmoduleC
-	dc.l	diskmoduleC
-	
 	section	bss_c
-module:	
+module:
+	if PLACEHOLDER_MUSIC=1
+	section	.data
+	else
 	ds.b	MAX_P61_SIZE
-	;; 	ds.b	1024
-
+	;; 	ds.b	1024	
 	section	.noload
+	endif
+	
 moduleDiskData:
-	P61Module A,"assets/P61.climbyskies_ingame_00324_a_015.mod"
-	P61Module B,"assets/P61.jmd-songB"
-	P61Module C,"assets/P61.jmd-songC"
+	if PLACEHOLDER_MUSIC=1
+prova:	
+	P61Module B,"assets/P61.prova"
+	endif
+	
+	P61Module A,"assets/P61.climbyskies_ingame"
+
+

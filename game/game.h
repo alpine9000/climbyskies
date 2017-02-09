@@ -7,6 +7,7 @@
 
 
 #define NEW_TILE_COLLISION        1
+#define FIX_TILE_INVALIDATE_BUG   1
 //#define FREEFALL_MODE           1
 #define ENABLE_PLAYER_HEADSMASH 1
 #define INLINE_EVERYTHING         1

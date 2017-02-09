@@ -375,6 +375,23 @@ player_moveY(void)
 }
 #endif
 
+
+static void
+player_respawn(void)
+{
+  player.state = PLAYER_STATE_DEFAULT;
+  player.sprite.y = PLAYER_INITIAL_Y;
+  player.velocity.x = 0;
+  player.velocity.y = 0;
+  if (player.anim->facing == FACING_LEFT) {
+    player_setAnim(ANIM_LEFT_STAND);
+  } else {
+    player_setAnim(ANIM_RIGHT_STAND);
+  }      
+  player.flashCounter = 50;
+}
+
+
 static int
 player_updateAlive(void)
 {
@@ -445,10 +462,24 @@ player_updateAlive(void)
     int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
     //int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
     //int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
+
+#ifdef FIX_TILE_INVALIDATE_BUG
+    if (TILE_COLLISION(backgroundTiles[y][x])) {
+      backgroundTiles[y][x] = TILE_SKY;
+      tile_invalidateTile(x<<4, y<<4, 0);
+    }
+    if (TILE_COLLISION(backgroundTiles[y][x+1])) {
+      backgroundTiles[y][x+1] = TILE_SKY;
+      tile_invalidateTile((x+1)<<4, y<<4, 0);
+    }
+#else
     backgroundTiles[y][x] = TILE_SKY;
-    backgroundTiles[y][x+1] = TILE_SKY;
     tile_invalidateTile(x<<4, y<<4, 0);
+    backgroundTiles[y][x+1] = TILE_SKY;
     tile_invalidateTile((x+1)<<4, y<<4, 0);
+#endif
+
+
     // tile_invalidateTile(x*TILE_WIDTH, y*TILE_HEIGHT, 0);
     // tile_invalidateTile((x+1)*(TILE_WIDTH), y*TILE_HEIGHT, 0);
   } else {   
@@ -532,19 +563,23 @@ player_updateAlive(void)
       || (player.velocity.y > 0 && player.sprite.y-game_cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
 #endif
 ) {
+    player.freeFall = 0;
+	
     if (game_cameraY % 16 == 0) {
-     if (player.anim->facing == FACING_LEFT) {
-	player_setAnim(ANIM_LEFT_FALL);
+      if (game_cameraY == WORLD_HEIGHT-SCREEN_HEIGHT) {
+	player_respawn();
       } else {
-	player_setAnim(ANIM_RIGHT_FALL);
+	if (player.anim->facing == FACING_LEFT) {
+	  player_setAnim(ANIM_LEFT_FALL);
+	} else {
+	  player_setAnim(ANIM_RIGHT_FALL);
+	}
+	player.state = PLAYER_STATE_FREEFALL;
+	player.velocity.x = 0;
+	player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
+	game_setBackgroundScroll(-SCROLL_PIXELS*2);
+	game_scrollCount = 10000;
       }
-      player.state = PLAYER_STATE_FREEFALL;
-      player.velocity.x = 0;
-      player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
-      player.freeFall = 0;
-      game_setBackgroundScroll(-SCROLL_PIXELS*2);
-      game_scrollCount = 10000;
-      //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+game_cameraY-1;
     }
   }
 
@@ -561,26 +596,14 @@ player_freeFall(void)
   }
 }
 
+
 static void
 player_updateFreeFall(void)
 {
   player.sprite.y += player.velocity.y;
   if (player.sprite.y >= PLAYER_INITIAL_Y) {      
-    player.state = PLAYER_STATE_DEFAULT;
-    player.sprite.y = PLAYER_INITIAL_Y;
-    //game_scrollCount = 0;
-    //    game_setBackgroundScroll(SCROLL_PIXELS);
-    player.velocity.x = 0;
-    player.velocity.y = 0;
-    if (player.anim->facing == FACING_LEFT) {
-      player_setAnim(ANIM_LEFT_STAND);
-    } else {
-      player_setAnim(ANIM_RIGHT_STAND);
-    }      
+    player_respawn();
     game_shakeScreen();
-    player.flashCounter = 50;
-    // game_scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - game_cameraY)>>1;
-    //    game_setBackgroundScroll(-2);
   }
 }
 

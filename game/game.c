@@ -228,7 +228,7 @@ void
 void 
 game_shakeScreen(void)
 {
-  game_shake = 4;
+  game_shake = 6;
   game_scrollCount = 0;  
   game_setBackgroundScroll(-2);
 }
