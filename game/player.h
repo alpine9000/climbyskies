@@ -1,6 +1,35 @@
 #ifndef __PLAYER_H
 #define __PLAYER_H
 
+#define PLAYER_WIDTH                32
+#define PLAYER_FUZZY_WIDTH          8
+#define PLAYER_HEIGHT               37
+#define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
+
+
+typedef enum {
+  PLAYER_STATE_DEFAULT,
+  PLAYER_STATE_FREEFALL,
+  PLAYER_STATE_ONGROUND,
+  PLAYER_STATE_HEADCONTACT
+} player_state_t;
+
+
+
+typedef struct {
+  sprite_t sprite;
+  int animId;
+  velocity_t velocity;
+  sprite_animation_t* anim;
+  sprite_save_t saves[2];
+  int flashCounter;
+  int frameCounter;
+  int freeFall;
+  player_state_t state;
+} player_t;
+
+extern player_t player;
+
 void 
 player_init(void);
 void 
@@ -13,5 +42,7 @@ void
 player_update(void);
 void
 player_setAction(int action);
+void
+player_freeFall(void);
 
 #endif

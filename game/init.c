@@ -19,6 +19,7 @@ init_amiga(void)
   custom->bplcon2 = 0x0;
   custom->bplcon3 = 0xc00;
   custom->bplcon4 = 0x11;
-  
+
+  enemy_ctor();
   gfx_init();
 }

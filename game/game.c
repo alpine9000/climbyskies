@@ -15,6 +15,7 @@ int game_cameraY;
 int game_screenScrollY;
 int game_scrollCount;
 int game_scroll;
+static int game_shake;
 
 static void
 game_switchFrameBuffers(void);
@@ -144,6 +145,7 @@ game_newGame(void)
   lastVerticalBlankCount = 0;
   game_screenScrollY = 0;
   game_scrollCount = 0;
+  game_shake = 0;
   game_setBackgroundScroll(SCROLL_PIXELS);
   tileY = 0;
 
@@ -201,7 +203,8 @@ game_switchFrameBuffers(void)
   game_offScreenBuffer = save;
 }
 
-static 
+#if 0
+//static 
 void
  game_shakeScroll(int direction, int count)
 {
@@ -220,15 +223,14 @@ void
   }
   hw_waitScanLines(delay);
 }
+#endif
 
 void 
 game_shakeScreen(void)
 {
-  int direction = 1;
-  for (int i = 0; i < 4; i++) {
-    game_shakeScroll(direction, SCROLL_PIXELS);
-    direction = -direction;
-  }
+  game_shake = 4;
+  game_scrollCount = 0;  
+  game_setBackgroundScroll(-2);
 }
 
 static void
@@ -264,17 +266,7 @@ game_scrollBackground(void)
 {
   game_setCamera(game_scroll);
 
-#if 1
   int tileIndex = game_screenScrollY % TILE_HEIGHT;
-#else
-  int tileIndex = game_screenScrollY;
-  
-  while (tileIndex >= TILE_HEIGHT) {
-    tileIndex -= TILE_HEIGHT;
-  }
-#endif
-
-
   int count = abs(game_scroll);
 
   for (int s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
@@ -292,16 +284,19 @@ debug_showRasterLine(void)
 {
 #if 1
   if (turtle > 1) {
-        gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
+    custom->color[1] = 0xf00;
+    //gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
     //    text_drawText8(scoreBoardFrameBuffer, "SLOW", 10*8, 4);  
     turtle--;
   } else if (turtle == 1) {
-       gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
+    custom->color[1] = 0x09e;
+    //gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
     //    text_drawText8(scoreBoardFrameBuffer, "    ", 10*8, 4);  
     turtle--;
   }
 #endif
 
+  return;
 
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
@@ -332,22 +327,23 @@ game_render(void)
 {
   tile_renderInvalidTiles(game_offScreenBuffer);
 
-  player_saveBackground(game_offScreenBuffer);
 #ifdef ENABLE_ENEMIES
   enemy_saveBackground(game_offScreenBuffer);
 #endif
+  player_saveBackground(game_offScreenBuffer);
+
   cloud_saveBackground(game_offScreenBuffer);
 
 
   
   SPEED_COLOR(0x500);
   cloud_render(game_offScreenBuffer);
-  SPEED_COLOR(0x005);
-  player_render(game_offScreenBuffer);
 #ifdef ENABLE_ENEMIES
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
 #endif
+  SPEED_COLOR(0x005);
+  player_render(game_offScreenBuffer);
   game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
@@ -391,9 +387,26 @@ game_loop()
     player_update();
     SPEED_COLOR(0x0fF);
 #ifdef ENABLE_ENEMIES
-    enemy_update();
+    enemy_update(&player.sprite);
 #endif
-    cloud_update();
+
+
+    if (game_shake == 0) {
+      cloud_update();
+    }
+
+    if (game_scrollCount == 0 && game_shake > 0) {
+      game_shake--;
+      if (game_shake > 1) {
+	game_setBackgroundScroll(game_scroll);
+	game_scroll = -game_scroll;
+	game_scrollCount = 6;
+      } else {
+	game_setBackgroundScroll(-game_scroll);
+      }
+    } 
+
+
     SPEED_COLOR(0x00);
 
 
@@ -420,19 +433,21 @@ game_loop()
       game_scrollCount--;
     }
 
-    SPEED_COLOR(0xf00);
-    //    text_restore();
-    player_restoreBackground();
+
 #ifdef ENABLE_ENEMIES
     SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
 #endif
+    SPEED_COLOR(0xf00);
+    //    text_restore();
+    player_restoreBackground();
     SPEED_COLOR(0x00f);
     cloud_restoreBackground();
 
     SPEED_COLOR(0x000);
 
     game_render();
+
 
     //    hw_waitBlitter();
 

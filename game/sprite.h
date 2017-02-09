@@ -12,12 +12,6 @@ typedef struct {
   int y;
 } velocity_t;
 
-typedef struct {
-  int x;
-  int y;
-  int imageIndex;
-  sprite_save_t* save;
-} sprite_t;
 
 typedef struct {
   int16_t x;
@@ -25,6 +19,15 @@ typedef struct {
   int16_t w;
   int16_t h;
 } image_t;
+
+typedef struct {
+  int x;
+  int y;
+  int imageIndex;
+  sprite_save_t* save;
+  image_t* image;
+} sprite_t;
+
 
 extern image_t sprite_imageAtlas[];
 
@@ -56,7 +59,19 @@ typedef enum  {
   SPRITE_CLIMBER_STAND_RIGHT = 10,
   SPRITE_CLIMBER_JUMP_RIGHT = 11,
   SPRITE_CLOUD_1 = 12,
-  SPRITE_CLOUD_2 = 13
+  SPRITE_CLOUD_2 = 13,
+  SPRITE_ENEMY_RUN_LEFT_1 = 14,
+  SPRITE_ENEMY_RUN_LEFT_2 = 15,
+  SPRITE_ENEMY_RUN_LEFT_3 = 16,
+  SPRITE_ENEMY_RUN_LEFT_4 = 17,
+  SPRITE_ENEMY_RUN_RIGHT_1 = 18,
+  SPRITE_ENEMY_RUN_RIGHT_2 = 19,
+  SPRITE_ENEMY_RUN_RIGHT_3 = 20,
+  SPRITE_ENEMY_RUN_RIGHT_4 = 21,
+  SPRITE_ENEMY_SKATE_RIGHT_1 = 22,
+  SPRITE_ENEMY_SKATE_RIGHT_2 = 23,
+  SPRITE_ENEMY_SKATE_LEFT_1 = 24,
+  SPRITE_ENEMY_SKATE_LEFT_2 = 25,
 } sprite_id_t;
 
 

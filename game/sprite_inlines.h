@@ -1,7 +1,7 @@
 INLINE void
 sprite_save(frame_buffer_t fb, sprite_t* a)
 {
-  image_t* image = &sprite_imageAtlas[a->imageIndex];
+  image_t* image = a->image;//&sprite_imageAtlas[a->imageIndex];
   int h = image->h;
   int y = a->y;
   if (y < game_cameraY) {
@@ -37,7 +37,7 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
 INLINE void
 _sprite_render(frame_buffer_t fb, sprite_t* sprite, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h))
 {
-  image_t* image = &sprite_imageAtlas[sprite->imageIndex];
+  image_t* image = sprite->image;//&sprite_imageAtlas[sprite->imageIndex];
   int by = image->y;
   int h = image->h;
   int y = sprite->y;
@@ -74,10 +74,12 @@ sprite_restore(sprite_save_t* save)
 {
   if (save->blit[0].size > 0) {
     gfx_restoreSprite(&save->blit[0]);
+    save->blit[0].size = 0;
   }
 
   if (save->blit[1].size > 0) {
     gfx_restoreSprite(&save->blit[1]);
+    save->blit[1].size = 0;
   }
 }
 

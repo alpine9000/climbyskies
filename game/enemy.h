@@ -2,8 +2,6 @@
 #define ENEMY_H
 
 void
-enemy_add(int x, int y, int anim);
-void
 enemy_init(void);
 void
 enemy_saveBackground(frame_buffer_t fb);
@@ -12,6 +10,7 @@ enemy_restoreBackground(void);
 void
 enemy_render(frame_buffer_t fb);
 void
-enemy_update(void);
-
+enemy_update(sprite_t* p);
+void
+enemy_ctor(void);
 #endif

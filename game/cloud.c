@@ -197,6 +197,9 @@ cloud_render(frame_buffer_t fb)
 void
 cloud_update(void)
 {
+  if (game_cameraY >= WORLD_HEIGHT-SCREEN_HEIGHT) {
+    return;
+  }
   for (int i = 0; i < NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (game_scrollCount > 0) {

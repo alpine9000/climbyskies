@@ -15,13 +15,9 @@
 #define JOYSTICK_RIGHT() (hw_joystickPos == 3)
 #define JOYSTICK_UP() (hw_joystickPos == 1)
 
-#define PLAYER_WIDTH                32
-#define PLAYER_HEIGHT               37
-#define PLAYER_FUZZY_WIDTH          8
 #define PLAYER_FUZZY_BOTTOM         0
 #define PLAYER_OFFSET_Y             -1
 #define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)
-#define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
 #define PLAYER_INITIAL_Y            (WORLD_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
 #define PLAYER_JUMP_HEIGHT          118 //112
@@ -42,25 +38,6 @@
 #define ANIM_LEFT_FALL_LEFT    7
 #define ANIM_RIGHT_FALL        8
 #define ANIM_RIGHT_FALL_RIGHT  9
-
-typedef enum {
-  PLAYER_STATE_DEFAULT,
-  PLAYER_STATE_FREEFALL,
-  PLAYER_STATE_ONGROUND,
-  PLAYER_STATE_HEADCONTACT
-} player_state_t;
-
-
-typedef struct {
-  sprite_t sprite;
-  int animId;
-  velocity_t velocity;
-  sprite_animation_t* anim;
-  sprite_save_t saves[2];
-  int flashCounter;
-  int frameCounter;
-  player_state_t state;
-} player_t;
 
 static
 sprite_animation_t animations[] = {
@@ -149,8 +126,8 @@ sprite_animation_t animations[] = {
 };
 
 
-static player_t player;
-
+//static 
+player_t player;
 
 static void 
 player_setAnim(int anim)
@@ -159,6 +136,7 @@ player_setAnim(int anim)
     player.animId = anim;
     player.anim = &animations[player.animId];
     player.sprite.imageIndex = player.anim->animation.start;
+    player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
     player.frameCounter = 0;
   }
 }
@@ -168,6 +146,7 @@ void
 player_init(void)
 {
 
+  player.freeFall = 0;
   player.velocity.x = 0;
   player.velocity.y = 0;
   player.state = PLAYER_STATE_DEFAULT;
@@ -175,6 +154,7 @@ player_init(void)
   player.sprite.x = SCREEN_WIDTH-PLAYER_WIDTH-64;
   player.sprite.y = PLAYER_INITIAL_Y;
   player.sprite.imageIndex = 4;
+  player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
   player.animId = -1;
 
   player_setAnim(ANIM_LEFT_STAND);
@@ -522,6 +502,7 @@ player_updateAlive(void)
       if (player.sprite.imageIndex > player.anim->animation.stop) {
 	player.sprite.imageIndex = player.anim->animation.start;
       }
+    player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
     } else {
       player.frameCounter++;
     }
@@ -545,22 +526,40 @@ player_updateAlive(void)
 #endif
   }
 
+
+  if (player.freeFall 
 #ifdef FREEFALL_MODE
-  if (player.velocity.y > 0 && player.sprite.y-game_cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET) {
+      || (player.velocity.y > 0 && player.sprite.y-game_cameraY > SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET)
+#endif
+) {
     if (game_cameraY % 16 == 0) {
+     if (player.anim->facing == FACING_LEFT) {
+	player_setAnim(ANIM_LEFT_FALL);
+      } else {
+	player_setAnim(ANIM_RIGHT_FALL);
+      }
       player.state = PLAYER_STATE_FREEFALL;
       player.velocity.x = 0;
       player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
+      player.freeFall = 0;
       game_setBackgroundScroll(-SCROLL_PIXELS*2);
       game_scrollCount = 10000;
       //      player.sprite.y = SCREEN_HEIGHT-PLAYER_INITIAL_Y_OFFSET+game_cameraY-1;
     }
   }
-#endif
+
   
   return collision;
 }
 
+
+void
+player_freeFall(void)
+{
+  if (player.flashCounter == 0) {
+    player.freeFall = 1;
+  }
+}
 
 static void
 player_updateFreeFall(void)
@@ -569,8 +568,8 @@ player_updateFreeFall(void)
   if (player.sprite.y >= PLAYER_INITIAL_Y) {      
     player.state = PLAYER_STATE_DEFAULT;
     player.sprite.y = PLAYER_INITIAL_Y;
-    game_scrollCount = 0;
-    game_setBackgroundScroll(SCROLL_PIXELS);
+    //game_scrollCount = 0;
+    //    game_setBackgroundScroll(SCROLL_PIXELS);
     player.velocity.x = 0;
     player.velocity.y = 0;
     if (player.anim->facing == FACING_LEFT) {
@@ -580,8 +579,8 @@ player_updateFreeFall(void)
     }      
     game_shakeScreen();
     player.flashCounter = 50;
-    game_scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - game_cameraY)>>1;
-    game_setBackgroundScroll(-2);
+    // game_scrollCount = (WORLD_HEIGHT-SCREEN_HEIGHT - game_cameraY)>>1;
+    //    game_setBackgroundScroll(-2);
   }
 }
 
