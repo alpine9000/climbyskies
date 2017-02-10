@@ -151,6 +151,8 @@ game_newGame(void)
 
   game_switchFrameBuffers();
 
+  item_init(); // this must be initialised before tile
+
   tile_init();
   tile_renderScreen();
 
@@ -158,6 +160,7 @@ game_newGame(void)
 #ifdef ENABLE_ENEMIES
   enemy_init();
 #endif
+
   cloud_init();
   
   gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
@@ -215,6 +218,7 @@ void
     game_switchFrameBuffers();
     game_setCamera(direction);
     player_restoreBackground();
+    item_restoreBackground();
 #ifdef ENABLE_ENEMIES
     enemy_restoreBackground();
 #endif
@@ -296,7 +300,8 @@ debug_showRasterLine(void)
   }
 #endif
 
-  // return;
+  hw_waitBlitter();
+  return;
 
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
@@ -329,9 +334,11 @@ game_render(void)
 {
   tile_renderInvalidTiles(game_offScreenBuffer);
 
+  item_saveBackground(game_offScreenBuffer);
 #ifdef ENABLE_ENEMIES
   enemy_saveBackground(game_offScreenBuffer);
 #endif
+
   player_saveBackground(game_offScreenBuffer);
 
   cloud_saveBackground(game_offScreenBuffer);
@@ -340,6 +347,7 @@ game_render(void)
   
   SPEED_COLOR(0x500);
   cloud_render(game_offScreenBuffer);
+  item_render(game_offScreenBuffer);  
 #ifdef ENABLE_ENEMIES
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
@@ -391,6 +399,7 @@ game_loop()
 #ifdef ENABLE_ENEMIES
     enemy_update(&player.sprite);
 #endif
+    item_update(&player.sprite);
 
 
     if (game_shake == 0) {
@@ -440,6 +449,7 @@ game_loop()
     SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
 #endif
+    item_restoreBackground();
     SPEED_COLOR(0xf00);
     //    text_restore();
     player_restoreBackground();

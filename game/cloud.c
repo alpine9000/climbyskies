@@ -183,7 +183,7 @@ cloud_render(frame_buffer_t fb)
     for (int x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
 	for (int y = 0; y < 3; y++) {	  
-	  int tile = backgroundTiles[py+y][px+x];
+	  int tile = level.background_tileAddresses[py+y][px+x];
 	  if (tile != TILE_SKY) {
 	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
 	  }

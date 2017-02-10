@@ -5,7 +5,12 @@
  </tileset>
  <layer name="background" width="16" height="202">
   <data encoding="base64" compression="zlib">
-   eJztmWEOwiAMhXF6BZ3exvsfwPM4oyRLQ2k7xmjj+/FCMng/+Nq1G8wppfuiedD4PEF76JK+mhadC1zz87yOzud4PH6i8/k54lbmujVOHG9OUpz+Vcj/MZLyn8bFmv80Lsh/naT3QRI478sb9aeP0H998OfymuNO+Ut5veY+g7+aP9d3tfzzHPjbhP7rizf6bx+h//rgj/rvgz8XDy1/Lh50HvzrQv/1xRv9t4/Qf33wj9B/X43xiuQv1SOLv5TnkfZ/tD9K/ffMcIsf9X+stOef0v2XlNd73H95y92efuneUfK33jtGYrWnf/R/V1RuPblrYlLjjprPK1r/jZrfnF/qv9I5nNR/pXM46764dVH9a/41n+b/t+bH+adNo79/JrLG8t5Tr8Vf8mr9nFfjt+Z/ibclHqPzy4toPZHGtW8q1BNJ1D96/6Ol/f/l4mU91ynFw9s3yZF+a/7T8bbo2jC2eD/jG8j42hA=
+   eJztmWEOwiAMhXF6BZ3exvsfwPM4oyRLQ2k7xmjj+/FCMng/+Nq1G8wppfuiedD4PEF76JK+mhadC1zz87yOzud4PH6i8/k54lbmujVOHG9OUpz+Vcj/MZLyn8bFmv80Lsh/naT3QRI478sb9aeP0H998OfymuNO+Ut5veY+g7+aP9d3tfzzHPjbhP7rizf6bx+h//rgj/rvgz8XDy1/Lh50HvzrQv/1xRv9t4/Qf33wj9B/X43xiuQv1SOLv5TnkfZ/tD9K/ffMcIsf9X+stOef0v2XlNd73H95y92efuneUfK33jtGYrWnf/R/V1RuPblrYlLjjprPK1r/jZrfnF/qv9I5nNR/pXM46764dVH9a/41n+b/t+bH+adNo79/JrLG8t5Tr8Vf8mr9nFfjz2y18SjxtsRjdH55Ea0n0rj2TYV6Ion6R+9/tLT/v1y8rOc6pXh4+yY50m/NfzreFl0bxhbvZ3wDgR7Z0Q==
+  </data>
+ </layer>
+ <layer name="item" width="16" height="202">
+  <data encoding="base64" compression="zlib">
+   eJzt1MERwCAMAzB+7L9xJ+iVR0NCkCbgbJMxqGRmP4AlegKiuTN0Z+PwzT8BKnCL6MamgRO4VXvJm+5svD4d/U+mZ9DTPrLOIXd453/EWM1V/tzI7vPpII5syfAA4qgAlA==
   </data>
  </layer>
 </map>

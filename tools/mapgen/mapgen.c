@@ -112,7 +112,8 @@ output_map_asm(tmx_map *m, tmx_layer *l)
   FILE* fp = file_openWrite("%s-map.%c", l->name, config.c_output ? 'c' : 's');
 
   if (config.c_output) {
-    fprintf(fp, "unsigned short %s_tileAddresses[%d][%d] = {\n",  l->name, m->height, m->width);
+    //    fprintf(fp, "unsigned short %s_tileAddresses[%d][%d] = {\n",  l->name, m->height, m->width);
+    fprintf(fp, ".%s_tileAddresses = {\n",  l->name);//, m->height, m->width);
   }
 
   if (l->type == L_LAYER && l->content.gids) {
@@ -135,7 +136,7 @@ output_map_asm(tmx_map *m, tmx_layer *l)
   }
 
   if (config.c_output) {      
-    fprintf(fp, "};\n");
+    fprintf(fp, "},\n");
   }
   fclose(fp);
 

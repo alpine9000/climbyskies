@@ -96,6 +96,38 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
 
 }
 
+INLINE void
+gfx_renderSprite16NoShift(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)
+{
+  USE(w);
+  static volatile struct Custom* _custom = CUSTOM;
+  frame_buffer_t source = spriteFrameBuffer;
+  frame_buffer_t mask = spriteMask;
+  const uint32_t widthWords =  1;
+  
+  dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  source += gfx_dyOffsetsLUT[sy] + (sx>>3);
+  mask += gfx_dyOffsetsLUT[sy] + (sx>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca|0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  _custom->bltapt = (uint8_t*)mask;
+  _custom->bltbpt = (uint8_t*)source;
+  _custom->bltcpt = (uint8_t*)dest;
+  _custom->bltdpt = (uint8_t*)dest;
+  //  _custom->bltsize = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  _custom->bltsize = gfx_heightLUT[h] | widthWords;
+
+}
+
 
 INLINE void
 gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)

@@ -108,16 +108,19 @@ extern frame_buffer_t game_onScreenBuffer;
 #include "gfx.h"
 #include "mouse.h"
 #include "palette.h"
+#include "sprite.h"
+#include "item.h"
+#include "level.h"
 #include "tile.h"
 #include "copper.h"
 #include "music.h"
 #include "actor.h"
-#include "sprite.h"
 #include "player.h"
 #include "cloud.h"
 #include "text.h"
 #include "disk.h"
 #include "enemy.h"
+
 
 void
 game_init(void);

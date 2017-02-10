@@ -464,18 +464,18 @@ player_updateAlive(void)
     //int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
 
 #ifdef FIX_TILE_INVALIDATE_BUG
-    if (TILE_COLLISION(backgroundTiles[y][x])) {
-      backgroundTiles[y][x] = TILE_SKY;
+    if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
+      level.background_tileAddresses[y][x] = TILE_SKY;
       tile_invalidateTile(x<<4, y<<4, 0);
     }
-    if (TILE_COLLISION(backgroundTiles[y][x+1])) {
-      backgroundTiles[y][x+1] = TILE_SKY;
+    if (TILE_COLLISION(level.background_tileAddresses[y][x+1])) {
+      level.background_tileAddresses[y][x+1] = TILE_SKY;
       tile_invalidateTile((x+1)<<4, y<<4, 0);
     }
 #else
-    backgroundTiles[y][x] = TILE_SKY;
+    level.background_tileAddresses[y][x] = TILE_SKY;
     tile_invalidateTile(x<<4, y<<4, 0);
-    backgroundTiles[y][x+1] = TILE_SKY;
+    level.background_tileAddresses[y][x+1] = TILE_SKY;
     tile_invalidateTile((x+1)<<4, y<<4, 0);
 #endif
 

@@ -10,7 +10,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c  screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c  backgrounds.c disk.c enemy.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 
@@ -113,13 +113,15 @@ $(ADF): out/bootblock.bin
 
 wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 
-out/adf/backgrounds.o: out/background-map.c backgrounds.c
-out/workbench/backgrounds.o: out/background-map.c backgrounds.c
+out/adf/level.o: out/background-map.c level.c
+out/workbench/level.o: out/background-map.c level.c
 
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background-map.c out
+	@mv item-map.c out
 	@rm background-indexes.c
+	@rm item-indexes.c
 
 out/sprite.bin: assets/sprite.png palette.pal
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224

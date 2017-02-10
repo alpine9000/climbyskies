@@ -181,6 +181,91 @@ image_t sprite_imageAtlas[] = {
     .w = 32,
     .h = 25
   },
+  [SPRITE_COIN_1] = { 
+    .x = 96,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_2] = { 
+    .x = 112,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_3] = { 
+    .x = 128,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_4] = { 
+    .x = 144,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_5] = { 
+    .x = 160,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_6] = { 
+    .x = 176,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_7] = { 
+    .x = 192,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_8] = { 
+    .x = 208,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_9] = { 
+    .x = 224,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_10] = { 
+    .x = 240,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_11] = { 
+    .x = 256,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_12] = { 
+    .x = 272,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_13] = { 
+    .x = 288,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+  [SPRITE_COIN_14] = { 
+    .x = 304,
+    .y = 2,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  },
+
 
 
 };

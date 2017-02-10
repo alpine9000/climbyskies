@@ -1,13 +1,13 @@
 #ifndef __TILE_H
 #define __TILE_H
 
-extern uint16_t backgroundTiles[MAP_TILE_HEIGHT][MAP_TILE_WIDTH];
 extern unsigned short* tile_tilePtr;
+extern unsigned short* tile_itemPtr;
 extern int tile_tileX;
 
 #define TILE_SKY 0xbba6
 #define TILE_COLLISION(x) (x < 0x1900)
-#define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + ((((y)>>4)<<4) + ((x)>>4))))
+#define BACKGROUND_TILE(x,y) (*(&level.background_tileAddresses[0][0] + ((((y)>>4)<<4) + ((x)>>4))))
 //#define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + ((((y/TILE_HEIGHT)*TILE_WIDTH)) + (x/TILE_WIDTH))))
 
 void

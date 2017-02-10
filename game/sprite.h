@@ -44,6 +44,7 @@ sprite_restore(sprite_save_t* save);
 
 #define sprite_render(fb, a) _sprite_render(fb, &a, gfx_renderSprite)
 #define sprite_renderNoMask(fb, a) _sprite_render(fb, &a, gfx_renderSpriteNoMask)
+#define sprite_render16NoShift(fb, a) _sprite_render(fb, &a, gfx_renderSprite16NoShift)
 
 typedef enum  {
   SPRITE_CLIMBER_RUN_LEFT_1 = 0,
@@ -76,6 +77,20 @@ typedef enum  {
   SPRITE_ENEMY_DRAGON_RIGHT_2 = 27,
   SPRITE_ENEMY_DRAGON_RIGHT_3 = 28,
   SPRITE_ENEMY_DRAGON_RIGHT_4 = 29,
+  SPRITE_COIN_1 = 30,
+  SPRITE_COIN_2 = 31,
+  SPRITE_COIN_3 = 32,
+  SPRITE_COIN_4 = 33,
+  SPRITE_COIN_5 = 34,
+  SPRITE_COIN_6 = 35,
+  SPRITE_COIN_7 = 36,
+  SPRITE_COIN_8 = 37,
+  SPRITE_COIN_9 = 38,
+  SPRITE_COIN_10 = 39,
+  SPRITE_COIN_11 = 40,
+  SPRITE_COIN_12 = 41,
+  SPRITE_COIN_13 = 42,
+  SPRITE_COIN_14 = 43,
 } sprite_id_t;
 
 
