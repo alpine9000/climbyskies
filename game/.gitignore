@@ -1,6 +1,8 @@
+art
 .DS_Store
 *.dep
 assets/P61.*
+assets/*.gif
 bin
 save
 a.out
