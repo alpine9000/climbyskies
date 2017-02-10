@@ -1,9 +1,9 @@
 #include "game.h"
 
-#define MAX_ENEMIES 10
-#define COLLISION_FUZZY 16
-#define MAX_ENEMY_CONFIGS 5
-#define MAX_ENEMY_Y 3
+#define ENEMY_MAX_ENEMIES 10
+#define ENEMY_COLLISION_FUZZY 16
+#define ENEMY_MAX_CONFIGS 6
+#define ENEMY_MAX_Y 3
 
 typedef enum {
   ENEMY_ALIVE,
@@ -11,13 +11,12 @@ typedef enum {
 } enemy_state_t;
 
 
-static uint16_t enemy_yStarts[WORLD_HEIGHT];
-
 typedef enum {
   ENEMY_ANIM_RIGHT_RUN = 0,
   ENEMY_ANIM_LEFT_RUN,
   ENEMY_ANIM_RIGHT_SKATE,
-  ENEMY_ANIM_LEFT_SKATE
+  ENEMY_ANIM_LEFT_SKATE,
+  ENEMY_ANIM_RIGHT_DRAGON
 } enemy_anim_t;
 
 
@@ -68,15 +67,23 @@ static sprite_animation_t enemy_animations[] = {
       .speed = 4
     },
     .facing = FACING_LEFT
+  },
+  [ENEMY_ANIM_RIGHT_DRAGON] = {
+    .animation = {
+      .start = SPRITE_ENEMY_DRAGON_RIGHT_1,
+      .stop = SPRITE_ENEMY_DRAGON_RIGHT_4,
+      .speed = 4
+    },
+    .facing = FACING_RIGHT
   }
 };
 
-static enemy_t* enemies;
-static enemy_t* freeEnemies;
+static enemy_t* enemy_activeList;
+static enemy_t* enemy_freeList;
 static int enemy_configIndex;
 static int enemy_yIndex;
-
-static enemy_t enemiesBuffer[MAX_ENEMIES];
+static uint16_t enemy_yStarts[WORLD_HEIGHT];
+static enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
 
 typedef struct {
   int x;
@@ -85,13 +92,13 @@ typedef struct {
   enemy_anim_t anim;
 } enemy_config_t;
 
-static int enemy_y[MAX_ENEMY_Y] = {
+static int enemy_y[ENEMY_MAX_Y] = {
   0,
   97,
   193
 };
 
-static enemy_config_t enemy_configs[MAX_ENEMY_CONFIGS] = {
+static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
   {
     .x = -32,
     .onGround = 1,
@@ -100,13 +107,19 @@ static enemy_config_t enemy_configs[MAX_ENEMY_CONFIGS] = {
   },
   {
     .x = SCREEN_WIDTH,
-    .onGround = 0,
+    .onGround = 1,
     .height = PLAYER_HEIGHT,
     .anim = ENEMY_ANIM_LEFT_SKATE
   },
   {
     .x = -32,
     .onGround = 0,
+    .height = 25,
+    .anim = ENEMY_ANIM_RIGHT_DRAGON
+  },
+  {
+    .x = -32,
+    .onGround = 1,
     .height = PLAYER_HEIGHT,
     .anim = ENEMY_ANIM_RIGHT_SKATE
   },
@@ -129,39 +142,39 @@ static enemy_config_t enemy_configs[MAX_ENEMY_CONFIGS] = {
 static enemy_t*
 enemy_getFree(void)
 {
-  enemy_t* entry = freeEnemies;
-  freeEnemies = freeEnemies->next;
-  freeEnemies->prev = 0;
+  enemy_t* entry = enemy_freeList;
+  enemy_freeList = enemy_freeList->next;
+  enemy_freeList->prev = 0;
   return entry;
 }
 
 static void
 enemy_addFree(enemy_t* ptr)
 {
-  if (freeEnemies == 0) {
-    freeEnemies = ptr;
+  if (enemy_freeList == 0) {
+    enemy_freeList = ptr;
     ptr->next = 0;
     ptr->prev = 0;
   } else {
-    ptr->next = freeEnemies;
+    ptr->next = enemy_freeList;
     ptr->next->prev = ptr;
     ptr->prev = 0;
-    freeEnemies = ptr;
+    enemy_freeList = ptr;
   }
 }
 
 static void
 enemy_addEnemy(enemy_t* ptr)
 {
-  if (enemies == 0) {
-    enemies = ptr;
+  if (enemy_activeList == 0) {
+    enemy_activeList = ptr;
     ptr->next = 0;
     ptr->prev = 0;
   } else {
-    ptr->next = enemies;
+    ptr->next = enemy_activeList;
     ptr->next->prev = ptr;
     ptr->prev = 0;
-    enemies = ptr;
+    enemy_activeList = ptr;
   }
 }
 
@@ -170,9 +183,9 @@ static  void
 enemy_remove(enemy_t* ptr)
 {
   if (ptr->prev == 0) {
-    enemies = ptr->next;
-    if (enemies) {
-      enemies->prev = 0;
+    enemy_activeList = ptr->next;
+    if (enemy_activeList) {
+      enemy_activeList->prev = 0;
     }
   } else {
     ptr->prev->next = ptr->next;
@@ -187,7 +200,7 @@ enemy_add(int x, int y, int onGround, int anim)
 {
   enemy_t* ptr = enemy_getFree();
   ptr->state = ENEMY_ALIVE;
-  ptr->width = 32-(COLLISION_FUZZY);
+  ptr->width = 32-(ENEMY_COLLISION_FUZZY);
   ptr->onGround = onGround;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
@@ -222,11 +235,11 @@ enemy_addNew(void)
     }
     
     enemy_yIndex++;
-    if (enemy_yIndex >= MAX_ENEMY_Y) {
+    if (enemy_yIndex >= ENEMY_MAX_Y) {
       enemy_yIndex = 0;
     }
 
-    enemy_t* ptr = enemies;
+    enemy_t* ptr = enemy_activeList;
     int lineBusy = 0;
     while (ptr != 0) {
       if (ptr->sprite.y == y) {
@@ -241,7 +254,7 @@ enemy_addNew(void)
   } while(1);
 
   enemy_configIndex++;
-  if (enemy_configIndex >= MAX_ENEMY_CONFIGS) {
+  if (enemy_configIndex >= ENEMY_MAX_CONFIGS) {
     enemy_configIndex = 0;
   }
 
@@ -262,12 +275,12 @@ enemy_init(void)
 {
   enemy_configIndex = 0;
   enemy_yIndex = 0;
-  enemies = 0;
-  freeEnemies = &enemiesBuffer[0];
-  freeEnemies->prev = 0;
-  enemy_t* ptr = freeEnemies;
-  for (int i = 1; i < MAX_ENEMIES; i++) {
-      ptr->next = &enemiesBuffer[i];
+  enemy_activeList = 0;
+  enemy_freeList = &enemy_buffer[0];
+  enemy_freeList->prev = 0;
+  enemy_t* ptr = enemy_freeList;
+  for (int i = 1; i < ENEMY_MAX_ENEMIES; i++) {
+      ptr->next = &enemy_buffer[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
   }
@@ -281,7 +294,7 @@ enemy_init(void)
 void
 enemy_saveBackground(frame_buffer_t fb)
 {
-  enemy_t* ptr = enemies;
+  enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
     sprite_save(fb, &ptr->sprite);
@@ -294,7 +307,7 @@ enemy_saveBackground(frame_buffer_t fb)
 void
 enemy_restoreBackground(void)
 {
-  enemy_t* ptr = enemies;
+  enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
     sprite_restore(ptr->sprite.save);
@@ -306,7 +319,7 @@ enemy_restoreBackground(void)
 void
 enemy_render(frame_buffer_t fb)
 {
-  enemy_t* ptr = enemies;
+  enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
     if (ptr->state != ENEMY_DEAD) {
@@ -321,8 +334,8 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
 
 
-  if ((p->x+(COLLISION_FUZZY)) < (enemy->sprite.x+(COLLISION_FUZZY)) + enemy->width &&
-      (p->x+(COLLISION_FUZZY)) + PLAYER_WIDTH-(COLLISION_FUZZY) > (enemy->sprite.x+(COLLISION_FUZZY)) &&
+  if ((p->x+(ENEMY_COLLISION_FUZZY)) < (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) + enemy->width &&
+      (p->x+(ENEMY_COLLISION_FUZZY)) + PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY) > (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) &&
       p->y < enemy->sprite.y + enemy->sprite.image->h &&
       PLAYER_HEIGHT + p->y > enemy->sprite.y) {
     return 1;
@@ -330,10 +343,11 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
   return 0;
 }
 
+#if 0
 int
 enemy_collision(sprite_t* p)
 {
-  enemy_t* ptr = enemies;
+  enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
     if (enemy_aabb(p, ptr)) {
@@ -344,14 +358,14 @@ enemy_collision(sprite_t* p)
 
   return 0;
 }
-
+#endif
 
 
 void
 enemy_update(sprite_t* p)
 {
   int removedCount = 0;
-  enemy_t* ptr = enemies;
+  enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
     int newX =  ptr->sprite.x+ptr->velocity.x;

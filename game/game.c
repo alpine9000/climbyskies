@@ -298,8 +298,10 @@ debug_showRasterLine(void)
 
   // return;
 
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);  
+  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);
   text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
+
+  hw_waitBlitter();
 
   int line = hw_getRasterLine() - RASTER_Y_START;  
 

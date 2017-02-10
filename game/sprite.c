@@ -157,6 +157,32 @@ image_t sprite_imageAtlas[] = {
     .w = 32,
     .h = 37
   },
+  [SPRITE_ENEMY_DRAGON_RIGHT_1] = { 
+    .x = 96,
+    .y = 38,
+    .w = 32,
+    .h = 25
+  },
+  [SPRITE_ENEMY_DRAGON_RIGHT_2] = { 
+    .x = 128,
+    .y = 38,
+    .w = 32,
+    .h = 25
+  },
+  [SPRITE_ENEMY_DRAGON_RIGHT_3] = { 
+    .x = 160,
+    .y = 38,
+    .w = 32,
+    .h = 25
+  },
+  [SPRITE_ENEMY_DRAGON_RIGHT_4] = { 
+    .x = 192,
+    .y = 38,
+    .w = 32,
+    .h = 25
+  },
+
+
 };
 
 
