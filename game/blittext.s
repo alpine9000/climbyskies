@@ -10,9 +10,11 @@ FONT_HEIGHT		equ 8
 FONT_WIDTH		equ 8
 FONTMAP_WIDTH_BYTES	equ 32
 _SCREEN_BIT_DEPTH	equ 5
+FONT_BIT_DEPTH	        equ 1
 _BITPLANE_WIDTH_BYTES	equ 320/8
-
-
+MODULO	                equ (_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(_BITPLANE_WIDTH_BYTES*(_SCREEN_BIT_DEPTH-1))
+FONTMAP_MODULO		equ (FONTMAP_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(_BITPLANE_WIDTH_BYTES*(FONT_BIT_DEPTH-1))
+	
 _text_drawText8:
 	;; a0 - bitplane
 	;; a1 - text
@@ -25,9 +27,9 @@ _text_drawText8:
 
 	;; blitter config that is shared for every character
 	move.w	#BC0F_SRCB|BC0F_SRCC|BC0F_DEST|BLIT_LF_MINTERM,d3 	; BLTCON0 value
-	move.w 	#FONTMAP_WIDTH_BYTES-BLIT_WIDTH_BYTES,BLTBMOD(a6)	; B modulo
-	move.w 	#_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES,BLTCMOD(a6)	; C modulo
-	move.w 	#_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES,BLTDMOD(a6)	; D modulo
+	move.w 	#FONTMAP_MODULO,BLTBMOD(a6)	                        ; B modulo
+	move.w 	#MODULO,BLTCMOD(a6)					; C modulo
+	move.w 	#MODULO,BLTDMOD(a6)					; D modulo
 	move.w	#$0000,BLTALWM(a6) 					; mask out extra word used for shifting
 	move.w	#$ffff,BLTADAT(a6) 					; preload source mask so only BLTA?WM mask is used
 
@@ -74,7 +76,8 @@ _text_drawText8:
 	move.l 	fontAtlas(pc,d1.w),BLTBPTH(a6)		; source bitplane		
 	or.w	d3,d2					; d2 = BLTCON0 value
 	move.w	d2,BLTCON0(a6)				; set minterm, dma channel and shift
-	move.w 	#(FONT_HEIGHT*_SCREEN_BIT_DEPTH)<<6|(BLIT_WIDTH_WORDS),BLTSIZE(a6)	;rectangle size, starts blit	
+	;; 	move.w 	#(FONT_HEIGHT*_SCREEN_BIT_DEPTH)<<6|(BLIT_WIDTH_WORDS),BLTSIZE(a6)	;rectangle size, starts blit
+	move.w 	#(FONT_HEIGHT)<<6|(BLIT_WIDTH_WORDS),BLTSIZE(a6)	;rectangle size, starts blit	
 
 	add.l	#FONT_WIDTH,d0	; increment the x position
 	addq	#1,a2		; increment the dest buffer pointer
@@ -85,7 +88,7 @@ _text_drawText8:
 
 
 CharAddress:	macro
-	dc.l	font+(((\1)/FONTMAP_WIDTH_BYTES)*(FONT_HEIGHT*FONTMAP_WIDTH_BYTES*_SCREEN_BIT_DEPTH))+((\1)-(((\1)/FONTMAP_WIDTH_BYTES)*FONTMAP_WIDTH_BYTES))
+	dc.l	font+(((\1)/FONTMAP_WIDTH_BYTES)*(FONT_HEIGHT*FONTMAP_WIDTH_BYTES*FONT_BIT_DEPTH))+((\1)-(((\1)/FONTMAP_WIDTH_BYTES)*FONTMAP_WIDTH_BYTES))
 	endm
 
 

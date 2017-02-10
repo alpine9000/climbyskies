@@ -127,7 +127,7 @@ out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@
 
 out/font%.bin: assets/font%.png palette.pal
-	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=32 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=2 --use-palette=font.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
 
 out/fade_in.s: ./palette.pal
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palette.pal --output=fadeIn > $@

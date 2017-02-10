@@ -1,0 +1,2 @@
+000 000 000 255 ; screen background, looks weird if not black
+000 144 224 255 ; background color, do not move

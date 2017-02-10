@@ -1,7 +1,7 @@
 #include "game.h"
 
 
-#define NUM_CLOUDS 3
+#define CLOUD_NUM_CLOUDS 3
 
 typedef struct {
   sprite_t sprite;
@@ -27,9 +27,9 @@ int16_t cloudX[] = {
 
 static int cloudXIndex = 0;
 
-static cloud_t clouds[NUM_CLOUDS];
+static cloud_t clouds[CLOUD_NUM_CLOUDS];
 
-static cloud_t _clouds[NUM_CLOUDS] = {
+static cloud_t _clouds[CLOUD_NUM_CLOUDS] = {
   {
     .sprite = {
       .x = 0,
@@ -72,13 +72,13 @@ cloud_init(void)
 
 #if 1
     memcpy(clouds, _clouds, sizeof(clouds));
-    for (int i = 0; i < NUM_CLOUDS; i++) {
+    for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
       cloud_t* cloud = &clouds[i];
       cloud->sprite.save = &cloud->saves[0];
     }
 #else
     // crashes with -mregparm=2 and vasm default optimisations
-      for (int i = 0; i < NUM_CLOUDS; i++) {
+      for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
 	cloud_t* cloud = &clouds[i];
         clouds[i] = _clouds[i];
 #if 1
@@ -109,7 +109,7 @@ cloud_saveBackground(frame_buffer_t fb)
   _custom->bltalwm = 0xffff;
 #endif
 
-  for (int i = 0; i < NUM_CLOUDS; i++) {  
+  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
     cloud_save(fb, &cloud->sprite);
     cloud->sprite.save = cloud->sprite.save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
@@ -158,7 +158,7 @@ cloud_restoreBackground(void)
   _custom->bltalwm = 0xffff;
 #endif
 
-  for (int i = 0; i < NUM_CLOUDS; i++) {  
+  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
     cloud_restore(cloud->sprite.save);
   }
@@ -169,13 +169,13 @@ void
 cloud_render(frame_buffer_t fb)
 {
   cloud_setupRenderSpriteNoMask();
-  for (int i = 0; i < NUM_CLOUDS; i++) {
+  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     cloud_spriteRender(fb, &cloud->sprite);
   }
 
   cloud_setupRenderPartialTile();
-  for (int i = 0; i < NUM_CLOUDS; i++) {
+  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     int py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
     int px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
@@ -200,7 +200,7 @@ cloud_update(void)
   if (game_cameraY >= WORLD_HEIGHT-SCREEN_HEIGHT) {
     return;
   }
-  for (int i = 0; i < NUM_CLOUDS; i++) {
+  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (game_scrollCount > 0) {
       cloud->sprite.y-=(game_scroll>>2 /* /4 */);

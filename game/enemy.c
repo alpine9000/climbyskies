@@ -1,8 +1,9 @@
 #include "game.h"
 
 #define MAX_ENEMIES 10
-#define MAX_Y_OFFSETS 5
 #define COLLISION_FUZZY 16
+#define MAX_ENEMY_CONFIGS 5
+#define MAX_ENEMY_Y 3
 
 typedef enum {
   ENEMY_ALIVE,
@@ -32,6 +33,7 @@ typedef struct enemy {
   int width;
   enemy_state_t state;
   int deadRenderCount;
+  int onGround;
 } enemy_t;
 
 static sprite_animation_t enemy_animations[] = {
@@ -71,24 +73,56 @@ static sprite_animation_t enemy_animations[] = {
 
 static enemy_t* enemies;
 static enemy_t* freeEnemies;
-static int yOffsetIndex;
+static int enemy_configIndex;
+static int enemy_yIndex;
 
 static enemy_t enemiesBuffer[MAX_ENEMIES];
 
-static int yOffsets[MAX_Y_OFFSETS] = {
-    0,
-    97,
-    194,
-    64,
-    0
-  };
+typedef struct {
+  int x;
+  int onGround;
+  int height;
+  enemy_anim_t anim;
+} enemy_config_t;
 
-static enemy_anim_t animationIndexes[MAX_Y_OFFSETS] = {
-  ENEMY_ANIM_RIGHT_RUN,
-  ENEMY_ANIM_LEFT_SKATE,
-  ENEMY_ANIM_RIGHT_SKATE,  
-  ENEMY_ANIM_LEFT_RUN,    
-  ENEMY_ANIM_RIGHT_RUN,  
+static int enemy_y[MAX_ENEMY_Y] = {
+  0,
+  97,
+  193
+};
+
+static enemy_config_t enemy_configs[MAX_ENEMY_CONFIGS] = {
+  {
+    .x = -32,
+    .onGround = 1,
+    .height = PLAYER_HEIGHT,
+    .anim = ENEMY_ANIM_RIGHT_RUN
+  },
+  {
+    .x = SCREEN_WIDTH,
+    .onGround = 0,
+    .height = PLAYER_HEIGHT,
+    .anim = ENEMY_ANIM_LEFT_SKATE
+  },
+  {
+    .x = -32,
+    .onGround = 0,
+    .height = PLAYER_HEIGHT,
+    .anim = ENEMY_ANIM_RIGHT_SKATE
+  },
+  {
+    .x = SCREEN_WIDTH,
+    .onGround = 1,
+    .height = PLAYER_HEIGHT,
+    .anim = ENEMY_ANIM_LEFT_RUN
+  },
+  {
+    .x = -32,
+    .onGround = 1,
+    .height = PLAYER_HEIGHT,
+    .anim = ENEMY_ANIM_RIGHT_RUN
+  }
+  
 };
 
 
@@ -149,22 +183,22 @@ enemy_remove(enemy_t* ptr)
 }
 
 static void
-enemy_add(int y, int anim)
+enemy_add(int x, int y, int onGround, int anim)
 {
   enemy_t* ptr = enemy_getFree();
   ptr->state = ENEMY_ALIVE;
   ptr->width = 32-(COLLISION_FUZZY);
+  ptr->onGround = onGround;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
   ptr->saves[0].blit[0].size = 0;
   ptr->saves[0].blit[1].size = 0;
   ptr->saves[1].blit[0].size = 0;
   ptr->saves[0].blit[1].size = 0;
+  ptr->sprite.x = x;
   if (anim == ENEMY_ANIM_LEFT_RUN || anim == ENEMY_ANIM_LEFT_SKATE) {
-    ptr->sprite.x = SCREEN_WIDTH;
     ptr->velocity.x = -1;
   } else {
-    ptr->sprite.x = -32;
     ptr->velocity.x = 1;
   }
   ptr->velocity.y = 0;
@@ -179,25 +213,38 @@ enemy_add(int y, int anim)
 static void
 enemy_addNew(void)
 {
+  enemy_config_t* config = &enemy_configs[enemy_configIndex];
+
   do {
-      int y = enemy_yStarts[game_cameraY+yOffsets[yOffsetIndex]];
-      enemy_t* ptr = enemies;
-      int lineBusy = 0;
-      yOffsetIndex++;
-      if (yOffsetIndex >= MAX_Y_OFFSETS) {
-	yOffsetIndex = 0;
+    int y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]];//-config->height;
+    if (!config->onGround) {    
+      y -= TILE_HEIGHT;
+    }
+    
+    enemy_yIndex++;
+    if (enemy_yIndex >= MAX_ENEMY_Y) {
+      enemy_yIndex = 0;
+    }
+
+    enemy_t* ptr = enemies;
+    int lineBusy = 0;
+    while (ptr != 0) {
+      if (ptr->sprite.y == y) {
+	lineBusy = 1;
       }
-      while (ptr != 0) {
-	if (ptr->sprite.y == y) {
-	  lineBusy = 1;
-	}
-	ptr = ptr->next;
-      }
-      if (!lineBusy) {
-	enemy_add(y, animationIndexes[yOffsetIndex]);      
-	break;
-      }
+      ptr = ptr->next;
+    }
+    if (!lineBusy) {
+      enemy_add(config->x, y, config->onGround, config->anim);
+      break;
+    }
   } while(1);
+
+  enemy_configIndex++;
+  if (enemy_configIndex >= MAX_ENEMY_CONFIGS) {
+    enemy_configIndex = 0;
+  }
+
 }
 
 void
@@ -205,6 +252,7 @@ enemy_ctor(void)
 {
   for (int i = 0; i < WORLD_HEIGHT; i++) {
     enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0)-PLAYER_HEIGHT;
+    // enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0);
   }
 }   
 
@@ -212,7 +260,8 @@ enemy_ctor(void)
 void
 enemy_init(void)
 {
-  yOffsetIndex = 0;
+  enemy_configIndex = 0;
+  enemy_yIndex = 0;
   enemies = 0;
   freeEnemies = &enemiesBuffer[0];
   freeEnemies->prev = 0;
@@ -223,9 +272,6 @@ enemy_init(void)
       ptr = ptr->next;
   }
 
-  //enemy_add(-32, WORLD_HEIGHT-128, ENEMY_ANIM_LEFT_RUN);
-  //enemy_add(128, WORLD_HEIGHT-SCREEN_HEIGHT+32, ENEMY_ANIM_RIGHT_RUN);
-  //  enemy_add(SCREEN_WIDTH/2, WORLD_HEIGHT-(PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT+((TILE_HEIGHT*6)*2)), ENEMY_ANIM_RIGHT_RUN);
   enemy_addNew();
   enemy_addNew();
   enemy_addNew();
@@ -322,8 +368,8 @@ enemy_update(sprite_t* p)
     } else {
       x = newX + (PLAYER_FUZZY_WIDTH/2);
     }
-    int y = ptr->sprite.y + PLAYER_HEIGHT;
-    if (x >= 0 && x < SCREEN_WIDTH) {
+    int y = ptr->sprite.y + ptr->sprite.image->h;
+    if (ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
       if (BACKGROUND_TILE(x, y) == TILE_SKY) {
 	newX = ptr->sprite.x;
 	ptr->velocity.x = -ptr->velocity.x;
