@@ -320,12 +320,14 @@ void
 enemy_render(frame_buffer_t fb)
 {
   enemy_t* ptr = enemy_activeList;
+  int count = 0;
 
   while (ptr != 0) {
     if (ptr->state != ENEMY_DEAD) {
       sprite_render(fb, ptr->sprite);
     }
     ptr = ptr->next;
+    count++;
   }
 }
 

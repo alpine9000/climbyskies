@@ -1,3 +1,5 @@
+
+#ifdef CLOUD_ENABLE_SETUPRENDERPARTIALTILE
 static inline 
 void
 cloud_setupRenderPartialTile(void)
@@ -8,7 +10,7 @@ cloud_setupRenderPartialTile(void)
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
 }
-
+#endif
 
 static inline void
 cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
@@ -20,6 +22,11 @@ cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, f
   dest += gfx_dyOffsetsLUT[y] + (x>>3);
 
   hw_waitBlitter();
+
+#ifndef CLOUD_ENABLE_SETUPRENDERPARTIALTILE
+  _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
+  _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
+#endif
 
   _custom->bltapt = (uint8_t*)tile;
   _custom->bltdpt = (uint8_t*)dest;

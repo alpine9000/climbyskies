@@ -183,6 +183,34 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
 }
 
 INLINE void
+gfx_saveSprite16(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t h)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+  blit->dest = game_saveBuffer;
+  uint32_t widthWords =  1;
+  
+  source += gfx_dyOffsetsLUT[dy] + (dx>>3);
+
+  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  blit->source = source;
+  //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
+  blit->size = gfx_heightLUT[h] | widthWords;
+  blit->mod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = blit->mod;
+  _custom->bltdmod = blit->mod;
+  _custom->bltapt = (uint8_t*)blit->source;
+  _custom->bltdpt = (uint8_t*)blit->dest;
+  _custom->bltsize = blit->size;
+}
+
+INLINE void
 gfx_restoreSprite(gfx_blit_t* blit)
 {
   static volatile struct Custom* _custom = CUSTOM;

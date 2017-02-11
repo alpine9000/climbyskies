@@ -10,6 +10,7 @@
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
 frame_buffer_t game_saveBuffer;
+frame_buffer_t game_scoreBoardFrameBuffer;
 
 int game_cameraY;
 int game_screenScrollY;
@@ -33,7 +34,6 @@ static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*S
 static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
-static frame_buffer_t scoreBoardFrameBuffer;
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
 static uint32_t lastVerticalBlankCount;
@@ -118,13 +118,13 @@ game_init()
   palette_black();
 
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
-  scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
+  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
   game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
   saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
   saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
   screen_setup((uint16_t*)&copper);
-  screen_pokeCopperList(scoreBoardFrameBuffer, copper.bpl3);
+  screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
 
   music_play(0);   
   hw_interruptsInit(); // Don't enable interrupts until music is set up
@@ -163,9 +163,9 @@ game_newGame(void)
 
   cloud_init();
   
-  gfx_fillRect(scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+  gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
 
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(version, 4), SCREEN_WIDTH-(4*8), 4);  
+  text_drawScoreBoard(text_intToAscii(version, 4), SCREEN_WIDTH-(4*8));  
 
   hw_waitBlitter();
 
@@ -282,32 +282,35 @@ game_scrollBackground(void)
   }
 }
 
-//static 
-void
+static void
 debug_showRasterLine(void)
 {
-#if 1
   if (turtle > 1) {
     custom->color[1] = 0xf00;
-    //gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 28);
-    //    text_drawText8(scoreBoardFrameBuffer, "SLOW", 10*8, 4);  
     turtle--;
   } else if (turtle == 1) {
     custom->color[1] = 0x09e;
-    //gfx_fillRect(scoreBoardFrameBuffer, 10*8, 0, 16, 16, 0);
-    //    text_drawText8(scoreBoardFrameBuffer, "    ", 10*8, 4);  
     turtle--;
   }
-#endif
-
-  hw_waitBlitter();
-  return;
-
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(average, 4), 0, 4);
-  text_drawText8(scoreBoardFrameBuffer, text_intToAscii(maxRasterLine, 4), 5*8, 4);
-
-  hw_waitBlitter();
-
+  
+  static int frame = 0;
+  static int lastAverage = -1;
+  static int lastMaxRasterLine = -1;
+  
+  if (frame == 0) {
+    if (average != lastAverage) {
+      text_drawScoreBoard(text_intToAscii(average, 4), 0);
+      lastAverage = average;
+    }
+  } else {
+    if (maxRasterLine != lastMaxRasterLine) {
+      text_drawScoreBoard(text_intToAscii(maxRasterLine, 4), 5*8);
+      lastMaxRasterLine = maxRasterLine;
+    }
+  }
+  
+  frame = !frame;
+  
   int line = hw_getRasterLine() - RASTER_Y_START;  
 
   rasterLines[rasterLinesIndex++] = line;
@@ -347,6 +350,7 @@ game_render(void)
   
   SPEED_COLOR(0x500);
   cloud_render(game_offScreenBuffer);
+  SPEED_COLOR(0x202);
   item_render(game_offScreenBuffer);  
 #ifdef ENABLE_ENEMIES
   SPEED_COLOR(0x050);
@@ -399,6 +403,7 @@ game_loop()
 #ifdef ENABLE_ENEMIES
     enemy_update(&player.sprite);
 #endif
+    SPEED_COLOR(0x2f2);
     item_update(&player.sprite);
 
 
@@ -449,6 +454,7 @@ game_loop()
     SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
 #endif
+    SPEED_COLOR(0xff0);
     item_restoreBackground();
     SPEED_COLOR(0xf00);
     //    text_restore();
@@ -461,7 +467,6 @@ game_loop()
     game_render();
 
 
-    //    hw_waitBlitter();
 
 #if TRACKLOADER==0
     done = mouse_leftButtonPressed();

@@ -14,6 +14,7 @@
 #define ENABLE_ENEMIES            1
 //#define SHOW_SPEED              1
 //#define CLOUD_FULLCOLOR         1
+#define CLOUD_ENABLE_SETUPRENDERPARTIALTILE 1
 
 
 #ifdef ENABLE_PLAYER_HEADSMASH
@@ -100,6 +101,7 @@ extern uint32_t game_frameCount;
 extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
+extern frame_buffer_t game_scoreBoardFrameBuffer;
 
 #include "registers.h"
 #include "hw.h"

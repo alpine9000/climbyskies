@@ -1,7 +1,7 @@
 	include "includes.i"
-	xdef _text_drawText8
+	xdef _fontAtlas
+	xdef _text_drawText8Blitter
 	xdef _text_intToAscii
-	xdef font
 	xref _gfx_dyOffsetsLUT
 	
 BLIT_LF_MINTERM		equ $ca		; cookie cut
@@ -16,7 +16,7 @@ _BITPLANE_WIDTH_BYTES	equ 320/8
 MODULO	                equ (_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(_BITPLANE_WIDTH_BYTES*(_SCREEN_BIT_DEPTH-1))
 FONTMAP_MODULO		equ (FONTMAP_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(FONTMAP_WIDTH_BYTES*(FONT_BIT_DEPTH-1))
 	
-_text_drawText8:
+_text_drawText8Blitter:
 	;; a0 - bitplane
 	;; a1 - text
 	;; d0 - xpos
@@ -94,7 +94,7 @@ CharAddress:	macro
 	dc.l	font+(((\1)/FONTMAP_WIDTH_BYTES)*(FONT_HEIGHT*FONTMAP_WIDTH_BYTES*FONT_BIT_DEPTH))+((\1)-(((\1)/FONTMAP_WIDTH_BYTES)*FONTMAP_WIDTH_BYTES))
 	endm
 
-
+_fontAtlas			;
 fontAtlas:
 	CharAddress    0
 	CharAddress    1
@@ -261,6 +261,6 @@ staticBuffer:
 	if TRACKLOADER=0
 	section data_c
 	endif
-font:	
+font:
 	incbin	"out/font8x8.bin"
 	

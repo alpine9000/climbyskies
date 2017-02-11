@@ -36,6 +36,8 @@ gfx_renderSprite16NoShift(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t d
 void
 gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h);
 void
+gfx_saveSprite16(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t h);
+void
 gfx_restoreSprite(gfx_blit_t* blit);
 void
 gfx_renderTileOffScreen(frame_buffer_t dest, int16_t sx, int16_t sy, frame_buffer_t tile);

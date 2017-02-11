@@ -144,6 +144,40 @@ item_init(void)
   }
 }
 
+INLINE void
+item_save(frame_buffer_t fb, sprite_t* a)
+{
+  image_t* image = a->image;//&sprite_imageAtlas[a->imageIndex];
+  int h = image->h;
+  int y = a->y;
+  if (y < game_cameraY) {
+    h -= (game_cameraY - y);
+    y += (game_cameraY - y);
+  }
+
+  if (y-game_cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-game_cameraY+h)-SCREEN_HEIGHT;
+  }
+
+  if (h <= 0) {
+    a->save->blit[0].size = 0;
+    a->save->blit[1].size = 0;
+    return;
+  }
+  y = y-game_cameraY-game_screenScrollY;
+  if (y >= 0) {
+    gfx_saveSprite16(fb, &a->save->blit[0], a->x, y, h);
+    a->save->blit[1].size = 0;
+  } else {
+    if (y > -h) {
+      gfx_saveSprite16(fb, &a->save->blit[0], a->x, 0, h+y);    
+      gfx_saveSprite16(fb, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, -y);    
+    } else {
+      gfx_saveSprite16(fb, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y,  h);    
+      a->save->blit[1].size = 0;
+    }
+  }
+}
 
 void
 item_saveBackground(frame_buffer_t fb)
@@ -151,7 +185,7 @@ item_saveBackground(frame_buffer_t fb)
   item_t* ptr = item_activeList;
 
   while (ptr != 0) {
-    sprite_save(fb, &ptr->sprite);
+    item_save(fb, &ptr->sprite);
     ptr->sprite.save = ptr->sprite.save == &ptr->saves[0] ? &ptr->saves[1] : &ptr->saves[0];
     ptr = ptr->next;
   }
