@@ -273,6 +273,8 @@ game_scrollBackground(void)
   int tileIndex = game_screenScrollY % TILE_HEIGHT;
   int count = abs(game_scroll);
 
+  gfx_setupRenderTileOffScreen();
+
   for (int s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     (*game_tileRender)(tileY);
   }

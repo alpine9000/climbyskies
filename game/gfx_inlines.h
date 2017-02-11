@@ -228,13 +228,10 @@ gfx_restoreSprite(gfx_blit_t* blit)
   _custom->bltsize = blit->size;
 }
 
-
 INLINE void
-gfx_renderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
+gfx_setupRenderTileOffScreen(void)
 {
-  static volatile struct Custom* _custom = CUSTOM;
-  
-  dest += gfx_dyOffsetsLUT[y] + (x>>3);
+  volatile struct Custom* _custom = CUSTOM;
 
   hw_waitBlitter();
 
@@ -244,6 +241,31 @@ gfx_renderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_
   _custom->bltalwm = 0xffff;
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
+}
+
+INLINE void
+gfx_renderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
+{
+  volatile struct Custom* _custom = CUSTOM;
+  
+  dest += gfx_dyOffsetsLUT[y] + (x>>3);
+
+  gfx_setupRenderTileOffScreen();
+
+  _custom->bltapt = (uint8_t*)tile;
+  _custom->bltdpt = (uint8_t*)dest;
+  _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
+}
+
+INLINE void
+gfx_quickRenderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile)
+{
+  volatile struct Custom* _custom = CUSTOM;
+  
+  dest += gfx_dyOffsetsLUT[y] + (x>>3);
+
+  hw_waitBlitter();
+
   _custom->bltapt = (uint8_t*)tile;
   _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;

@@ -74,12 +74,12 @@ sprite_restore(sprite_save_t* save)
 {
   if (save->blit[0].size > 0) {
     gfx_restoreSprite(&save->blit[0]);
-    save->blit[0].size = 0;
+  } else {
+    return;
   }
 
   if (save->blit[1].size > 0) {
     gfx_restoreSprite(&save->blit[1]);
-    save->blit[1].size = 0;
   }
 }
 
