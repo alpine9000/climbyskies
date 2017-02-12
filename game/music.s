@@ -92,7 +92,7 @@ module:
 	section	.data
 	else
 	ds.b	MAX_P61_SIZE
-	;; 	ds.b	1024	
+	ds.b	1024		; no sure why this is needed, guess there is a bug somewhere :-(
 	section	.noload
 	endif
 	
