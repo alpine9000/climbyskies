@@ -1,9 +1,10 @@
 #include "game.h"
 
-#define ENEMY_MAX_ENEMIES 10
+#define ENEMY_MAX_ENEMIES     10
 #define ENEMY_COLLISION_FUZZY 16
-#define ENEMY_MAX_CONFIGS 6
-#define ENEMY_MAX_Y 3
+#define ENEMY_MAX_CONFIGS     6
+#define ENEMY_MAX_Y           4
+#define ENEMY_DROP_THRESHOLD  64
 
 typedef enum {
   ENEMY_ALIVE,
@@ -30,9 +31,11 @@ typedef struct enemy {
   enemy_anim_t animId;
   int frameCounter;
   int width;
+  int height;
   enemy_state_t state;
   int deadRenderCount;
   int onGround;
+  int skyCount;
 } enemy_t;
 
 static sprite_animation_t enemy_animations[] = {
@@ -102,7 +105,7 @@ static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
   {
     .x = -32,
     .onGround = 1,
-    .height = PLAYER_HEIGHT,
+    .height = ENEMY_RUN_HEIGHT,
     .anim = ENEMY_ANIM_RIGHT_RUN
   },
   {
@@ -126,13 +129,13 @@ static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
   {
     .x = SCREEN_WIDTH,
     .onGround = 1,
-    .height = PLAYER_HEIGHT,
+    .height = ENEMY_RUN_HEIGHT,
     .anim = ENEMY_ANIM_LEFT_RUN
   },
   {
     .x = -32,
     .onGround = 1,
-    .height = PLAYER_HEIGHT,
+    .height = ENEMY_RUN_HEIGHT,
     .anim = ENEMY_ANIM_RIGHT_RUN
   }
   
@@ -196,11 +199,15 @@ enemy_remove(enemy_t* ptr)
 }
 
 static void
-enemy_add(int x, int y, int onGround, int anim)
+enemy_add(int x, int y, int height, int onGround, int anim)
 {
+  if (y < TILE_HEIGHT*2) {
+    return;
+  }
   enemy_t* ptr = enemy_getFree();
   ptr->state = ENEMY_ALIVE;
   ptr->width = 32-(ENEMY_COLLISION_FUZZY);
+  ptr->height = height;
   ptr->onGround = onGround;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
@@ -220,6 +227,8 @@ enemy_add(int x, int y, int onGround, int anim)
   ptr->sprite.imageIndex = ptr->anim->animation.start;
   ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
   ptr->frameCounter = 0;
+  ptr->skyCount = 0;
+  ptr->deadRenderCount = 0;
   enemy_addEnemy(ptr);
 }
 
@@ -229,9 +238,9 @@ enemy_addNew(void)
   enemy_config_t* config = &enemy_configs[enemy_configIndex];
 
   do {
-    int y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]];//-config->height;
+    int y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]]-config->height;
     if (!config->onGround) {    
-      y -= TILE_HEIGHT;
+      y -= TILE_HEIGHT*2;
     }
     
     enemy_yIndex++;
@@ -242,13 +251,13 @@ enemy_addNew(void)
     enemy_t* ptr = enemy_activeList;
     int lineBusy = 0;
     while (ptr != 0) {
-      if (ptr->sprite.y == y) {
+      if (ptr->sprite.y+ptr->height == y+config->height) {
 	lineBusy = 1;
       }
       ptr = ptr->next;
     }
     if (!lineBusy) {
-      enemy_add(config->x, y, config->onGround, config->anim);
+      enemy_add(config->x, y, config->height, config->onGround, config->anim);
       break;
     }
   } while(1);
@@ -264,7 +273,7 @@ void
 enemy_ctor(void)
 {
   for (int i = 0; i < WORLD_HEIGHT; i++) {
-    enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0)-PLAYER_HEIGHT;
+    enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0);
     // enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0);
   }
 }   
@@ -311,6 +320,9 @@ enemy_restoreBackground(void)
 
   while (ptr != 0) {
     sprite_restore(ptr->sprite.save);
+    if (ptr->state == ENEMY_DEAD) {
+      //      ptr->deadRenderCount++;
+    }
     ptr = ptr->next;
   }
 }
@@ -323,9 +335,7 @@ enemy_render(frame_buffer_t fb)
   int count = 0;
 
   while (ptr != 0) {
-    if (ptr->state != ENEMY_DEAD) {
-      sprite_render(fb, ptr->sprite);
-    }
+    sprite_render(fb, ptr->sprite);
     ptr = ptr->next;
     count++;
   }
@@ -370,6 +380,7 @@ enemy_update(sprite_t* p)
   enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
+    int remove = 0;
     int newX =  ptr->sprite.x+ptr->velocity.x;
     if (newX > SCREEN_WIDTH) {
       newX = -ptr->width;
@@ -379,29 +390,52 @@ enemy_update(sprite_t* p)
     }
 
     int x;
-    if (ptr->velocity.x > 0) {
-      x = newX + PLAYER_WIDTH - (PLAYER_FUZZY_WIDTH/2);
-    } else {
-      x = newX + (PLAYER_FUZZY_WIDTH/2);
+    if (ptr->sprite.x >= PLAYER_WIDTH  && ptr->sprite.x < (SCREEN_WIDTH-PLAYER_WIDTH)) {
+      if (ptr->velocity.x > 0) {
+	x = newX + PLAYER_WIDTH - (PLAYER_FUZZY_WIDTH);
+      } else {
+	x = newX + (PLAYER_FUZZY_WIDTH);
+      }
+    } else { // stop enemies just displaying when there is no platform for them
+      if (ptr->velocity.x > 0) {
+	x = newX + PLAYER_WIDTH - 1;
+      } else {
+	x = newX + 1;
+      }
     }
-    int y = ptr->sprite.y + ptr->sprite.image->h;
-    if (ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
+
+    ptr->sprite.y += ptr->velocity.y;
+    int y = ptr->sprite.y + ptr->height;
+    if (ptr->state != ENEMY_DEAD && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
       if (BACKGROUND_TILE(x, y) == TILE_SKY) {
-	newX = ptr->sprite.x;
-	ptr->velocity.x = -ptr->velocity.x;
-	if (ptr->velocity.x > 0) {
-	  ptr->animId = ptr->animId == ENEMY_ANIM_LEFT_RUN ? ENEMY_ANIM_RIGHT_RUN : ENEMY_ANIM_RIGHT_SKATE;
-	  ptr->anim = &enemy_animations[ptr->animId];
-	} else {
-	  ptr->animId = ptr->animId == ENEMY_ANIM_RIGHT_RUN ? ENEMY_ANIM_LEFT_RUN : ENEMY_ANIM_LEFT_SKATE;
-	  ptr->anim = &enemy_animations[ptr->animId];
+	if (ptr->state != ENEMY_DEAD) {
+	  if (newX >= SCREEN_WIDTH || newX <= 0) {
+	    remove = 1;
+	  } else if (++ptr->skyCount > 1) {
+	    ptr->state = ENEMY_DEAD;
+	    ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
+	  } else {	    
+	    newX = ptr->sprite.x;
+	    
+	    ptr->velocity.x = -ptr->velocity.x;
+	    if (ptr->velocity.x > 0) {
+	      ptr->animId = ptr->animId == ENEMY_ANIM_LEFT_RUN ? ENEMY_ANIM_RIGHT_RUN : ENEMY_ANIM_RIGHT_SKATE;
+	      ptr->anim = &enemy_animations[ptr->animId];
+	    } else {
+	      ptr->animId = ptr->animId == ENEMY_ANIM_RIGHT_RUN ? ENEMY_ANIM_LEFT_RUN : ENEMY_ANIM_LEFT_SKATE;
+	      ptr->anim = &enemy_animations[ptr->animId];
+	    }
+	    ptr->sprite.imageIndex = ptr->anim->animation.start;
+	    ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+	  }
 	}
-	ptr->sprite.imageIndex = ptr->anim->animation.start;
-	ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+      } else {
+	ptr->skyCount = 0;
       }
     }
 
     ptr->sprite.x = newX;
+   
 
     if (ptr->frameCounter == ptr->anim->animation.speed) {
       ptr->sprite.imageIndex++;
@@ -419,16 +453,18 @@ enemy_update(sprite_t* p)
       // ptr->deadRenderCount = 0;
       player_freeFall();
     }
+  
+
 
     enemy_t* save = ptr;
     ptr = ptr->next;
 
-    int remove = 0;
-
-    if (save->state == ENEMY_DEAD && (save->deadRenderCount++ > 2)) {
-      remove = 1;
+    if (0 && save->state == ENEMY_DEAD && (save->deadRenderCount++ > 2)) {
+      //      remove = 1;
     } else  if (game_scrollCount == 0) {
-      if ((save->sprite.y-game_cameraY) > SCREEN_HEIGHT) {
+      if ((save->sprite.y-game_cameraY) > SCREEN_HEIGHT+ENEMY_DROP_THRESHOLD) {
+	remove = 1;
+      } else if ((save->sprite.y-game_cameraY) < -(ENEMY_DROP_THRESHOLD)) {
 	remove = 1;
       }
     }

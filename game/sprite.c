@@ -87,51 +87,51 @@ image_t sprite_imageAtlas[] = {
   },
   [SPRITE_ENEMY_RUN_LEFT_1] = { 
     .x = 0,
-    .y = 171,
+    .y = 173,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_LEFT_2] = { 
     .x = 32,
-    .y = 171,
+    .y = 173,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_LEFT_3] = { 
     .x = 64,
-    .y = 171,
+    .y = 173,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_LEFT_4] = { 
     .x = 96,
-    .y = 171,
+    .y = 173,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_RIGHT_1] = { 
     .x = 0,
-    .y = 219,
+    .y = 221,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_RIGHT_2] = { 
     .x = 32,
-    .y = 219,
+    .y = 221,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_RIGHT_3] = { 
     .x = 64,
-    .y = 219,
+    .y = 221,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_RUN_RIGHT_4] = { 
     .x = 96,
-    .y = 219,
+    .y = 221,
     .w = 32,
-    .h = 37
+    .h = ENEMY_RUN_HEIGHT
   },
   [SPRITE_ENEMY_SKATE_RIGHT_1] = { 
     .x = 128,
@@ -147,7 +147,7 @@ image_t sprite_imageAtlas[] = {
   },
   [SPRITE_ENEMY_SKATE_LEFT_1] = { 
     .x = 128,
-    .y = 218,
+    .y = 219,
     .w = 32,
     .h = 37
   },

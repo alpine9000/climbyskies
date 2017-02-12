@@ -1,6 +1,8 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
+#define ENEMY_RUN_HEIGHT 35
+
 void
 enemy_init(void);
 void

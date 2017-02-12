@@ -61,6 +61,12 @@
 #define WORLD_HEIGHT        (MAP_TILE_HEIGHT*TILE_HEIGHT)
 #define SCROLL_PIXELS       4
 
+#define PHYSICS_VELOCITY_G        1
+#define PHYSICS_TERMINAL_VELOCITY (SCROLL_PIXELS*2)
+#define PHYSICS_VELOCITY_RUN      2
+#define PHYSICS_VELOCITY_JUMP     -16
+
+
 typedef UBYTE uint8_t;
 typedef SHORT int16_t;
 typedef USHORT uint16_t;

@@ -295,23 +295,26 @@ debug_showRasterLine(void)
     turtle--;
   }
   
-  static int frame = 0;
-  static int lastAverage = -1;
-  static int lastMaxRasterLine = -1;
-  
-  if (frame == 0) {
-    if (average != lastAverage) {
-      text_drawScoreBoard(text_intToAscii(average, 4), 0);
-      lastAverage = average;
+
+  if (hw_getRasterLine() < 250) {
+    static int frame = 0;
+    static int lastAverage = -1;
+    static int lastMaxRasterLine = -1;
+    
+    if (frame == 0) {
+      if (average != lastAverage) {
+	text_drawScoreBoard(text_intToAscii(average, 4), 0);
+	lastAverage = average;
+      }
+    } else {
+      if (maxRasterLine != lastMaxRasterLine) {
+	text_drawScoreBoard(text_intToAscii(maxRasterLine, 4), 5*8);
+	lastMaxRasterLine = maxRasterLine;
+      }
     }
-  } else {
-    if (maxRasterLine != lastMaxRasterLine) {
-      text_drawScoreBoard(text_intToAscii(maxRasterLine, 4), 5*8);
-      lastMaxRasterLine = maxRasterLine;
-    }
+    frame = !frame;
   }
   
-  frame = !frame;
   
   int line = hw_getRasterLine() - RASTER_Y_START;  
 

@@ -23,10 +23,6 @@
 #define PLAYER_JUMP_HEIGHT          118 //112
 #define PLAYER_SCROLL_THRESHOLD     (96+48)
 
-#define PHYSICS_VELOCITY_G        1
-#define PHYSICS_TERMINAL_VELOCITY (SCROLL_PIXELS*2)
-#define PHYSICS_VELOCITY_RUN      2
-#define PHYSICS_VELOCITY_JUMP     -16
 
 #define ANIM_LEFT_JUMP         0
 #define ANIM_LEFT_STAND        1
