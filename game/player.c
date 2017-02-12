@@ -562,7 +562,7 @@ player_updateAlive(void)
     player.freeFall = 0;
 	
     if (game_cameraY % 16 == 0 && game_scrollCount == 0) {
-      if (game_cameraY == WORLD_HEIGHT-SCREEN_HEIGHT) {
+      if (player.state == PLAYER_STATE_ONGROUND && game_cameraY == WORLD_HEIGHT-SCREEN_HEIGHT) {
 	player_respawn();
       } else {
 	if (player.anim->facing == FACING_LEFT) {
