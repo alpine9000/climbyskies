@@ -14,7 +14,7 @@ tile_renderNextTile(uint16_t hscroll)
 
   if (*tile_itemPtr != 0) {
     if (tile_itemPtr > &level.item_tileAddresses[0][0]) {
-      item_addCoin(tile_tileX, ((game_cameraY>>4)<<4)-16);
+      item_addCoin(tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
     }
   }  
 
@@ -57,7 +57,7 @@ tile_renderNextTileDown(uint16_t hscroll)
 
   if (*(ptr) != 0) {
     if (ptr < &level.item_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {
-      item_addCoin(tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset);
+      item_addCoin(tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
     }
   }  
 }

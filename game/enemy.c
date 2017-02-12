@@ -1,7 +1,7 @@
 #include "game.h"
 
 #define ENEMY_MAX_ENEMIES     10
-#define ENEMY_COLLISION_FUZZY 16
+#define ENEMY_COLLISION_FUZZY 8
 #define ENEMY_MAX_CONFIGS     6
 #define ENEMY_MAX_Y           4
 #define ENEMY_DROP_THRESHOLD  64
@@ -346,7 +346,7 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
 
 
-  if ((p->x+(ENEMY_COLLISION_FUZZY)) < (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) + enemy->width &&
+  if ((p->x+(ENEMY_COLLISION_FUZZY)) < (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) + (enemy->width-ENEMY_COLLISION_FUZZY) &&
       (p->x+(ENEMY_COLLISION_FUZZY)) + PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY) > (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) &&
       p->y < enemy->sprite.y + enemy->sprite.image->h &&
       PLAYER_HEIGHT + p->y > enemy->sprite.y) {
@@ -414,6 +414,7 @@ enemy_update(sprite_t* p)
 	  } else if (++ptr->skyCount > 1) {
 	    ptr->state = ENEMY_DEAD;
 	    ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
+	    game_score += 250;
 	  } else {	    
 	    newX = ptr->sprite.x;
 	    

@@ -1,7 +1,7 @@
 #include "game.h"
 
 #define ITEM_MAX_ITEMS 100
-#define ITEM_COLLISION_FUZZY 2
+#define ITEM_COLLISION_FUZZY 8
 
 typedef enum {
   ITEM_ALIVE,
@@ -24,6 +24,7 @@ typedef struct item {
   int frameCounter;
   item_state_t state;
   int deadRenderCount;
+  unsigned short* tilePtr;
 } item_t;
 
 static sprite_animation_t item_animations[] = {
@@ -101,9 +102,10 @@ item_remove(item_t* ptr)
 }
 
 static void
-item_add(int x, int y,int anim)
+item_add(int x, int y, int anim, unsigned short* tilePtr)
 {
   item_t* ptr = item_getFree();
+  ptr->tilePtr = tilePtr;
   ptr->state = ITEM_ALIVE;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
@@ -122,9 +124,9 @@ item_add(int x, int y,int anim)
 
 
 void
-item_addCoin(uint32_t x, uint32_t y)
+item_addCoin(uint32_t x, uint32_t y, unsigned short* tilePtr)
 {
-  item_add(x, y, ITEM_ANIM_COIN);
+  item_add(x, y, ITEM_ANIM_COIN, tilePtr);
 }
 
 
@@ -221,7 +223,7 @@ item_render(frame_buffer_t fb)
 int
 item_aabb(sprite_t* p, item_t* item)
 {
-  if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + ITEM_WIDTH &&
+  if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY) &&
       (p->x+(ITEM_COLLISION_FUZZY)) + PLAYER_WIDTH-(ITEM_COLLISION_FUZZY) > (item->sprite.x+(ITEM_COLLISION_FUZZY)) &&
       p->y < item->sprite.y + item->sprite.image->h &&
       PLAYER_HEIGHT + p->y > item->sprite.y) {
@@ -230,7 +232,6 @@ item_aabb(sprite_t* p, item_t* item)
   return 0;
 }
 
-#if 0
 int
 item_collision(sprite_t* p)
 {
@@ -245,7 +246,6 @@ item_collision(sprite_t* p)
 
   return 0;
 }
-#endif
 
 
 void
@@ -268,11 +268,12 @@ item_update(sprite_t* p)
       ptr->frameCounter++;
     }
 
-    /*    if (ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
-      //ptr->state = ITEM_DEAD;
-      // ptr->deadRenderCount = 0;
-      player_freeFall();
-      }*/
+    if (ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
+      ptr->state = ITEM_DEAD;
+      *ptr->tilePtr = 0;
+      ptr->deadRenderCount = 0;
+      game_score += 100;
+    }
 
     item_t* save = ptr;
     ptr = ptr->next;

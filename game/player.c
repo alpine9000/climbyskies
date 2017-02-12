@@ -375,6 +375,7 @@ player_moveY(void)
 static void
 player_respawn(void)
 {
+  game_loseLife();
   player.state = PLAYER_STATE_DEFAULT;
   player.sprite.y = PLAYER_INITIAL_Y;
   player.velocity.x = 0;
@@ -579,6 +580,10 @@ player_updateAlive(void)
     }
   }
 
+
+  if (player.sprite.y <= TILE_HEIGHT*7 && player.state == PLAYER_STATE_ONGROUND) {
+    game_levelComplete = 1;
+  }
   
   return collision;
 }
@@ -586,8 +591,8 @@ player_updateAlive(void)
 
 void
 player_freeFall(void)
-{
-  if (player.flashCounter == 0) {
+{  
+  if (player.freeFall == 0 && player.flashCounter == 0) {
     player.freeFall = 1;
   }
 }

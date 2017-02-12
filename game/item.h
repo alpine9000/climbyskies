@@ -15,5 +15,5 @@ item_render(frame_buffer_t fb);
 void
 item_update(sprite_t* p);
 void
-item_addCoin(uint32_t x, uint32_t y);
+item_addCoin(uint32_t x, uint32_t y, unsigned short* tilePtr);
 #endif

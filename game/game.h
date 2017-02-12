@@ -104,10 +104,12 @@ extern int game_screenScrollY;
 extern int game_scrollCount;
 extern int game_scroll;
 extern uint32_t game_frameCount;
+extern int game_levelComplete;
 extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
 extern frame_buffer_t game_scoreBoardFrameBuffer;
+extern uint32_t game_score;
 
 #include "registers.h"
 #include "hw.h"
@@ -138,5 +140,7 @@ void
 game_setBackgroundScroll(int s);
 void
 game_shakeScreen(void);
+void
+game_loseLife();
 
 #endif /* __GAME_H */
