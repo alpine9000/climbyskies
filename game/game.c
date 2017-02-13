@@ -19,6 +19,7 @@ int game_screenScrollY;
 int game_scrollCount;
 int game_scroll;
 int game_levelComplete;
+int game_paused;
 uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
@@ -183,16 +184,19 @@ game_refreshScoreboard(void)
 {
   game_lastScore = 1;
   game_lastLevelScore = 0;
-  text_drawScoreBoard("SCORE " , SCREEN_WIDTH-(12*8));  
-  text_drawScoreBoard("BONUS 00" , 0);  
-  debug_showScore();
-  uint32_t i, y;
-  for (i = 0, y = (SCREEN_WIDTH/2)-15; i < game_lives; i++, y+=10) {
-    gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 176, y, 0, 16,  8);
-  }
-  
-  for (; i < 3; i++) {
-    gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, y, 0, 16,  8);
+
+  if (game_scoreBoardMode == 0) {
+    text_drawScoreBoard("SCORE " , SCREEN_WIDTH-(12*8));  
+    text_drawScoreBoard("BONUS 00" , 0);  
+    debug_showScore();
+    uint32_t i, y;
+    for (i = 0, y = (SCREEN_WIDTH/2)-15; i < game_lives; i++, y+=10) {
+      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 176, y, 0, 16,  8);
+    }
+    
+    for (; i < 3; i++) {
+      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, y, 0, 16,  8);
+    }
   }
 }
 
@@ -220,7 +224,7 @@ game_refreshDebugScoreboard(void)
 
 static void
 game_newGame(void)
-{
+{  
   turtle = 0;
   average = 0;
   maxRasterLine = 0;
@@ -228,6 +232,7 @@ game_newGame(void)
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   hw_verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
+  game_paused = 0;
   game_screenScrollY = 0;
   game_scrollCount = 0;
   game_shake = 0;
@@ -469,6 +474,7 @@ game_loop()
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
+    //    if (!game_paused) {
     SPEED_COLOR(0xF0F);
     player_update();
     SPEED_COLOR(0x0fF);
@@ -477,6 +483,7 @@ game_loop()
 #endif
     SPEED_COLOR(0x2f2);
     item_update(&player.sprite);
+    //    }
 
 
     if (game_shake == 0) {
@@ -509,7 +516,7 @@ game_loop()
     if (lastVerticalBlankCount == 0) {
 
     } else if (hw_verticalBlankCount-lastVerticalBlankCount > 1) {
-      turtle = 100;
+      turtle = 5;
     }
       
     lastVerticalBlankCount = hw_verticalBlankCount;

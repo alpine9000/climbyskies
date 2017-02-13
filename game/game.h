@@ -8,7 +8,6 @@
 
 #define NEW_TILE_COLLISION        1
 #define FIX_TILE_INVALIDATE_BUG   1
-//#define FREEFALL_MODE           1
 #define ENABLE_PLAYER_HEADSMASH 1
 #define INLINE_EVERYTHING         1
 #define ENABLE_ENEMIES            1
@@ -65,6 +64,7 @@
 #define PHYSICS_TERMINAL_VELOCITY (SCROLL_PIXELS*2)
 #define PHYSICS_VELOCITY_RUN      2
 #define PHYSICS_VELOCITY_JUMP     -16
+#define PHYSICS_VELOCITY_KILL     -10
 
 
 typedef UBYTE uint8_t;
@@ -103,6 +103,7 @@ extern int game_cameraY;
 extern int game_screenScrollY;
 extern int game_scrollCount;
 extern int game_scroll;
+extern int game_paused;
 extern uint32_t game_frameCount;
 extern int game_levelComplete;
 extern frame_buffer_t game_saveBuffer;

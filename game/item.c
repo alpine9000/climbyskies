@@ -54,6 +54,7 @@ item_getFree(void)
   return entry;
 }
 
+
 static void
 item_addFree(item_t* ptr)
 {
@@ -68,6 +69,7 @@ item_addFree(item_t* ptr)
     item_freeList = ptr;
   }
 }
+
 
 static void
 item_addItem(item_t* ptr)
@@ -100,6 +102,7 @@ item_remove(item_t* ptr)
     }
   }
 }
+
 
 static void
 item_add(int x, int y, int anim, unsigned short* tilePtr)
@@ -145,6 +148,7 @@ item_init(void)
       ptr = ptr->next;
   }
 }
+
 
 INLINE void
 item_save(frame_buffer_t fb, sprite_t* a)
@@ -219,8 +223,8 @@ item_render(frame_buffer_t fb)
   }
 }
 
-//static 
-int
+
+static inline int
 item_aabb(sprite_t* p, item_t* item)
 {
   if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY) &&
@@ -229,21 +233,6 @@ item_aabb(sprite_t* p, item_t* item)
       PLAYER_HEIGHT + p->y > item->sprite.y) {
     return 1;
   }
-  return 0;
-}
-
-int
-item_collision(sprite_t* p)
-{
-  item_t* ptr = item_activeList;
-
-  while (ptr != 0) {
-    if (item_aabb(p, ptr)) {
-      return 1;
-    }
-    ptr = ptr->next;
-  }
-
   return 0;
 }
 
@@ -268,12 +257,14 @@ item_update(sprite_t* p)
       ptr->frameCounter++;
     }
 
-    if (ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
+
+    if ((ptr->frameCounter == 0) && ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
       ptr->state = ITEM_DEAD;
       *ptr->tilePtr = 0;
       ptr->deadRenderCount = 0;
       game_score += 100;
     }
+
 
     item_t* save = ptr;
     ptr = ptr->next;

@@ -1,7 +1,6 @@
 #include "game.h"
 
 #define ENEMY_MAX_ENEMIES     10
-#define ENEMY_COLLISION_FUZZY 8
 #define ENEMY_MAX_CONFIGS     6
 #define ENEMY_MAX_Y           4
 #define ENEMY_DROP_THRESHOLD  64
@@ -206,7 +205,7 @@ enemy_add(int x, int y, int height, int onGround, int anim)
   }
   enemy_t* ptr = enemy_getFree();
   ptr->state = ENEMY_ALIVE;
-  ptr->width = 32-(ENEMY_COLLISION_FUZZY);
+  ptr->width = 32;
   ptr->height = height;
   ptr->onGround = onGround;
   ptr->sprite.y = y;
@@ -240,7 +239,7 @@ enemy_addNew(void)
   do {
     int y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]]-config->height;
     if (!config->onGround) {    
-      y -= TILE_HEIGHT*2;
+      y -= 25;
     }
     
     enemy_yIndex++;
@@ -341,36 +340,28 @@ enemy_render(frame_buffer_t fb)
   }
 }
 
-static int
+static inline int
 enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
-
-
-  if ((p->x+(ENEMY_COLLISION_FUZZY)) < (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) + (enemy->width-ENEMY_COLLISION_FUZZY) &&
-      (p->x+(ENEMY_COLLISION_FUZZY)) + PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY) > (enemy->sprite.x+(ENEMY_COLLISION_FUZZY)) &&
-      p->y < enemy->sprite.y + enemy->sprite.image->h &&
-      PLAYER_HEIGHT + p->y > enemy->sprite.y) {
+#define ENEMY_COLLISION_FUZZY 6
+  
+  int x1 = p->x + ENEMY_COLLISION_FUZZY;
+  int w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2);
+  int x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY;
+  int w2 = enemy->width - (ENEMY_COLLISION_FUZZY*2);
+  int y1 = p->y + ENEMY_COLLISION_FUZZY;
+  int h1 = PLAYER_HEIGHT - (ENEMY_COLLISION_FUZZY*2);
+  int y2 = enemy->sprite.y + ENEMY_COLLISION_FUZZY;
+  int h2 = enemy->height - (ENEMY_COLLISION_FUZZY);
+  
+  if (x1 < x2 + w2 &&
+      x1 + w1 > x2 &&
+      y1 < y2 + h2 &&
+      h1 + y1 > y2) {
     return 1;
   }
   return 0;
 }
-
-#if 0
-int
-enemy_collision(sprite_t* p)
-{
-  enemy_t* ptr = enemy_activeList;
-
-  while (ptr != 0) {
-    if (enemy_aabb(p, ptr)) {
-      return 1;
-    }
-    ptr = ptr->next;
-  }
-
-  return 0;
-}
-#endif
 
 
 void
@@ -404,6 +395,14 @@ enemy_update(sprite_t* p)
       }
     }
 
+    if (ptr->state == ENEMY_DEAD) {
+      ptr->velocity.y += PHYSICS_VELOCITY_G;
+      if (ptr->velocity.y > PHYSICS_TERMINAL_VELOCITY) {
+	ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
+      }
+      player.sprite.y += player.velocity.y;
+    }
+
     ptr->sprite.y += ptr->velocity.y;
     int y = ptr->sprite.y + ptr->height;
     if (ptr->state != ENEMY_DEAD && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
@@ -413,7 +412,7 @@ enemy_update(sprite_t* p)
 	    remove = 1;
 	  } else if (++ptr->skyCount > 1) {
 	    ptr->state = ENEMY_DEAD;
-	    ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
+	    ptr->velocity.y = PHYSICS_VELOCITY_KILL;//PHYSICS_TERMINAL_VELOCITY;
 	    game_score += 250;
 	  } else {	    
 	    newX = ptr->sprite.x;
@@ -449,33 +448,27 @@ enemy_update(sprite_t* p)
       ptr->frameCounter++;
     }
 
-    if (ptr->state != ENEMY_DEAD && enemy_aabb(p, ptr)) {
-      //ptr->state = ENEMY_DEAD;
-      // ptr->deadRenderCount = 0;
+    if (ptr->state != ENEMY_DEAD && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(p, ptr)) {
       player_freeFall();
+      //game_paused = 1;
     }
   
-
 
     enemy_t* save = ptr;
     ptr = ptr->next;
 
-    if (0 && save->state == ENEMY_DEAD && (save->deadRenderCount++ > 2)) {
-      //      remove = 1;
-    } else  if (game_scrollCount == 0) {
-      if ((save->sprite.y-game_cameraY) > SCREEN_HEIGHT+ENEMY_DROP_THRESHOLD) {
-	remove = 1;
-      } else if ((save->sprite.y-game_cameraY) < -(ENEMY_DROP_THRESHOLD)) {
+    if (game_scrollCount == 0) {
+      if ((save->sprite.y-game_cameraY) > SCREEN_HEIGHT+ENEMY_DROP_THRESHOLD || 
+	  ((save->sprite.y-game_cameraY) < -(ENEMY_DROP_THRESHOLD))) {
 	remove = 1;
       }
     }
-
+      
     if (remove) {
       enemy_remove(save);
       enemy_addFree(save);
       removedCount++;
     }
-
   }
 
   while (removedCount--) {

@@ -3,6 +3,7 @@
 
 #define PLAYER_WIDTH                32
 #define PLAYER_FUZZY_WIDTH          8
+#define PLAYER_VISIBLE_WIDTH        (PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)
 #define PLAYER_HEIGHT               37
 #define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 
