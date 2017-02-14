@@ -39,6 +39,8 @@ get_tile_address(tmx_map *m, unsigned int gid)
   }
 
 
+  extern void dump_prop(tmx_property *p, int depth);
+
   unsigned baseAddress = 0;
   for (int y = 0; y < ts_count; y++) {
     tmx_tileset* ts = ta[y];    
@@ -48,6 +50,7 @@ get_tile_address(tmx_map *m, unsigned int gid)
 	unsigned address = baseAddress + (t[i].ul_y * ((ts->image->width/8) * config.bitDepth)) + (t[i].ul_x/8);
 	if (config.verbose) {
 	  printf("%s - baseAddress = %d address = %d\n", ts->name, baseAddress, address);
+	  dump_prop(t[i].properties, 1);
 	}
 	return address;
       }
@@ -63,7 +66,7 @@ static unsigned
 get_tile_index(tmx_map *m, unsigned int gid)
 {
   if (config.verbose) {
-    printf("get_tile_address %d\n", gid);
+    printf("get_tile_index %d\n", gid);
   }
 
   int ts_count = 0;
@@ -100,6 +103,61 @@ get_tile_index(tmx_map *m, unsigned int gid)
   }
 
   return 0;
+}
+
+static char*
+get_tile_spriteId(tmx_map *m, unsigned int gid)
+{
+  static char* zero = "0";
+  if (config.verbose) {
+    printf("get_tile_spriteId %d\n", gid);
+  }
+
+  int ts_count = 0;
+  tmx_tileset** ta;
+
+  {
+    tmx_tileset* t = m->ts_head;
+    while (t != 0) {
+      t = t->next;
+      ts_count++;
+    }
+
+    ta = malloc(sizeof(tmx_tileset)*ts_count);
+    t = m->ts_head;
+    int c = ts_count;
+    while (t != 0) {
+      ta[--c] = t;
+      t = t->next;
+    }
+  }
+
+
+  for (int y = 0; y < ts_count; y++) {
+    tmx_tileset* ts = ta[y];    
+    for (unsigned int i = 0; i < ts->tilecount; i++) {
+      tmx_tile* t = ts->tiles;
+      if (t[i].id+ts->firstgid == gid) {
+	tmx_property *p = t[i].properties;
+	while (p) {
+	  if (strcmp(p->name, "SpriteId") == 0) {
+	    break;
+	  }
+	  p = p->next;
+	}
+	char* name = zero;
+	if (p) {
+	  name = p->value;
+	  if (config.verbose) {
+	    printf("%s - prop = %s\n", ts->name, name);
+	  } 
+	} 
+	return name;
+      }
+    }
+  }
+
+  return zero;
 }
 
 static void 
@@ -179,10 +237,58 @@ output_map_indexes(tmx_map *m, tmx_layer *l)
 }
 
 
+void
+output_map_sprites(tmx_map *m, tmx_layer *l)
+{
+  if (!l) {
+    abort_("output_map_sprites: empty layer");
+  }
+
+  FILE* fp = file_openWrite("%s-sprites.%c", l->name, config.c_output ? 'c' : 's');
+
+  if (config.c_output) {
+    //    fprintf(fp, "unsigned short %s_tileAddresses[%d][%d] = {\n",  l->name, m->height, m->width);
+    fprintf(fp, ".%s_spriteIds = {\n",  l->name);//, m->height, m->width);
+  }
+
+  if (l->type == L_LAYER && l->content.gids) {
+    for (unsigned int y = 0; y < m->height; y++) {
+      if (config.c_output) {      
+	fprintf(fp, "{");
+      }
+      for (unsigned int x = 0; x < m->width; x++) {
+	
+	if (config.c_output) {
+	  fprintf(fp, "%s,", get_tile_spriteId(m, l->content.gids[(y*m->width)+x] & TMX_FLIP_BITS_REMOVAL));
+	} else {
+	   fprintf(fp, "\tdc.w %s\n", get_tile_spriteId(m, l->content.gids[(y*m->width)+x] & TMX_FLIP_BITS_REMOVAL));
+	}	  
+      }
+      if (config.c_output) {      
+	fprintf(fp, "},\n");
+      }
+    }
+  }
+
+  if (config.c_output) {      
+    fprintf(fp, "},\n");
+  }
+  fclose(fp);
+
+  if (l) {
+    if (l->next) {
+      output_map_sprites(m, l->next);
+    }
+  }
+}
+
+
+
 static void 
 process_map(tmx_map *m) 
 {
     output_map_asm(m, m->ly_head);
+    output_map_sprites(m, m->ly_head);
     output_map_indexes(m, m->ly_head);
 }
 

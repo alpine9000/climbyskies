@@ -137,14 +137,16 @@ tile_renderScreen(void)
   tile_tileX = SCREEN_WIDTH-TILE_WIDTH;
 
   tile_tilePtr = &level.background_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
-  tile_itemPtr = &level.item_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
+  tile_itemPtr = &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
       unsigned long offset = *tile_tilePtr;
       gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
       gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
-      if (*tile_itemPtr != 0) {
-	item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
+      unsigned short item = *tile_itemPtr;
+      if (item != 0) {
+	//	item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
+	tile_processMapObjectDown(item, x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
       }
       tile_tilePtr--;
       tile_itemPtr--;
@@ -157,7 +159,8 @@ tile_renderScreen(void)
     gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
     gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
     if (*tile_itemPtr != 0) {
-      item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
+      //item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
+      tile_processMapObjectDown(*tile_itemPtr, x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
     }
     tile_tilePtr--;
     tile_itemPtr--;

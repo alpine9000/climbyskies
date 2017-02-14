@@ -119,9 +119,11 @@ out/workbench/level.o: out/background-map.c level.c
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background-map.c out
-	@mv item-map.c out
+	@mv item-sprites.c out
 	@rm background-indexes.c
 	@rm item-indexes.c
+	@rm item-map.c
+	@rm background-sprites.c
 
 out/sprite.bin: assets/sprite.png palette.pal
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224

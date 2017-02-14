@@ -20,6 +20,7 @@ int game_scrollCount;
 int game_scroll;
 int game_levelComplete;
 int game_paused;
+int game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
@@ -232,13 +233,13 @@ game_newGame(void)
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   hw_verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
-  game_paused = 0;
+  game_paused = 1;
   game_screenScrollY = 0;
   game_scrollCount = 0;
   game_shake = 0;
   game_setBackgroundScroll(SCROLL_PIXELS);
   game_levelScore = 9999<<2;
-  game_scoreBoardMode = 0;
+  game_scoreBoardMode = 1;
   game_levelComplete = 0;
   game_lastScore = 1;
   game_lastLevelScore = 0;
@@ -249,14 +250,12 @@ game_newGame(void)
   game_switchFrameBuffers();
 
   item_init(); // this must be initialised before tile
+  enemy_init(); // this must be initialised before tile
 
   tile_init();
   tile_renderScreen();
 
   player_init();
-#ifdef ENABLE_ENEMIES
-  enemy_init();
-#endif
 
   cloud_init();
   
@@ -381,13 +380,18 @@ debug_showRasterLine(void)
 	text_drawScoreBoard(text_intToAscii(average, 4), 0);
 	game_lastAverage = average;
       }
-    } else {
+    } else if( frame == 1){
       if (maxRasterLine != game_lastMaxRasterLine) {
 	text_drawScoreBoard(text_intToAscii(maxRasterLine, 4), 5*8);
 	game_lastMaxRasterLine = maxRasterLine;
       }
+    } else if (frame == 2) {
+      text_drawScoreBoard(text_intToAscii(enemy_count, 4), 10*8);
     }
-    frame = !frame;
+    frame++;
+    if (frame > 2) {
+      frame = 0;
+    }
   }
   
   
@@ -418,9 +422,8 @@ game_render(void)
   tile_renderInvalidTiles(game_offScreenBuffer);
 
   item_saveBackground(game_offScreenBuffer);
-#ifdef ENABLE_ENEMIES
+
   enemy_saveBackground(game_offScreenBuffer);
-#endif
 
   player_saveBackground(game_offScreenBuffer);
 
@@ -432,10 +435,8 @@ game_render(void)
   cloud_render(game_offScreenBuffer);
   SPEED_COLOR(0x202);
   item_render(game_offScreenBuffer);  
-#ifdef ENABLE_ENEMIES
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
-#endif
   SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
   game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
@@ -470,6 +471,9 @@ game_loop()
       } else {
 	game_refreshDebugScoreboard();
       }
+
+      game_paused = !game_paused;
+
     }
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
@@ -478,9 +482,7 @@ game_loop()
     SPEED_COLOR(0xF0F);
     player_update();
     SPEED_COLOR(0x0fF);
-#ifdef ENABLE_ENEMIES
     enemy_update(&player.sprite);
-#endif
     SPEED_COLOR(0x2f2);
     item_update(&player.sprite);
     //    }
@@ -530,14 +532,11 @@ game_loop()
     }
 
 
-#ifdef ENABLE_ENEMIES
     SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
-#endif
     SPEED_COLOR(0xff0);
     item_restoreBackground();
     SPEED_COLOR(0xf00);
-    //    text_restore();
     player_restoreBackground();
     SPEED_COLOR(0x00f);
     cloud_restoreBackground();

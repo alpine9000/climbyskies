@@ -9,5 +9,5 @@ __section(noload)
 #endif
 level_t level1 = {
 #include "out/background-map.c"
-#include "out/item-map.c"
+#include "out/item-sprites.c"
 };

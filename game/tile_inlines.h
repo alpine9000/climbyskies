@@ -1,4 +1,24 @@
 INLINE void
+tile_processMapObjectUp(unsigned short id, int x, int y, unsigned short* tilePtr)
+{
+  if (id & MAPOBJECT_ITEM_FLAG) {
+    item_add(x, y, id & 0xFF, tilePtr);
+  } else if (id & MAPOBJECT_TOP_RENDER_ENEMY_FLAG) {
+    enemy_addMapObject(id & 0xff, x, y+(3*TILE_HEIGHT), tilePtr);
+  }
+}
+
+INLINE void
+tile_processMapObjectDown(unsigned short id, int x, int y, unsigned short* tilePtr)
+{
+  if (id & MAPOBJECT_ITEM_FLAG) {
+    item_add(x, y, id & 0xFF, tilePtr);
+  } else if (id & MAPOBJECT_BOTTOM_RENDER_ENEMY_FLAG) {
+    enemy_addMapObject(id & 0xff, x, y+TILE_HEIGHT, tilePtr);
+  }
+}
+
+INLINE void
 tile_renderNextTile(uint16_t hscroll)
 {
   int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
@@ -13,8 +33,9 @@ tile_renderNextTile(uint16_t hscroll)
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
 
   if (*tile_itemPtr != 0) {
-    if (tile_itemPtr > &level.item_tileAddresses[0][0]) {
-      item_addCoin(tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
+    if (tile_itemPtr > &level.item_spriteIds[0][0]) {
+      //      item_addCoin(tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
+      tile_processMapObjectDown(*tile_itemPtr, tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
     }
   }  
 
@@ -56,8 +77,10 @@ tile_renderNextTileDown(uint16_t hscroll)
   unsigned short* ptr = tile_itemPtr+OFFSET;
 
   if (*(ptr) != 0) {
-    if (ptr < &level.item_tileAddresses[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {
-      item_addCoin(tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
+    if (ptr < &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {
+      //      item_addCoin(tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
+      //      tile_processMapObjectUp(*(ptr), tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
+      tile_processMapObjectUp(*(ptr), tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
     }
   }  
 }

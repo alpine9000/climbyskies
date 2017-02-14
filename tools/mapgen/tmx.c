@@ -97,10 +97,11 @@ dump_prop(tmx_property *p, int depth)
 {
   char padding[11]; mk_padding(padding, depth);
 
-  printf("\n%s" "properties={", padding);
+
   if (!p) {
-    printf(" (NULL) }");
+    //  printf(" (NULL) }");
   } else {
+  printf("\n%s" "properties={", padding);
     while (p) {
       printf("\n%s\t" "'%s'='%s'", padding, p->name, p->value);
       p = p->next;

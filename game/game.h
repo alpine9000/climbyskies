@@ -8,9 +8,8 @@
 
 #define NEW_TILE_COLLISION        1
 #define FIX_TILE_INVALIDATE_BUG   1
-#define ENABLE_PLAYER_HEADSMASH 1
+#define ENABLE_PLAYER_HEADSMASH   1
 #define INLINE_EVERYTHING         1
-#define ENABLE_ENEMIES            1
 //#define SHOW_SPEED              1
 //#define CLOUD_FULLCOLOR         1
 #define CLOUD_ENABLE_SETUPRENDERPARTIALTILE 1
@@ -122,6 +121,7 @@ extern uint32_t game_score;
 #include "sprite.h"
 #include "item.h"
 #include "level.h"
+#include "enemy.h"
 #include "tile.h"
 #include "copper.h"
 #include "music.h"
@@ -130,7 +130,7 @@ extern uint32_t game_score;
 #include "cloud.h"
 #include "text.h"
 #include "disk.h"
-#include "enemy.h"
+
 
 
 void

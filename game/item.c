@@ -9,11 +9,6 @@ typedef enum {
 } item_state_t;
 
 
-typedef enum {
-  ITEM_ANIM_COIN = 0,
-} item_anim_t;
-
-
 typedef struct item {
   struct item *prev;
   struct item *next;
@@ -104,7 +99,7 @@ item_remove(item_t* ptr)
 }
 
 
-static void
+void
 item_add(int x, int y, int anim, unsigned short* tilePtr)
 {
   item_t* ptr = item_getFree();
@@ -126,11 +121,13 @@ item_add(int x, int y, int anim, unsigned short* tilePtr)
 }
 
 
+#if 0
 void
 item_addCoin(uint32_t x, uint32_t y, unsigned short* tilePtr)
 {
   item_add(x, y, ITEM_ANIM_COIN, tilePtr);
 }
+#endif
 
 
 void
