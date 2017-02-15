@@ -110,12 +110,9 @@ tile_invalidateTile(int x, int y, int offset)
 }
 
 
-
-
 void
 tile_renderInvalidTiles(frame_buffer_t fb)
 {
-  USE(fb);
   tile_redraw_t* ptr = invalidTiles;
 
   while (ptr != 0) {

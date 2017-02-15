@@ -385,7 +385,6 @@ void
 enemy_headsmash(int x, int y)
 {
   enemy_t* ptr = enemy_activeList;
-  USE(x);
 
   while (ptr != 0) {
     if (ptr->state == ENEMY_ALIVE && ptr->onGround && ptr->sprite.y+ptr->height == y && ptr->sprite.x <= x && ptr->sprite.x+ptr->width > x) {

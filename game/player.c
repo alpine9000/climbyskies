@@ -550,7 +550,7 @@ player_updateAlive(void)
   }
 
   if (player.sprite.y <= TILE_HEIGHT*7 && player.state == PLAYER_STATE_ONGROUND) {
-    game_levelComplete = 1;
+    game_setLevelComplete();
   }
   
   return collision;

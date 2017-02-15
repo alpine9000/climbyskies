@@ -6,6 +6,7 @@
 #include <hardware/intbits.h>
 
 
+#define DEBUG                     1
 #define NEW_TILE_COLLISION        1
 #define FIX_TILE_INVALIDATE_BUG   1
 #define ENABLE_PLAYER_HEADSMASH   1
@@ -105,7 +106,6 @@ extern int game_scrollCount;
 extern int game_scroll;
 extern int game_paused;
 extern uint32_t game_frameCount;
-extern int game_levelComplete;
 extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
@@ -144,5 +144,7 @@ void
 game_shakeScreen(void);
 void
 game_loseLife();
+void
+game_setLevelComplete();
 
 #endif /* __GAME_H */

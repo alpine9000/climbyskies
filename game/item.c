@@ -33,10 +33,9 @@ static sprite_animation_t item_animations[] = {
   },
 };
 
+int item_count;
 static item_t* item_activeList;
 static item_t* item_freeList;
-static int item_configIndex;
-static int item_yIndex;
 static item_t item_buffer[ITEM_MAX_ITEMS];
 
 
@@ -53,6 +52,7 @@ item_getFree(void)
 static void
 item_addFree(item_t* ptr)
 {
+  item_count--;
   if (item_freeList == 0) {
     item_freeList = ptr;
     ptr->next = 0;
@@ -69,6 +69,7 @@ item_addFree(item_t* ptr)
 static void
 item_addItem(item_t* ptr)
 {
+  item_count++;
   if (item_activeList == 0) {
     item_activeList = ptr;
     ptr->next = 0;
@@ -121,20 +122,10 @@ item_add(int x, int y, int anim, unsigned short* tilePtr)
 }
 
 
-#if 0
-void
-item_addCoin(uint32_t x, uint32_t y, unsigned short* tilePtr)
-{
-  item_add(x, y, ITEM_ANIM_COIN, tilePtr);
-}
-#endif
-
-
 void
 item_init(void)
 {
-  item_configIndex = 0;
-  item_yIndex = 0;
+  item_count = 0;
   item_activeList = 0;
   item_freeList = &item_buffer[0];
   item_freeList->prev = 0;
@@ -237,12 +228,9 @@ item_aabb(sprite_t* p, item_t* item)
 void
 item_update(sprite_t* p)
 {
-  USE(p);
-  int removedCount = 0;
   item_t* ptr = item_activeList;
 
   while (ptr != 0) {
-
     if (ptr->frameCounter == ptr->anim->animation.speed) {
       ptr->sprite.imageIndex++;
       ptr->frameCounter = 0;
@@ -253,7 +241,6 @@ item_update(sprite_t* p)
     } else {
       ptr->frameCounter++;
     }
-
 
     if ((ptr->frameCounter == 0) && ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
       ptr->state = ITEM_DEAD;
@@ -281,8 +268,6 @@ item_update(sprite_t* p)
     if (remove) {
       item_remove(save);
       item_addFree(save);
-      removedCount++;
     }
-
   }
 }

@@ -9,6 +9,8 @@ typedef enum {
   ITEM_ANIM_COIN = 0,
 } item_anim_t;
 
+extern int item_count;
+
 void
 item_init(void);
 void
