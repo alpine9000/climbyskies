@@ -19,7 +19,9 @@ int game_screenScrollY;
 int game_scrollCount;
 int game_scroll;
 int game_levelComplete;
+#ifdef GAME_PAUSE_DISABLES_COLLISION
 int game_paused;
+#endif
 int game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
@@ -57,6 +59,7 @@ static uint32_t game_lastScore;
 static uint32_t game_lastLevelScore;
 static int game_lastAverage;
 static int game_lastMaxRasterLine;
+static int game_lastEnemyCount;
 
 
 
@@ -187,8 +190,8 @@ game_refreshScoreboard(void)
   game_lastLevelScore = 0;
 
   if (game_scoreBoardMode == 0) {
-    text_drawScoreBoard("SCORE " , SCREEN_WIDTH-(12*8));  
-    text_drawScoreBoard("BONUS 00" , 0);  
+    text_drawScoreBoard("SCORE  " , SCREEN_WIDTH-(12*8));  
+    text_drawScoreBoard("BONUS 00      " , 0);  
     debug_showScore();
     uint32_t i, y;
     for (i = 0, y = (SCREEN_WIDTH/2)-15; i < game_lives; i++, y+=10) {
@@ -219,6 +222,7 @@ game_refreshDebugScoreboard(void)
 {
   game_lastAverage = -1;
   game_lastMaxRasterLine = -1;
+  game_lastEnemyCount = -1;
   text_drawScoreBoard("            " , SCREEN_WIDTH-(12*8));  
   text_drawScoreBoard("            " , 0);  
 }
@@ -233,7 +237,9 @@ game_newGame(void)
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   hw_verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
+#ifdef GAME_PAUSE_DISABLES_COLLISION
   game_paused = 1;
+#endif
   game_screenScrollY = 0;
   game_scrollCount = 0;
   game_shake = 0;
@@ -245,6 +251,7 @@ game_newGame(void)
   game_lastLevelScore = 0;
   game_lastAverage = -1;
   game_lastMaxRasterLine = -1;
+  game_lastEnemyCount = -1;
   tileY = 0;
 
   game_switchFrameBuffers();
@@ -386,7 +393,10 @@ debug_showRasterLine(void)
 	game_lastMaxRasterLine = maxRasterLine;
       }
     } else if (frame == 2) {
-      text_drawScoreBoard(text_intToAscii(enemy_count, 4), 10*8);
+      if (enemy_count != game_lastEnemyCount) {
+	text_drawScoreBoard(text_intToAscii(enemy_count, 4), 10*8);
+	game_lastEnemyCount = enemy_count;
+      }
     }
     frame++;
     if (frame > 2) {
@@ -471,8 +481,9 @@ game_loop()
       } else {
 	game_refreshDebugScoreboard();
       }
-
+#ifdef GAME_PAUSE_DISABLES_COLLISION
       game_paused = !game_paused;
+#endif
 
     }
 
@@ -490,9 +501,7 @@ game_loop()
 
     if (game_shake == 0) {
       cloud_update();
-    }
-
-    if (game_scrollCount == 0 && game_shake > 0) {
+    } else if (game_scrollCount == 0/* && game_shake > 0*/) {
       game_shake--;
       if (game_shake > 1) {
 	game_setBackgroundScroll(game_scroll);

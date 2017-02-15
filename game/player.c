@@ -461,10 +461,12 @@ player_updateAlive(void)
     if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
       level.background_tileAddresses[y][x] = TILE_SKY;
       tile_invalidateTile(x<<4, y<<4, 0);
+      enemy_headsmash((x<<4)+(TILE_WIDTH/2), y<<4);
     }
     if (TILE_COLLISION(level.background_tileAddresses[y][x+1])) {
       level.background_tileAddresses[y][x+1] = TILE_SKY;
       tile_invalidateTile((x+1)<<4, y<<4, 0);
+      enemy_headsmash(((x+1)<<4)+(TILE_WIDTH/2), y<<4);
     }
 #else
     level.background_tileAddresses[y][x] = TILE_SKY;

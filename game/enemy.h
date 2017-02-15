@@ -27,4 +27,7 @@ void
 enemy_ctor(void);
 void
 enemy_addMapObject(int id, int x, int y, unsigned short* tilePtr);
+
+void 
+enemy_headsmash(int x, int y);
 #endif
