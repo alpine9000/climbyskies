@@ -464,11 +464,14 @@ player_updateAlive(void)
   } 
 #endif
 
-  if (collision && intendedVelocity.y > 0 &&  intendedVelocity.y != player.velocity.y /*&& intendedVelocity.x == player.velocity.x*/) {
-    player.state = PLAYER_STATE_ONGROUND;
+  if (collision && intendedVelocity.y > 0 &&  player.velocity.y == 0 /*intendedVelocity.y != player.velocity.y *//*&& intendedVelocity.x == player.velocity.x*/) {
+    if (player.state != PLAYER_STATE_ONGROUND) {
+      player.state = PLAYER_STATE_ONGROUND;
+    }
   } else if (PLAYER_HEADSMASH && collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
+    sound_queue(SOUND_HEADSMASH);
     int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
     int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
     //int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
@@ -499,8 +502,14 @@ player_updateAlive(void)
     player.state = PLAYER_STATE_DEFAULT;
   }
 
-  
+  static volatile int lastY = -1;
+
   if (player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+
+    if (player.sprite.y != lastY) {
+      sound_queue(SOUND_LAND);
+    }
+    
     if (player.velocity.x < 0) {
       player_setAnim(ANIM_LEFT_RUN);
     } else if (player.velocity.x > 0) {
@@ -538,6 +547,8 @@ player_updateAlive(void)
     }
   }
 
+
+  lastY = player.sprite.y ;
 
   if (player.velocity.y != 0 || player.velocity.x != 0) {
     if (player.frameCounter == player.anim->animation.speed) {

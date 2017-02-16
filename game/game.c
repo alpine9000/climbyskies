@@ -597,8 +597,10 @@ game_loop()
     player.hsprite->hsprite11->vStopLo =  vStopLo;
     player.hsprite->hsprite11->vStopHi =  vStopHi;
 #endif
-
+    
+    sound_schedule();
     hw_waitVerticalBlank();
+    sound_vbl();
 
 #ifdef PLAYER_HARDWARE_SPRITE
     player_hSpriteRender();

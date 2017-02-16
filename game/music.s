@@ -19,10 +19,11 @@ _music_play:
 	;; 	move.l	(4,a7),d0
 	;; d0.w - module index
 .wait: 				; In case there is currently  fade in progress
+	move.w	 #24,P61_Master
 	jsr	_hw_waitVerticalBlank
 	cmp.w	#0,P61_Master
 	beq	.skip
-	cmp.w	#64,P61_Master
+	cmp.w	#24,P61_Master
 	blt	.wait
 
 	cmp.w	currentModule,d0
@@ -65,7 +66,7 @@ _music_play:
         sub.l   a1,a1
         sub.l   a2,a2
         moveq   #0,d0
-	move.w	#64,P61_Master
+	move.w	#24,P61_Master
 	jsr     P61_Init
 	move.w	#1,p61Inited
 	movem.l	(sp)+,d0-a6

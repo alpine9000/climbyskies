@@ -1,6 +1,6 @@
 USE_GCC=1
 USE_BIG=1
-SFX=0
+SFX=1
 PLACEHOLDER_MUSIC=0
 GAME_NAME=climbyskies
 
@@ -10,7 +10,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 
@@ -18,7 +18,7 @@ MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
 IMAGES=sprite.png font8x8.png 
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/fade_in.s
+ASSETS=$(IMAGEDATA) out/fade_in.s out/jump.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -115,6 +115,9 @@ wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 
 out/adf/level.o: out/background-map.c level.c
 out/workbench/level.o: out/background-map.c level.c
+
+out/jump.raw: assets/jump.wav
+	sox -v 1.5 $<  -b 8 -c 1 -r 11025 $@	
 
 HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun1_0-asprite.h \
                   out/sprite_playerLeftRun0_1-asprite.h out/sprite_playerLeftRun1_1-asprite.h \
