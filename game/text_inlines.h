@@ -9,7 +9,7 @@ INLINE void
 text_drawCharScoreBoard(char c, int x)
 {
   char* src = fontAtlas[(int)c];
-  char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*3);
+  char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*5);
 
   *dest = *src;
   *(dest+(1*FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH)) = *(src+(1*FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH));

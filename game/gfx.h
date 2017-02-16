@@ -22,7 +22,7 @@ typedef struct {
 
 
 void 
-gfx_init(void);
+gfx_ctor(void);
 
 #ifndef INLINE_EVERYTHING
 void

@@ -7,6 +7,9 @@
 
 typedef struct {
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
+#ifndef PLAYER_HSPRITE_CPU
+  uint16_t sprpt[8*4];
+#endif
   uint16_t wait1[2];
   uint16_t wait2[2];
   uint16_t bpl2[SCREEN_BIT_DEPTH*2*2];

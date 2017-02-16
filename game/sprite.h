@@ -28,7 +28,27 @@ typedef struct {
   image_t* image;
 } sprite_t;
 
+#ifdef PLAYER_HARDWARE_SPRITE
+typedef struct {
+  uint8_t vStartLo;
+  uint8_t hStartHi;
+  uint8_t vStopLo;
+  uint8_t attach:1;
+  uint8_t unused:4;
+  uint8_t vStartHi:1;
+  uint8_t vStopHi:1;
+  uint8_t hStartLow:1;
+} hsprite_control_t;
 
+typedef struct {
+  hsprite_control_t* hsprite00;
+  hsprite_control_t* hsprite01;
+  hsprite_control_t* hsprite10;
+  hsprite_control_t* hsprite11;
+} hsprite_t;
+
+extern hsprite_t hsprite_spriteAtlas[];
+#endif
 extern image_t sprite_imageAtlas[];
 
 #ifndef INLINE_EVERYTHING
@@ -41,6 +61,9 @@ sprite_restore(sprite_save_t* save);
 #else
 #include "sprite_inlines.h"
 #endif
+
+void
+sprite_ctor(void);
 
 #define sprite_render(fb, a) _sprite_render(fb, &a, gfx_renderSprite)
 #define sprite_renderNoMask(fb, a) _sprite_render(fb, &a, gfx_renderSpriteNoMask)
@@ -93,5 +116,70 @@ typedef enum  {
   SPRITE_COIN_14 = 43,
 } sprite_id_t;
 
+
+extern uint16_t sprite_playerLeftRun0_0_sprite0[];
+extern uint16_t sprite_playerLeftRun0_0_sprite1[];
+extern uint16_t sprite_playerLeftRun1_0_sprite0[];
+extern uint16_t sprite_playerLeftRun1_0_sprite1[];
+
+extern uint16_t sprite_playerLeftRun0_1_sprite0[];
+extern uint16_t sprite_playerLeftRun0_1_sprite1[];
+extern uint16_t sprite_playerLeftRun1_1_sprite0[];
+extern uint16_t sprite_playerLeftRun1_1_sprite1[];
+
+extern uint16_t sprite_playerLeftRun0_2_sprite0[];
+extern uint16_t sprite_playerLeftRun0_2_sprite1[];
+extern uint16_t sprite_playerLeftRun1_2_sprite0[];
+extern uint16_t sprite_playerLeftRun1_2_sprite1[];
+
+extern uint16_t sprite_playerLeftRun0_3_sprite0[];
+extern uint16_t sprite_playerLeftRun0_3_sprite1[];
+extern uint16_t sprite_playerLeftRun1_3_sprite0[];
+extern uint16_t sprite_playerLeftRun1_3_sprite1[];
+
+
+
+extern uint16_t sprite_playerRightRun0_0_sprite0[];
+extern uint16_t sprite_playerRightRun0_0_sprite1[];
+extern uint16_t sprite_playerRightRun1_0_sprite0[];
+extern uint16_t sprite_playerRightRun1_0_sprite1[];
+
+extern uint16_t sprite_playerRightRun0_1_sprite0[];
+extern uint16_t sprite_playerRightRun0_1_sprite1[];
+extern uint16_t sprite_playerRightRun1_1_sprite0[];
+extern uint16_t sprite_playerRightRun1_1_sprite1[];
+
+extern uint16_t sprite_playerRightRun0_2_sprite0[];
+extern uint16_t sprite_playerRightRun0_2_sprite1[];
+extern uint16_t sprite_playerRightRun1_2_sprite0[];
+extern uint16_t sprite_playerRightRun1_2_sprite1[];
+
+extern uint16_t sprite_playerRightRun0_3_sprite0[];
+extern uint16_t sprite_playerRightRun0_3_sprite1[];
+extern uint16_t sprite_playerRightRun1_3_sprite0[];
+extern uint16_t sprite_playerRightRun1_3_sprite1[];
+
+
+extern uint16_t sprite_playerRightJump0_0_sprite0[];
+extern uint16_t sprite_playerRightJump0_0_sprite1[];
+extern uint16_t sprite_playerRightJump1_0_sprite0[];
+extern uint16_t sprite_playerRightJump1_0_sprite1[];
+
+extern uint16_t sprite_playerLeftJump0_0_sprite0[];
+extern uint16_t sprite_playerLeftJump0_0_sprite1[];
+extern uint16_t sprite_playerLeftJump1_0_sprite0[];
+extern uint16_t sprite_playerLeftJump1_0_sprite1[];
+
+extern uint16_t sprite_playerRightStand0_0_sprite0[];
+extern uint16_t sprite_playerRightStand0_0_sprite1[];
+extern uint16_t sprite_playerRightStand1_0_sprite0[];
+extern uint16_t sprite_playerRightStand1_0_sprite1[];
+
+extern uint16_t sprite_playerLeftStand0_0_sprite0[];
+extern uint16_t sprite_playerLeftStand0_0_sprite1[];
+extern uint16_t sprite_playerLeftStand1_0_sprite0[];
+extern uint16_t sprite_playerLeftStand1_0_sprite1[];
+
+extern uint16_t sprite_nullhsprite[];
 
 #endif

@@ -1,5 +1,135 @@
 #include "game.h"
 
+#ifdef PLAYER_HARDWARE_SPRITE
+
+#include "out/sprite_playerLeftRun0_0-aprite.h"
+
+#include "out/sprite_playerLeftRun1_0-aprite.h"
+
+#include "out/sprite_playerLeftRun0_1-aprite.h"
+
+#include "out/sprite_playerLeftRun1_1-aprite.h"
+
+#include "out/sprite_playerLeftRun0_2-aprite.h"
+
+#include "out/sprite_playerLeftRun1_2-aprite.h"
+
+#include "out/sprite_playerLeftRun0_3-aprite.h"
+
+#include "out/sprite_playerLeftRun1_3-aprite.h"
+
+#include "out/sprite_playerRightRun0_0-aprite.h"
+
+#include "out/sprite_playerRightRun1_0-aprite.h"
+
+#include "out/sprite_playerRightRun0_1-aprite.h"
+
+#include "out/sprite_playerRightRun1_1-aprite.h"
+
+#include "out/sprite_playerRightRun0_2-aprite.h"
+
+#include "out/sprite_playerRightRun1_2-aprite.h"
+
+#include "out/sprite_playerRightRun0_3-aprite.h"
+
+#include "out/sprite_playerRightRun1_3-aprite.h"
+
+#include "out/sprite_playerLeftJump0_0-aprite.h"
+
+#include "out/sprite_playerLeftJump1_0-aprite.h"
+
+#include "out/sprite_playerRightJump0_0-aprite.h"
+
+#include "out/sprite_playerRightJump1_0-aprite.h"
+
+#include "out/sprite_playerLeftStand0_0-aprite.h"
+
+#include "out/sprite_playerLeftStand1_0-aprite.h"
+
+#include "out/sprite_playerRightStand0_0-aprite.h"
+
+#include "out/sprite_playerRightStand1_0-aprite.h"
+
+
+hsprite_t hsprite_spriteAtlas[] = {
+  [SPRITE_CLIMBER_RUN_LEFT_1] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_LEFT_2] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_1_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_1_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_1_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_1_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_LEFT_3] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_2_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_2_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_2_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_2_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_LEFT_4] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_3_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_3_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_3_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_3_sprite1,
+  },
+
+  [SPRITE_CLIMBER_RUN_RIGHT_1] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_RIGHT_2] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_1_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_1_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_1_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_1_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_RIGHT_3] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_2_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_2_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_2_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_2_sprite1,
+  },
+  [SPRITE_CLIMBER_RUN_RIGHT_4] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_3_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_3_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_3_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_3_sprite1,
+  },
+
+  [SPRITE_CLIMBER_JUMP_LEFT] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftJump0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftJump0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftJump1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftJump1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JUMP_RIGHT] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightJump0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightJump0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightJump1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightJump1_0_sprite1,
+  },
+
+  [SPRITE_CLIMBER_STAND_LEFT] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftStand0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftStand0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftStand1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftStand1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_STAND_RIGHT] = {
+    .hsprite00 = (hsprite_control_t*)&sprite_playerRightStand0_0_sprite0,
+    .hsprite01 = (hsprite_control_t*)&sprite_playerRightStand0_0_sprite1,
+    .hsprite10 = (hsprite_control_t*)&sprite_playerRightStand1_0_sprite0,
+    .hsprite11 = (hsprite_control_t*)&sprite_playerRightStand1_0_sprite1,
+  },
+};
+#endif
+
 image_t sprite_imageAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = { // 0. climber run left 1
     .x = 0,
@@ -26,7 +156,7 @@ image_t sprite_imageAtlas[] = {
     .h = 37
   },
   [SPRITE_CLIMBER_STAND_LEFT] =  { // 4. climber stand left 
-    .x = 139,
+    .x = 128,
     .y = 75,
     .w = 32,
     .h = 37
@@ -270,6 +400,44 @@ image_t sprite_imageAtlas[] = {
 
 };
 
+
+#ifdef PLAYER_HARDWARE_SPRITE
+__section(data_c) uint16_t sprite_nullhsprite[] = {
+  0x0000, 0x0000
+};
+#endif
+
+void
+sprite_ctor(void)
+{
+#ifdef PLAYER_HARDWARE_SPRITE
+
+  for (size_t i = 0; i < sizeof(hsprite_spriteAtlas)/sizeof(hsprite_t); i++) {
+    if (hsprite_spriteAtlas[i].hsprite01) {
+      hsprite_spriteAtlas[i].hsprite01->attach = 1;
+    }
+    if (hsprite_spriteAtlas[i].hsprite11) {
+      hsprite_spriteAtlas[i].hsprite11->attach = 1;
+    }
+  }
+
+#ifdef PLAYER_HSPRITE_CPU  
+  for (int i = 0; i < 8; i++) {
+    custom->sprpt[i] = sprite_nullhsprite;
+  }
+#else
+  extern copper_t copper;
+  int index = 1;
+  for (int i = 0; i < 8; i++) {
+    copper.sprpt[index] = ((uint32_t)sprite_nullhsprite & 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;
+    index += 2;
+  }
+#endif
+
+#endif
+}
 
 #ifndef INLINE_EVERYTHING
 #include "sprite_inlines.h"

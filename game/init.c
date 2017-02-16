@@ -15,11 +15,12 @@ init_amiga(void)
 
   /* AGA compatibility stuff */
   custom->fmode = 0;
-  //  custom->bplcon2 = 0x24;
-  custom->bplcon2 = 0x0;
+  custom->bplcon2 = 0x24;
+  //custom->bplcon2 = 0x0;
   custom->bplcon3 = 0xc00;
   custom->bplcon4 = 0x11;
 
   enemy_ctor();
-  gfx_init();
+  sprite_ctor();
+  gfx_ctor();
 }

@@ -63,6 +63,69 @@
    </properties>
   </tile>
  </tileset>
+ <tileset firstgid="321" name="sprite" tilewidth="16" tileheight="16" tilecount="320" columns="20">
+  <image source="../../../../../climbyskies/game/assets/sprite.png" width="320" height="256"/>
+  <tile id="1">
+   <properties>
+    <property name="Blah" type="int" value="0"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_COIN"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_DRAGON"/>
+   </properties>
+  </tile>
+  <tile id="66">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_DRAGON"/>
+   </properties>
+  </tile>
+  <tile id="200">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_LEFT_RUN"/>
+   </properties>
+  </tile>
+  <tile id="208">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_SKATE"/>
+   </properties>
+  </tile>
+  <tile id="240">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_LEFT_RUN"/>
+   </properties>
+  </tile>
+  <tile id="248">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_SKATE"/>
+   </properties>
+  </tile>
+  <tile id="260">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_RUN"/>
+   </properties>
+  </tile>
+  <tile id="268">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_LEFT_SKATE"/>
+   </properties>
+  </tile>
+  <tile id="300">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_RUN"/>
+   </properties>
+  </tile>
+  <tile id="308">
+   <properties>
+    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_LEFT_SKATE"/>
+   </properties>
+  </tile>
+ </tileset>
  <layer name="background" width="16" height="202">
   <data encoding="base64" compression="zlib">
    eJztWUEOwjAMG4MvwOA3/P8BvIchqDSipEm6dWk1H6xKtBaq7SXrOg3DcJ8xBY3PE7AFLsMX44wzo2v6Pa2j88mPxw90Pv0O33hdOS8ujN7UJ07vpPESVp+OCuQ/BpLeki+W/Od8Qf55fbU6k9N3YnINnct8QP3ZF7X6L54Ln/5SriXdqf5arpe6T9DfrL/Ud636pznoz8Pbf+l6b52R1h8d6L8xqN1/cf616Y/634b+kh9W/SU/6Dz0/9eVZl/rB7T/0uxrdQZ9wKc3+m8daPnWnotcvkuei6Ohp/77WulXi3zP+Yvje85fLe6/FX4v9b9lDUv4Ne8fcf7SYf3+qd1/abne4v6rtezW5Gv3jhq/9N5x/P1HT1ptyffqrOney76j+TndLZ7kdEfNl6F93/eev3K9dwsves23xNf6r/X9R+q/1nsZ676kdb3yI+5/8f1TR9T7zzIXJfniuB4+x7XyJa6Fn7S1+sHp7fEjOl+tgNYTbVzyRqaeaKD86P1Hw1r/Jb+833U4P1p7J9mT780/HW8zrivGNdzP+AagfMVK
@@ -70,7 +133,7 @@
  </layer>
  <layer name="item" width="16" height="202">
   <data encoding="base64" compression="zlib">
-   eJzt1j0TwVAUhOGrQEVPR++j4Q/w5+no6ejpqKzeJDgnyc297zNzOjuTyZjdhAC0z063N+RPurMhf9PdDXkvC93SkN/otk7Pgup1OyH0Ov/nR8qODfmZsnNDvi0OuqMhf9FdDfmH7mnIp4a+/4z+zwv974uejxedX47+z9NAHTw09PBE2akhv1J2ndAOfIv99ccGx4sNLsb+5oX+rx/70Bz6vxj9nx82wB8dHx+6vxz9nz76Ph7sRDXo+rz1nX/XJDY5TU3u8Pt/n9sOx7YJbeieunh/B/36blP9DkK9XsCrWsU=
+   eJztlr0SwUAUhTcFKno6ej8NL8D78A68HB09HX10VI7eJLg32Zu955s5Xc5MJpP9zoZASPPYIwdB/4xcBP0cuQv6WkyRmaC/RFZK70Kqp5WF0M7+7/fRHQj6Y3Qngn5TOCInQf+K3AT9B/IU9FODvv8M/e8L+l8Xet4udH459L9PunBwT+DhIbojQX+O7iKhHfgW7q8+3GC7cIOL4f76gv6vH+5DPOj/Yuh/f3AD9KHj7UH3l0P/pw99bwfuRDXQ9b7pKD8XE25ymsTc4fd/722HrW1CE9xTF9r3oF+/rcV70BpncyM4n1t0d47OtwVevURcrw==
   </data>
  </layer>
 </map>

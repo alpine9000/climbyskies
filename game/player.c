@@ -132,7 +132,10 @@ player_setAnim(int anim)
     player.anim = &animations[player.animId];
     player.sprite.imageIndex = player.anim->animation.start;
     player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
-    player.frameCounter = 0;
+    player.frameCounter = 0;   
+#ifdef PLAYER_HARDWARE_SPRITE
+    player.hsprite = &hsprite_spriteAtlas[player.sprite.imageIndex];
+#endif
   }
 }
 
@@ -159,6 +162,16 @@ player_init(void)
   player.saves[1].blit[0].size = 0;
   player.saves[1].blit[1].size = 0;
   player.sprite.save = &player.saves[0];
+
+#if 0
+  player.hsprite00 = (sprite_control_t*)&sprite_playerLeftRun0_0_sprite0[0];
+  player.hsprite01 = (sprite_control_t*)&sprite_playerLeftRun0_0_sprite1[0];
+  player.hsprite10 = (sprite_control_t*)&sprite_playerLeftRun1_0_sprite0[0];
+  player.hsprite11 = (sprite_control_t*)&sprite_playerLeftRun1_0_sprite1[0];
+  
+  player.hsprite01->attach = 1;
+  player.hsprite11->attach = 1;
+#endif
 }
 
 
@@ -365,7 +378,11 @@ player_moveY(void)
   } else {
     player.velocity.y = newY - player.sprite.y;
   }
-  player.sprite.y = newY;
+  if (newY+PLAYER_HEIGHT - game_cameraY < SCREEN_HEIGHT+HSPRITE_MAX_OVERDRAW) {
+    player.sprite.y = newY;
+  } else {
+    player.sprite.y = game_cameraY + SCREEN_HEIGHT + HSPRITE_MAX_OVERDRAW - PLAYER_HEIGHT;
+  }
   return collision;
 }
 #endif
@@ -530,6 +547,9 @@ player_updateAlive(void)
 	player.sprite.imageIndex = player.anim->animation.start;
       }
     player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
+#ifdef PLAYER_HARDWARE_SPRITE
+    player.hsprite = &hsprite_spriteAtlas[player.sprite.imageIndex];
+#endif
     } else {
       player.frameCounter++;
     }
@@ -628,7 +648,7 @@ player_update(void)
 
   if (player.state == PLAYER_STATE_FREEFALL) {
     player_updateFreeFall();
-  } else {
+  } else {    
     player_updateAlive();
     player_processJoystick();
   }
@@ -658,4 +678,55 @@ player_render(frame_buffer_t fb)
   } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
     sprite_render(fb, player.sprite);
   }
+}
+
+void
+player_hSpriteRender(void)
+{
+#if PLAYER_HSPRITE_CPU
+  int i = 0;
+  if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
+    custom->sprpt[i++] = player.hsprite->hsprite00;
+    custom->sprpt[i++] = player.hsprite->hsprite01;
+    custom->sprpt[i++] = player.hsprite->hsprite10;
+    custom->sprpt[i++] = player.hsprite->hsprite11;
+  }
+
+  for (; i < 8; i++) {
+    custom->sprpt[i] = sprite_nullhsprite;
+  }
+#else
+  extern copper_t copper;
+  int i, index = 1;
+  if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
+    copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite00 & 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)player.hsprite->hsprite00 >> 16;
+    index += 2;
+    copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite01 & 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)player.hsprite->hsprite01 >> 16;
+    index += 2;
+    copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite10 & 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)player.hsprite->hsprite10 >> 16;
+    index += 2;
+    copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite11 & 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)player.hsprite->hsprite11 >> 16;
+    index += 2;
+    i = 4;
+  } else {
+    i = 0;
+  }
+
+  for (; i < 8; i++) {
+    copper.sprpt[index] = ((uint32_t)sprite_nullhsprite& 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;
+    index += 2;
+  }
+
+
+#endif
 }

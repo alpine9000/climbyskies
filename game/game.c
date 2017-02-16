@@ -70,8 +70,32 @@ static int game_levelComplete;
 static void (*game_tileRender)(uint16_t hscroll);
 
 static int tileY;
-static __section(data_c)  copper_t copper  = {
 
+#ifdef PLAYER_HSPRITE_CPU
+static 
+#endif
+
+ __section(data_c)  copper_t copper  = {
+#ifndef PLAYER_HSPRITE_CPU
+  .sprpt = {
+    SPR0PTL,0x0000,
+    SPR0PTH,0x0000,
+    SPR1PTL,0x0000,
+    SPR1PTH,0x0000,
+    SPR2PTL,0x0000,
+    SPR2PTH,0x0000,
+    SPR3PTL,0x0000,
+    SPR3PTH,0x0000,
+    SPR4PTL,0x0000,
+    SPR4PTH,0x0000,
+    SPR5PTL,0x0000,
+    SPR5PTH,0x0000,
+    SPR6PTL,0x0000,
+    SPR6PTH,0x0000,
+    SPR7PTL,0x0000,
+    SPR7PTH,0x0000    
+  },
+#endif
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -244,7 +268,7 @@ game_newGame(void)
   hw_verticalBlankCount = 0;
   lastVerticalBlankCount = 0;
 #ifdef GAME_PAUSE_DISABLES_COLLISION
-  game_paused = 1;
+  game_paused = 0;
 #endif
   game_screenScrollY = 0;
   game_scrollCount = 0;
@@ -443,7 +467,9 @@ game_render(void)
 
   enemy_saveBackground(game_offScreenBuffer);
 
+#ifndef PLAYER_HARDWARE_SPRITE
   player_saveBackground(game_offScreenBuffer);
+#endif
 
   cloud_saveBackground(game_offScreenBuffer);
   
@@ -454,7 +480,9 @@ game_render(void)
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
   SPEED_COLOR(0x005);
-  player_render(game_offScreenBuffer);
+#ifndef PLAYER_HARDWARE_SPRITE
+   player_render(game_offScreenBuffer);
+#endif
   game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
@@ -537,8 +565,45 @@ game_loop()
     SPEED_COLOR(0x000);
 
 
+#ifdef PLAYER_HARDWARE_SPRITE
+    int y = player.sprite.y-game_cameraY;
+    uint16_t vStartLo = y + RASTER_Y_START;
+    uint16_t vStopLo = vStartLo + PLAYER_HEIGHT;
+    uint16_t vStopHi = ((vStopLo) & 0x100) >> 8;
+    uint16_t hStartHi = (player.sprite.x + RASTER_X_START) >> 1;
+    uint16_t hStartHi2 = (player.sprite.x + 16 + RASTER_X_START) >> 1;
+
+    if (vStopLo >= RASTER_Y_START + SCREEN_HEIGHT) {
+      vStopLo =  RASTER_Y_START + SCREEN_HEIGHT;
+    }
+
+    player.hsprite->hsprite00->vStartLo = vStartLo;
+    player.hsprite->hsprite00->hStartHi = hStartHi;
+    player.hsprite->hsprite00->vStopLo =  vStopLo;
+    player.hsprite->hsprite00->vStopHi =  vStopHi;
+    
+    player.hsprite->hsprite01->vStartLo = vStartLo;
+    player.hsprite->hsprite01->hStartHi = hStartHi;
+    player.hsprite->hsprite01->vStopLo =  vStopLo;
+    player.hsprite->hsprite01->vStopHi =  vStopHi;
+
+    player.hsprite->hsprite10->vStartLo = vStartLo;
+    player.hsprite->hsprite10->hStartHi = hStartHi2;
+    player.hsprite->hsprite10->vStopLo =  vStopLo;
+    player.hsprite->hsprite10->vStopHi =  vStopHi;
+    
+    player.hsprite->hsprite11->vStartLo = vStartLo;
+    player.hsprite->hsprite11->hStartHi = hStartHi2;
+    player.hsprite->hsprite11->vStopLo =  vStopLo;
+    player.hsprite->hsprite11->vStopHi =  vStopHi;
+#endif
+
     hw_waitVerticalBlank();
 
+#ifdef PLAYER_HARDWARE_SPRITE
+    player_hSpriteRender();
+#endif
+    
 
     if (lastVerticalBlankCount == 0) {
 
@@ -563,7 +628,9 @@ game_loop()
     SPEED_COLOR(0xff0);
     item_restoreBackground();
     SPEED_COLOR(0xf00);
+#ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
+#endif
     SPEED_COLOR(0x00f);
     cloud_restoreBackground();
     SPEED_COLOR(0x000);

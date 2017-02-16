@@ -16,9 +16,13 @@ typedef enum {
 } player_state_t;
 
 
+  
 
 typedef struct {
   sprite_t sprite;
+#ifdef PLAYER_HARDWARE_SPRITE
+  hsprite_t* hsprite;
+#endif
   int animId;
   velocity_t velocity;
   sprite_animation_t* anim;
@@ -45,5 +49,6 @@ void
 player_setAction(int action);
 void
 player_freeFall(void);
-
+void
+player_hSpriteRender(void);
 #endif

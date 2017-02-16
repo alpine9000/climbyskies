@@ -16,7 +16,7 @@ SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png font8x8.png
+IMAGES=sprite.png font8x8.png 
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) out/fade_in.s
 
@@ -116,6 +116,22 @@ wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 out/adf/level.o: out/background-map.c level.c
 out/workbench/level.o: out/background-map.c level.c
 
+HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun1_0-asprite.h \
+                  out/sprite_playerLeftRun0_1-asprite.h out/sprite_playerLeftRun1_1-asprite.h \
+                  out/sprite_playerLeftRun0_2-asprite.h out/sprite_playerLeftRun1_2-asprite.h \
+                  out/sprite_playerLeftRun0_3-asprite.h out/sprite_playerLeftRun1_3-asprite.h \
+		  out/sprite_playerRightRun0_0-asprite.h out/sprite_playerRightRun1_0-asprite.h \
+	          out/sprite_playerRightRun0_1-asprite.h out/sprite_playerRightRun1_1-asprite.h \
+                  out/sprite_playerRightRun0_2-asprite.h out/sprite_playerRightRun1_2-asprite.h \
+                  out/sprite_playerRightRun0_3-asprite.h out/sprite_playerRightRun1_3-asprite.h \
+	          out/sprite_playerLeftJump0_0-asprite.h out/sprite_playerLeftJump1_0-asprite.h \
+		  out/sprite_playerRightJump0_0-asprite.h out/sprite_playerRightJump1_0-asprite.h \
+	          out/sprite_playerLeftStand0_0-asprite.h out/sprite_playerLeftStand1_0-asprite.h \
+		  out/sprite_playerRightStand0_0-asprite.h out/sprite_playerRightStand1_0-asprite.h 
+
+out/adf/sprite.o: $(HSPRITE_HEADERS)
+out/workbench/sprite.o: $(HSPRITE_HEADERS)
+
 out/background-map.c: assets/background.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background-map.c out
@@ -132,6 +148,51 @@ out/bootblock.bin: out/bootblock.o
 
 out/font%.bin: assets/font%.png palette.pal
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=2 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
+
+
+out/sprite_player%-asprite.h: out/sprite_player%.png palette.pal
+	cat palette.pal | tail -16 > out/asprite.pal
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite.pal --output-asprite
+
+.SECONDARY:
+out/sprite_playerLeftRun0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
+.SECONDARY:
+out/sprite_playerLeftRun1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
+.SECONDARY:
+out/sprite_playerRightRun0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
+.SECONDARY:
+out/sprite_playerRightRun1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
+.SECONDARY:
+out/sprite_playerRightJump0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+.SECONDARY:
+out/sprite_playerRightJump1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+.SECONDARY:
+out/sprite_playerLeftJump0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+.SECONDARY:
+out/sprite_playerLeftJump1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+
+.SECONDARY:
+out/sprite_playerRightStand0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
+.SECONDARY:
+out/sprite_playerRightStand1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
+.SECONDARY:
+out/sprite_playerLeftStand0_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
+.SECONDARY:
+out/sprite_playerLeftStand1_%.png: assets/sprite.png
+	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+
+
 
 out/fade_in.s: ./palette.pal
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palette.pal --output=fadeIn > $@

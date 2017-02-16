@@ -101,18 +101,18 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
   _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
 #else
 
-  source += FRAME_BUFFER_WIDTH_BYTES;
-  dest += FRAME_BUFFER_WIDTH_BYTES;
+  frame_buffer_t _source = source + (4*FRAME_BUFFER_WIDTH_BYTES);
+  frame_buffer_t _dest = dest + (4*FRAME_BUFFER_WIDTH_BYTES);
 
   hw_waitBlitter();
 
-  _custom->bltapt = (uint8_t*)source;
-  _custom->bltdpt = (uint8_t*)dest;
+  _custom->bltapt = (uint8_t*)_source;
+  _custom->bltdpt = (uint8_t*)_dest;
   //  _custom->bltsize = gfx_heightLUT[h] | (CLOUD_WIDTH/16);
   _custom->bltsize = cloud_sizeLUT[h];
 
-  source += FRAME_BUFFER_WIDTH_BYTES;
-  dest += FRAME_BUFFER_WIDTH_BYTES;
+  source += (2*FRAME_BUFFER_WIDTH_BYTES);
+  dest += (2*FRAME_BUFFER_WIDTH_BYTES);
 
   hw_waitBlitter();
 

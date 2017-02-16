@@ -7,6 +7,8 @@
 
 
 #define DEBUG                     1
+#define PLAYER_HARDWARE_SPRITE    1
+//#define PLAYER_HSPRITE_CPU        1
 #define NEW_TILE_COLLISION        1
 #define FIX_TILE_INVALIDATE_BUG   1
 #define ENABLE_PLAYER_HEADSMASH   1
@@ -15,6 +17,7 @@
 //#define CLOUD_FULLCOLOR         1
 #define CLOUD_ENABLE_SETUPRENDERPARTIALTILE 1
 #define GAME_PAUSE_DISABLES_COLLISION 1
+#define HSPRITE_MAX_OVERDRAW       7
 
 
 #ifdef ENABLE_PLAYER_HEADSMASH

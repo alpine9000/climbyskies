@@ -214,7 +214,7 @@ main(int argc, char **argv)
       image.croppedImage = CropImage(image.image, &rect, &exception);
 
       if (config.rows > 1 || config.cols > 1) {
-	sprintf(image.croppedImage->filename, "%s-%d.png", outputFile, count);
+	sprintf(image.croppedImage->filename, "%s_%d.png", outputFile, count);
       } else {
 	strcpy(image.croppedImage->filename, outputFile);
       }

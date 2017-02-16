@@ -12,6 +12,7 @@ imagecon_config_t config = {
   .outputPaletteAsm = 0,
   .outputPaletteGrey = 0,
   .outputBitplanes = 0,
+  .outputAttachedSprite = 0,
   .outputCopperList = 0,
   .outputPng = 0,
   .ehbMode = 0,
@@ -191,7 +192,7 @@ generatePalettedImage(imagecon_image_t* ic)
 	  break;
 	}
       }
-      
+
       if (index == -1 && paletteIndex < MAX_PALETTE) {
 	index = paletteIndex;
 	paletteIndex++;
@@ -283,6 +284,87 @@ outputBitplanes(imagecon_image_t* ic, char* outFilename)
       fwrite(&plane[y*byteWidth], byteWidth, 1, fp);      
     }
   }
+
+  fclose(fp);
+  free_vector(bitplanes, numBitPlanes);
+  if (config.verbose) {
+    printf("done\n\n");
+  }
+}
+
+static void
+outputAttachedSprite(imagecon_image_t* ic, char* outFilename)
+{
+  if (config.verbose) {
+    printf("outputAttachedSprite...\n");
+  }
+ 
+  int numBitPlanes = (int)(log(ic->numColors-1) / log(2))+1;
+  int numColors;
+  
+  numColors = ic->numColors;
+ 
+  if (config.verbose) {    
+    printf("number of colors = %d\n", numColors);
+    printf("number of bitplanes = %d\n", numBitPlanes);
+  }
+ 
+  int byteWidth = (ic->width + 7) / 8;
+
+  char** bitplanes = malloc(sizeof(void*)*numBitPlanes);
+  for (int i = 0; i < numBitPlanes; i++) {
+    bitplanes[i] = calloc(byteWidth*ic->height, 1);
+  }
+	
+  for (int y = 0, writeIndex = 0; y < ic->height; y++) {
+    for (int byte = 0;byte < byteWidth; byte++) {
+      for (int bit = 0; bit < 8; bit++) {	
+	int x = byte * 8 + 7 - bit;
+	int palette_index = ic->amigaImage[(ic->width*y)+x];
+	for (int plane_index = 0; plane_index < numBitPlanes; plane_index++) {
+	  char* plane = bitplanes[plane_index];
+	  plane[writeIndex] |= ((palette_index >> plane_index) & 1) << bit;
+	}
+      }
+      writeIndex++;
+    }
+  }
+
+  char* variableName = basename(outFilename);
+  FILE* fp = file_openWrite("%s-aprite.h", outFilename);
+
+  fprintf(fp, "__section(data_c) uint16_t %s_sprite0[] = {\n", variableName);
+
+  fprintf(fp, "\t0x0000,0x0000,\t// control words\n");
+  for (int y = 0; y < ic->height; y++) {
+    for (int plane_index = 0; plane_index < (numBitPlanes/2); plane_index++) {
+      char* plane = bitplanes[plane_index];
+      //      fwrite(&plane[y*byteWidth], byteWidth, 1, fp);      
+      uint8_t* ptr = (uint8_t*)&plane[y*byteWidth];
+      fprintf(fp, "\t0x%02x%02x,", ptr[0], ptr[1]);
+      fprintf(fp, "\n");
+    }
+  }
+
+  fprintf(fp, "\t0x0000,0x0000,\t// end of sprite data\n");
+
+  fprintf(fp, "};\n");
+
+  fprintf(fp, "__section(data_c) uint16_t %s_sprite1[] = {\n", variableName);
+
+  fprintf(fp, "\t0x0000,0x0000,\t// control words\n");
+  for (int y = 0; y < ic->height; y++) {
+    for (int plane_index = (numBitPlanes/2); plane_index < numBitPlanes; plane_index++) {
+      char* plane = bitplanes[plane_index];
+      //      fwrite(&plane[y*byteWidth], byteWidth, 1, fp);      
+      uint8_t* ptr = (uint8_t*)&plane[y*byteWidth];
+      fprintf(fp, "\t0x%02x%02x,", ptr[0], ptr[1]);
+      fprintf(fp, "\n");
+    }
+  }
+
+  fprintf(fp, "\t0x0000,0x0000,\t// end of sprite data\n");
+  fprintf(fp, "};\n");
 
   fclose(fp);
   free_vector(bitplanes, numBitPlanes);
@@ -401,6 +483,10 @@ processFile(imagecon_image_t* ic, char* outFilename)
     if (config.outputBitplanes) {
       outputBitplanes(ic, outFilename);
     }
+
+    if (config.outputAttachedSprite) {
+      outputAttachedSprite(ic, outFilename);
+    }
     
     if (config.outputMask) {
       outputMask(ic, outFilename);
@@ -494,6 +580,7 @@ main(int argc, char **argv)
       {"quantize", no_argument, &config.quantize, 1},
       {"output-copperlist", no_argument, &config.outputCopperList, 1},
       {"output-bitplanes", no_argument, &config.outputBitplanes, 1},
+      {"output-asprite", no_argument, &config.outputAttachedSprite, 1},
       {"output-palette", no_argument, &config.outputPalette, 1},
       {"output-palette-asm", no_argument, &config.outputPaletteAsm, 1},
       {"output-grey-palette-asm", no_argument, &config.outputPaletteGrey, 1},

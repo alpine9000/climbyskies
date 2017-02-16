@@ -4,7 +4,7 @@ __EXTERNAL uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
 uint16_t gfx_heightLUT[65];
 
 void 
-gfx_init()
+gfx_ctor()
 {
   for (uint16_t y = 0; y <= FRAME_BUFFER_HEIGHT; y++) {
     gfx_dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
