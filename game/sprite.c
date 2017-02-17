@@ -51,81 +51,81 @@
 #include "out/sprite_playerRightStand1_0-aprite.h"
 
 
-hsprite_t hsprite_spriteAtlas[] = {
+sprite_hsprite_t sprite_hspriteAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_0_sprite1,
   },
   [SPRITE_CLIMBER_RUN_LEFT_2] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_1_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_1_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_1_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_1_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_1_sprite1,
   },
   [SPRITE_CLIMBER_RUN_LEFT_3] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_2_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_2_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_2_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_2_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_2_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_2_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_2_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_2_sprite1,
   },
   [SPRITE_CLIMBER_RUN_LEFT_4] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftRun0_3_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftRun0_3_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftRun1_3_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftRun1_3_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_3_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_3_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_3_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftRun1_3_sprite1,
   },
 
   [SPRITE_CLIMBER_RUN_RIGHT_1] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_0_sprite1,
   },
   [SPRITE_CLIMBER_RUN_RIGHT_2] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_1_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_1_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_1_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_1_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_1_sprite1,
   },
   [SPRITE_CLIMBER_RUN_RIGHT_3] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_2_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_2_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_2_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_2_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_2_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_2_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_2_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_2_sprite1,
   },
   [SPRITE_CLIMBER_RUN_RIGHT_4] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightRun0_3_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightRun0_3_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightRun1_3_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightRun1_3_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_3_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightRun0_3_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_3_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightRun1_3_sprite1,
   },
 
   [SPRITE_CLIMBER_JUMP_LEFT] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftJump0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftJump0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftJump1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftJump1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftJump0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftJump0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftJump1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftJump1_0_sprite1,
   },
   [SPRITE_CLIMBER_JUMP_RIGHT] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightJump0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightJump0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightJump1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightJump1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightJump0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightJump0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightJump1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightJump1_0_sprite1,
   },
 
   [SPRITE_CLIMBER_STAND_LEFT] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerLeftStand0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerLeftStand0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerLeftStand1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerLeftStand1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftStand0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerLeftStand0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerLeftStand1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerLeftStand1_0_sprite1,
   },
   [SPRITE_CLIMBER_STAND_RIGHT] = {
-    .hsprite00 = (hsprite_control_t*)&sprite_playerRightStand0_0_sprite0,
-    .hsprite01 = (hsprite_control_t*)&sprite_playerRightStand0_0_sprite1,
-    .hsprite10 = (hsprite_control_t*)&sprite_playerRightStand1_0_sprite0,
-    .hsprite11 = (hsprite_control_t*)&sprite_playerRightStand1_0_sprite1,
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerRightStand0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightStand0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite1,
   },
 };
 #endif
@@ -412,12 +412,12 @@ sprite_ctor(void)
 {
 #ifdef PLAYER_HARDWARE_SPRITE
 
-  for (size_t i = 0; i < sizeof(hsprite_spriteAtlas)/sizeof(hsprite_t); i++) {
-    if (hsprite_spriteAtlas[i].hsprite01) {
-      hsprite_spriteAtlas[i].hsprite01->attach = 1;
+  for (size_t i = 0; i < sizeof(sprite_hspriteAtlas)/sizeof(sprite_hsprite_t); i++) {
+    if (sprite_hspriteAtlas[i].hsprite01) {
+      sprite_hspriteAtlas[i].hsprite01->attach = 1;
     }
-    if (hsprite_spriteAtlas[i].hsprite11) {
-      hsprite_spriteAtlas[i].hsprite11->attach = 1;
+    if (sprite_hspriteAtlas[i].hsprite11) {
+      sprite_hspriteAtlas[i].hsprite11->attach = 1;
     }
   }
 

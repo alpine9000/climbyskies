@@ -38,16 +38,16 @@ typedef struct {
   uint8_t vStartHi:1;
   uint8_t vStopHi:1;
   uint8_t hStartLow:1;
-} hsprite_control_t;
+} sprite_hsprite_control_t;
 
 typedef struct {
-  hsprite_control_t* hsprite00;
-  hsprite_control_t* hsprite01;
-  hsprite_control_t* hsprite10;
-  hsprite_control_t* hsprite11;
-} hsprite_t;
+  sprite_hsprite_control_t* hsprite00;
+  sprite_hsprite_control_t* hsprite01;
+  sprite_hsprite_control_t* hsprite10;
+  sprite_hsprite_control_t* hsprite11;
+} sprite_hsprite_t;
 
-extern hsprite_t hsprite_spriteAtlas[];
+extern sprite_hsprite_t sprite_hspriteAtlas[];
 #endif
 extern image_t sprite_imageAtlas[];
 

@@ -21,7 +21,7 @@ typedef enum {
 typedef struct {
   sprite_t sprite;
 #ifdef PLAYER_HARDWARE_SPRITE
-  hsprite_t* hsprite;
+  sprite_hsprite_t* hsprite;
 #endif
   int animId;
   velocity_t velocity;

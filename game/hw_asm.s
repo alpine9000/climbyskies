@@ -12,13 +12,13 @@
 	xdef _hw_getRasterLine
 	xdef _hw_verticalBlankCount
 
-	
+	section .text
 ciaa_pra  = $bfe001
 _joy1dat   = $dff00c
 potgor    = $dff016
 bit_joyb1 = 7
 bit_joyb2 = 14
-	
+
 __hw_waitBlitter:
 	move.l	a6,-(sp)
 	lea 	CUSTOM,a6

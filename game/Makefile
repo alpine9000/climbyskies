@@ -10,7 +10,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c _music.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
 
 
@@ -18,7 +18,7 @@ MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
 IMAGES=sprite.png font8x8.png 
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/fade_in.s out/jump.raw
+ASSETS=$(IMAGEDATA) out/fade_in.s out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -31,7 +31,7 @@ PROGRAM_BIN=out/main.bin
 
 VASM=/usr/local/amiga/vgcc/bin/vasmm68k_mot
 LD=/usr/local/amiga/vgcc/bin/vlink
-EXTRA_DEFINES=
+EXTRA_DEFINES=-DSFX=$(SFX) -DMAX_P61_SIZE=$(MAX_P61_SIZE)
 
 ifeq ($(USE_GCC), 1)
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
@@ -44,8 +44,11 @@ WHOLE_PROGRAM=-fwhole-program
 endif
 
 C_OPT=-O3 $(WHOLE_PROGRAM)
-CFLAGS=$(C_OPT) $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
+C_OPT_ASM_OUTPUT=-O3
+BASE_CFLAGS=$(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
+CFLAGS=$(C_OPT) $(BASE_CFLAGS)
+CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT_) $(BASE_CFLAGS)
 else
 CC=vc
 CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) #-fastcall
@@ -116,8 +119,25 @@ wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 out/adf/level.o: out/background-map.c level.c
 out/workbench/level.o: out/background-map.c level.c
 
+#http://opengameart.org/content/jump-landing-sound
 out/jump.raw: assets/jump.wav
-	sox -v 1.5 $<  -b 8 -c 1 -r 11025 $@	
+	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
+
+#http://opengameart.org/content/10-8bit-coin-sounds
+out/coin1.raw: assets/coin1.wav
+	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+
+#http://opengameart.org/content/bubbles-pop
+out/pop.raw: assets/pop.wav
+	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+
+#http://freesound.org/people/CGEffex/sounds/98341/
+out/kill.raw: assets/kill.wav
+	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
+
+#http://opengameart.org/content/512-sound-effects-8-bit-style
+out/falling.raw: assets/falling.wav
+	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun1_0-asprite.h \
                   out/sprite_playerLeftRun0_1-asprite.h out/sprite_playerLeftRun1_1-asprite.h \
@@ -217,7 +237,7 @@ out/adf/%.o: %.s
 
 out/adf/%.o: out/%.c
 ifeq ($(USE_GCC), 1)
-	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	-@$(CC) -S $(CFLAGS_ASM_OUTPUT) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
 else
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE)  $< -o out/adf/$*.s 
@@ -231,17 +251,29 @@ out/workbench/%.o: out/%.c
 out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
+	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+	@rm -f $*.d.tmp
 	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
 	-@rm big.c
 
 out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
+	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
+	@mv -f $*.d $*.d.tmp
+	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
+	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
+	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
+	@rm -f $*.d.tmp
 	-@rm big.c
 
 out/adf/%.o: %.c
 ifeq ($(USE_GCC), 1)
-	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+	$(CC) -S $(CFLAGS_ASM_OUTPUT) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
 	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d
 	@mv -f out/adf/$*.d $*.d.tmp

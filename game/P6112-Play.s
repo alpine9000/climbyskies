@@ -1,7 +1,8 @@
 	include "P6112-Options.i"
 	xdef	P61_Init
 	xdef	P61_Music
-	xdef	P61_Master
+	xdef	_P61_Master
+	xdef	P61_Master	
 	xdef	P61_End
 	xdef	P61_VBR
 	
@@ -523,6 +524,7 @@ P61_motuuli:
 	rts
 	endc
 
+_P61_Master:
 P61_Master:
 	dc.w 64
 P61_Tempo:

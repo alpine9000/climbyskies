@@ -176,7 +176,7 @@ game_init()
 
   music_play(0);   
   hw_interruptsInit(); // Don't enable interrupts until music is set up
-
+  
   game_newGame();
 }
 
@@ -275,7 +275,7 @@ game_newGame(void)
   game_shake = 0;
   game_setBackgroundScroll(SCROLL_PIXELS);
   game_levelScore = 9999<<2;
-  game_scoreBoardMode = 1;
+  game_scoreBoardMode = 0;
   game_levelComplete = 0;
   game_lastScore = 1;
   game_lastLevelScore = 0;
@@ -314,7 +314,7 @@ game_newGame(void)
   palette_fadeIn();
 }
 
-static void
+static inline void
 game_switchFrameBuffers(void)
 {
   uint16_t copperLine = RASTER_Y_START+game_screenScrollY;

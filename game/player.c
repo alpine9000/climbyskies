@@ -134,7 +134,7 @@ player_setAnim(int anim)
     player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
     player.frameCounter = 0;   
 #ifdef PLAYER_HARDWARE_SPRITE
-    player.hsprite = &hsprite_spriteAtlas[player.sprite.imageIndex];
+    player.hsprite = &sprite_hspriteAtlas[player.sprite.imageIndex];
 #endif
   }
 }
@@ -471,23 +471,25 @@ player_updateAlive(void)
   } else if (PLAYER_HEADSMASH && collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
-    sound_queue(SOUND_HEADSMASH);
+
     int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
     int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
     //int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
     //int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
 
+    int kill = 0;
 #ifdef FIX_TILE_INVALIDATE_BUG
     if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
       level.background_tileAddresses[y][x] = TILE_SKY;
       tile_invalidateTile(x<<4, y<<4, 0);
-      enemy_headsmash((x<<4)+(TILE_WIDTH/2), y<<4);
+      kill = enemy_headsmash((x<<4)+(TILE_WIDTH/2), y<<4);
     }
     if (TILE_COLLISION(level.background_tileAddresses[y][x+1])) {
       level.background_tileAddresses[y][x+1] = TILE_SKY;
       tile_invalidateTile((x+1)<<4, y<<4, 0);
-      enemy_headsmash(((x+1)<<4)+(TILE_WIDTH/2), y<<4);
+      kill |= enemy_headsmash(((x+1)<<4)+(TILE_WIDTH/2), y<<4);
     }
+    sound_queueSound(kill ? SOUND_KILL : SOUND_HEADSMASH);
 #else
     level.background_tileAddresses[y][x] = TILE_SKY;
     tile_invalidateTile(x<<4, y<<4, 0);
@@ -507,7 +509,7 @@ player_updateAlive(void)
   if (player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
 
     if (player.sprite.y != lastY) {
-      sound_queue(SOUND_LAND);
+      sound_queueSound(SOUND_LAND);
     }
     
     if (player.velocity.x < 0) {
@@ -559,7 +561,7 @@ player_updateAlive(void)
       }
     player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
 #ifdef PLAYER_HARDWARE_SPRITE
-    player.hsprite = &hsprite_spriteAtlas[player.sprite.imageIndex];
+    player.hsprite = &sprite_hspriteAtlas[player.sprite.imageIndex];
 #endif
     } else {
       player.frameCounter++;
@@ -594,6 +596,7 @@ player_freeFall(void)
   if (player.freeFall < 1 && player.flashCounter == 0 && player.state != PLAYER_STATE_FREEFALL) {
     player.freeFall = 1;
     player.state = PLAYER_STATE_FREEFALL;
+    sound_queueSound(SOUND_FALLING);
   }
 }
 

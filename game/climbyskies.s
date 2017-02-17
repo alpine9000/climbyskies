@@ -97,10 +97,24 @@ _spriteFrameBuffer:
 
 	include "out/fade_in.s"
 
-	xdef _audio_jump
-_audio_jump:	
+	if SFX==1
+	xdef _sound_land
+_sound_land:	
 	incbin "out/jump.raw"
-	
+	xdef _sound_falling
+_sound_falling:	
+	incbin "out/falling.raw"	
+	xdef _sound_coin
+_sound_coin:	
+	incbin "out/coin1.raw"
+	xdef _sound_pop
+_sound_pop:	
+	incbin "out/pop.raw"
+	xdef _sound_kill
+_sound_kill:	
+	incbin "out/kill.raw"		
+
+	endif
 	
 	align 4
 _custom:

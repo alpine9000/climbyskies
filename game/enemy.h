@@ -11,7 +11,7 @@ typedef enum {
   ENEMY_ANIM_RIGHT_DRAGON
 } enemy_anim_t;
 
-int enemy_count;
+extern int enemy_count;
 
 void
 enemy_init(void);
@@ -27,7 +27,6 @@ void
 enemy_ctor(void);
 void
 enemy_addMapObject(int id, int x, int y, unsigned short* tilePtr);
-
-void 
+int
 enemy_headsmash(int x, int y);
 #endif

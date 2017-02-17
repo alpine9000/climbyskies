@@ -242,7 +242,8 @@ item_update(sprite_t* p)
       ptr->frameCounter++;
     }
 
-    if ((ptr->frameCounter == 0) && ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
+    if (/*(ptr->frameCounter == 0) &&*/ ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
+      sound_queueSound(SOUND_PICKUP);
       ptr->state = ITEM_DEAD;
       *ptr->tilePtr = 0;
       ptr->deadRenderCount = 0;

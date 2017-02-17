@@ -381,9 +381,10 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 }
 
 
-void
+int
 enemy_headsmash(int x, int y)
 {
+  int smash = 0;
   enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
@@ -391,9 +392,11 @@ enemy_headsmash(int x, int y)
       ptr->state = ENEMY_DEAD;
       ptr->velocity.y = PHYSICS_VELOCITY_KILL;
       game_score += 250;
+      smash = 1;
     }
     ptr = ptr->next;
   }
+  return smash;
 }
 
 
@@ -473,7 +476,7 @@ enemy_update(sprite_t* p)
 
     if (
 #ifdef GAME_PAUSE_DISABLES_COLLISION
-	game_paused && 
+	!game_paused && 
 #endif
 	ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(p, ptr)) {
       player_freeFall();

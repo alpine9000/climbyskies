@@ -1,7 +1,7 @@
 *** MFMLoader.S by Photon ***	;requires a6=$dff002
 	xdef	_LoadMFMB
 	xdef 	LoadMFMB
-
+	section .text
 MFMsync		equ	$4489		;AmigaDOS standard sync marker.
 MFMlen		equ	12980		;Legacy trackdata read length in bytes	
 	
@@ -204,6 +204,7 @@ LoadTrak:		;loadtrack+decode.a0=dst,d0=secoffs,d1=secsleft
 	sub.w	d2,d1			;sub #secs loaded
 	RTS
 
+	section .data
 ;MFMbuf is placed here after bootblock end, $3c0.w or so when copied.
 MFMbuf:	
 	dcb.b	MFMlen

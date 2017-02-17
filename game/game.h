@@ -7,7 +7,6 @@
 
 
 #define DEBUG                     1
-#define GAME_SFX                  1
 #define PLAYER_HARDWARE_SPRITE    1
 //#define PLAYER_HSPRITE_CPU        1
 #define NEW_TILE_COLLISION        1
