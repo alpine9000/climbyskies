@@ -8,8 +8,8 @@ __section(bss_c) uint32_t music_module[(MAX_P61_SIZE+512)/4];
 extern void
 P61_Init(__REG("a0", void* module));
 
-__EXTERNAL void 
- music_play(__REG("d0", int32_t moduleIndex))
+void 
+music_play(__REG("d0", int32_t moduleIndex))
 {
   USE(moduleIndex);
   USE(music_module[0]);

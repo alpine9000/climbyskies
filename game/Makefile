@@ -51,7 +51,7 @@ CFLAGS=$(C_OPT) $(BASE_CFLAGS)
 CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT_) $(BASE_CFLAGS)
 else
 CC=vc
-CFLAGS=-warn=-1 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) #-fastcall
+CFLAGS=-warn=-1 -dontwarn=51 -dontwarn=81 -dontwarn=170 -dontwarn=306 -dontwarn=166 -dontwarn=167  -dontwarn=307 -dontwarn=208 -maxoptpasses=100 -c99 -O3 $(EXTRA_DEFINES) #-fastcall
 C_LIBS=/usr/local/amiga/m68k-amigaos/vbcc/lib/vcs.lib
 endif
 

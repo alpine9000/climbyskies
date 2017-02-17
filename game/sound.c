@@ -124,7 +124,7 @@ sound_playFalling(void)
 
 
 void
-sound_vbl()
+sound_vbl(void)
 {
   static UWORD empty[2] = {0,0};
   

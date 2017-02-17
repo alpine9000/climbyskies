@@ -136,6 +136,7 @@ extern uint32_t game_score;
 #include "disk.h"
 #include "sound.h"
 
+extern copper_t copper;
 
 void
 game_init(void);
@@ -146,8 +147,8 @@ game_setBackgroundScroll(int s);
 void
 game_shakeScreen(void);
 void
-game_loseLife();
+game_loseLife(void);
 void
-game_setLevelComplete();
+game_setLevelComplete(void);
 
 #endif /* __GAME_H */

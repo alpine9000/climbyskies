@@ -231,7 +231,7 @@ game_refreshScoreboard(void)
 
 
 void
-game_loseLife()
+game_loseLife(void)
 { 
   if (game_lives > 0) {
     game_lives--;

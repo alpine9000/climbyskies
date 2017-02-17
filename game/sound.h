@@ -11,7 +11,7 @@ typedef enum {
 
 #if SFX==1
 void
-sound_vbl();
+sound_vbl(void);
 void
 sound_queueSound(sound_t sound);
 void

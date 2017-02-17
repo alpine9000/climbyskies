@@ -710,7 +710,6 @@ player_hSpriteRender(void)
     custom->sprpt[i] = sprite_nullhsprite;
   }
 #else
-  extern copper_t copper;
   int i, index = 1;
   if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
     copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite00 & 0xffff);

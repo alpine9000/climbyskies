@@ -426,7 +426,6 @@ sprite_ctor(void)
     custom->sprpt[i] = sprite_nullhsprite;
   }
 #else
-  extern copper_t copper;
   int index = 1;
   for (int i = 0; i < 8; i++) {
     copper.sprpt[index] = ((uint32_t)sprite_nullhsprite & 0xffff);
