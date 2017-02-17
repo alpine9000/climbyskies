@@ -10,8 +10,8 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c _music.c
-SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music.s
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c
+SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s
 
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
@@ -251,24 +251,28 @@ out/workbench/%.o: out/%.c
 out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
+ifeq ($(USE_GCC), 1)
 	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
 	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
+endif
 	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
 	-@rm big.c
 
 out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
+ifeq ($(USE_GCC), 1)
 	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
 	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
+endif
 	-@rm big.c
 
 out/adf/%.o: %.c

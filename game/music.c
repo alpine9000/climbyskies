@@ -17,9 +17,3 @@ __EXTERNAL void
   disk_loadData(&music_module, &music_song1, MAX_P61_SIZE);
   P61_Init(&music_module);
 }
-
-asm("section .noload\n"
-    "\tcnop 0,512\n"
-    "\t_music_song1:\n"
-    "\tincbin \"assets/P61.climbyskies_ingame\"\n"
-    "\tcnop 0,512\n");
