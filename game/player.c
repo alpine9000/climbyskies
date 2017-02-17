@@ -694,6 +694,7 @@ player_render(frame_buffer_t fb)
   }
 }
 
+#ifdef PLAYER_HARDWARE_SPRITE
 void
 player_hSpriteRender(void)
 {
@@ -743,3 +744,4 @@ player_hSpriteRender(void)
 
 #endif
 }
+#endif

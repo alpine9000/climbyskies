@@ -8,7 +8,7 @@
 
 #define DEBUG                     1
 #define PLAYER_HARDWARE_SPRITE    1
-//#define PLAYER_HSPRITE_CPU        1
+//#define PLAYER_HSPRITE_CPU      1
 #define NEW_TILE_COLLISION        1
 #define FIX_TILE_INVALIDATE_BUG   1
 #define ENABLE_PLAYER_HEADSMASH   1

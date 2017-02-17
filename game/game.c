@@ -48,16 +48,16 @@ static uint32_t lastVerticalBlankCount;
 static int turtle;
 
 #define AVERAGE_LENGTH 16
-static int rasterLines[AVERAGE_LENGTH];
-static int rasterLinesIndex = 0;
-static int maxRasterLine = 0;
-static int average = 0;
+static uint16_t rasterLines[AVERAGE_LENGTH];
+static uint16_t rasterLinesIndex = 0;
+static uint16_t maxRasterLine = 0;
+static uint16_t average = 0;
 static int game_shake;
 static int game_scoreBoardMode;
 static uint32_t game_lastScore;
 static uint32_t game_lastLevelScore;
-static int game_lastAverage;
-static int game_lastMaxRasterLine;
+static uint16_t game_lastAverage;
+static uint16_t game_lastMaxRasterLine;
 static int game_lastEnemyCount;
 static int game_lastItemCount;
 static int game_levelComplete;
@@ -72,7 +72,7 @@ static void (*game_tileRender)(uint16_t hscroll);
 static int tileY;
 
 #ifdef PLAYER_HSPRITE_CPU
-static 
+				 //static 
 #endif
 
  __section(data_c)  copper_t copper  = {
@@ -415,8 +415,8 @@ debug_showRasterLine(void)
     
     if (frame == 0) {
       if (average != game_lastAverage) {
-	text_drawScoreBoard(text_intToAscii(average, 4), 0);
-	game_lastAverage = average;
+	  text_drawScoreBoard(text_intToAscii(average, 4), 0);
+	  game_lastAverage = average;
       }
     } else if( frame == 1){
       if (maxRasterLine != game_lastMaxRasterLine) {
@@ -439,9 +439,14 @@ debug_showRasterLine(void)
       frame = 0;
     }
   }
+
+
   
-  
-  int line = hw_getRasterLine() - RASTER_Y_START;  
+  int16_t line = hw_getRasterLine() - RASTER_Y_START;  
+
+  if (line < 0) {
+    line = 0;
+  }
 
   rasterLines[rasterLinesIndex++] = line;
   if (line > maxRasterLine) {
@@ -455,7 +460,9 @@ debug_showRasterLine(void)
   for (int i = 0; i < AVERAGE_LENGTH; i++) {
     average += rasterLines[i];
   }
-  average = average >> 4 /* / AVERAGE_LENGTH */;  
+  average = average >> 4 /* / AVERAGE_LENGTH */;
+  
+  return;  
 }
 
 static void

@@ -403,6 +403,7 @@ image_t sprite_imageAtlas[] = {
 
 #ifdef PLAYER_HARDWARE_SPRITE
 __section(data_c) uint16_t sprite_nullhsprite[] = {
+  0x0000, 0x0000,
   0x0000, 0x0000
 };
 #endif
