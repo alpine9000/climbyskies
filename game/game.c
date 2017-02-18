@@ -8,6 +8,7 @@
 #endif
 
 #define GAME_LEVEL_BONUS_TRANSFER_RATE 32
+#define GAME_RASTERAVERAGE_LENGTH 16
 
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
@@ -18,9 +19,7 @@ int16_t game_cameraY;
 int16_t game_screenScrollY;
 int16_t game_scrollCount;
 int16_t game_scroll;
-#ifdef GAME_PAUSE_DISABLES_COLLISION
-int16_t game_paused;
-#endif
+int16_t game_collisions;
 int16_t game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
@@ -44,14 +43,14 @@ static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*S
 static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
-static uint32_t lastVerticalBlankCount;
-static int16_t turtle;
-
-#define AVERAGE_LENGTH 16
-static uint16_t rasterLines[AVERAGE_LENGTH];
-static uint16_t rasterLinesIndex = 0;
-static uint16_t maxRasterLine = 0;
-static uint16_t average = 0;
+static int16_t game_paused;
+static uint16_t game_singleStep;
+static uint32_t game_lastVerticalBlankCount;
+static int16_t game_turtle;
+static uint16_t game_rasterLines[GAME_RASTERAVERAGE_LENGTH];
+static uint16_t game_rasterLinesIndex = 0;
+static uint16_t game_maxRasterLine = 0;
+static uint16_t game_average = 0;
 static int16_t game_shake;
 static int16_t game_scoreBoardMode;
 static uint32_t game_lastScore;
@@ -272,16 +271,16 @@ game_refreshDebugScoreboard(void)
 static void
 game_newGame(void)
 {  
-  turtle = 0;
-  average = 0;
-  maxRasterLine = 0;
-  rasterLinesIndex = 0;
+  game_turtle = 0;
+  game_average = 0;
+  game_maxRasterLine = 0;
+  game_rasterLinesIndex = 0;
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   hw_verticalBlankCount = 0;
-  lastVerticalBlankCount = 0;
-#ifdef GAME_PAUSE_DISABLES_COLLISION
+  game_lastVerticalBlankCount = 0;
+  game_singleStep = 0;
   game_paused = 0;
-#endif
+  game_collisions = 1;
   game_screenScrollY = 0;
   game_scrollCount = 0;
   game_shake = 0;
@@ -413,12 +412,12 @@ game_scrollBackground(void)
 static void
 debug_showRasterLine(void)
 {
-  if (turtle > 1) {
+  if (game_turtle > 1) {
     custom->color[16] = 0xf00;
-    turtle--;
-  } else if (turtle == 1) {
+    game_turtle--;
+  } else if (game_turtle == 1) {
     custom->color[16] = 0x09e;
-    turtle--;
+    game_turtle--;
   }
   
 
@@ -426,14 +425,14 @@ debug_showRasterLine(void)
     static int16_t frame = 0;
     
     if (frame == 0) {
-      if (average != game_lastAverage) {
-	  text_drawScoreBoard(text_intToAscii(average, 4), 0);
-	  game_lastAverage = average;
+      if (game_average != game_lastAverage) {
+	  text_drawScoreBoard(text_intToAscii(game_average, 4), 0);
+	  game_lastAverage = game_average;
       }
-    } else if( frame == 1){
-      if (maxRasterLine != game_lastMaxRasterLine) {
-	text_drawScoreBoard(text_intToAscii(maxRasterLine, 4), 5*8);
-	game_lastMaxRasterLine = maxRasterLine;
+    } else if(frame == 1){
+      if (game_maxRasterLine != game_lastMaxRasterLine) {
+	text_drawScoreBoard(text_intToAscii(game_maxRasterLine, 4), 5*8);
+	game_lastMaxRasterLine = game_maxRasterLine;
       }
     } else if (frame == 2) {
       if (enemy_count != game_lastEnemyCount) {
@@ -460,19 +459,19 @@ debug_showRasterLine(void)
     line = 0;
   }
 
-  rasterLines[rasterLinesIndex++] = line;
-  if (line > maxRasterLine) {
-    maxRasterLine = line;
+  game_rasterLines[game_rasterLinesIndex++] = line;
+  if (line > game_maxRasterLine) {
+    game_maxRasterLine = line;
   }
-  if (rasterLinesIndex >= AVERAGE_LENGTH) {
-    rasterLinesIndex = 0;
+  if (game_rasterLinesIndex >= GAME_RASTERAVERAGE_LENGTH) {
+    game_rasterLinesIndex = 0;
   }
 
-  average = 0;
-  for (int16_t i = 0; i < AVERAGE_LENGTH; i++) {
-    average += rasterLines[i];
+  game_average = 0;
+  for (int16_t i = 0; i < GAME_RASTERAVERAGE_LENGTH; i++) {
+    game_average += game_rasterLines[i];
   }
-  average = average >> 4 /* / AVERAGE_LENGTH */;
+  game_average = game_average >> 4 /* / GAME_RASTERAVERAGE_LENGTH */;
   
   return;  
 }
@@ -544,22 +543,20 @@ game_loop()
       } else {
 	game_refreshDebugScoreboard();
       }
-#ifdef GAME_PAUSE_DISABLES_COLLISION
-      game_paused = !game_paused;
-#endif
-
+      game_collisions = !game_collisions;
     }
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
-    //    if (!game_paused) {
-    SPEED_COLOR(0xF0F);
-    player_update();
-    SPEED_COLOR(0x0fF);
-    enemy_update(&player.sprite);
-    SPEED_COLOR(0x2f2);
-    item_update(&player.sprite);
-    //    }
+    if (!game_paused || game_singleStep > 0) {
+      game_singleStep = 0;
+      SPEED_COLOR(0xF0F);
+      player_update();
+      SPEED_COLOR(0x0fF);
+      enemy_update(&player.sprite);
+      SPEED_COLOR(0x2f2);
+      item_update(&player.sprite);
+    }
 
 
     if (game_shake == 0) {
@@ -595,13 +592,13 @@ game_loop()
 #endif
     
 
-    if (lastVerticalBlankCount == 0) {
+    if (game_lastVerticalBlankCount == 0) {
 
-    } else if (hw_verticalBlankCount-lastVerticalBlankCount > 1) {
-      turtle = 5;
+    } else if (hw_verticalBlankCount-game_lastVerticalBlankCount > 1) {
+      game_turtle = 5;
     }
       
-    lastVerticalBlankCount = hw_verticalBlankCount;
+    game_lastVerticalBlankCount = hw_verticalBlankCount;
 
 
     SPEED_COLOR(0xf00);
@@ -629,6 +626,12 @@ game_loop()
 
 #ifdef PLAYER_RECORDING
     switch (keyboard_getKey() ) {
+    case 'T':
+      game_singleStep = 1;
+      break;
+    case ' ':
+      game_paused = !game_paused;
+      break;
     case 'R':
       palette_black();
       game_newGame();

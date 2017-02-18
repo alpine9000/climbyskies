@@ -10,7 +10,6 @@
 #define INLINE_EVERYTHING             1
 //#define SHOW_SPEED                    1
 #define GAME_KEYBOARD_ENABLED         1
-#define GAME_PAUSE_DISABLES_COLLISION 1
 #define PLAYER_RECORDING              1
 #define PLAYER_HARDWARE_SPRITE        1
 #define PLAYER_BLIT_SPRITE_OVERDRAW   1
@@ -91,7 +90,7 @@ extern void* memset(void *dst, int c, size_t n);
 #define __attribute__(x)
 #endif
 
-typedef volatile uint8_t * frame_buffer_t;
+typedef volatile uint8_t* frame_buffer_t;
 typedef volatile struct Custom* custom_t;
 
 extern custom_t custom; 
@@ -99,7 +98,7 @@ extern int16_t game_cameraY;
 extern int16_t game_screenScrollY;
 extern int16_t game_scrollCount;
 extern int16_t game_scroll;
-extern int16_t game_paused;
+extern int16_t game_collisions;
 extern uint32_t game_frameCount;
 extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;

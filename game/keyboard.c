@@ -12,6 +12,6 @@ char keyboard_getKey(void)
     keyboard_lastKey = c;
     return c;
   }
-    keyboard_lastKey = c;
+  keyboard_lastKey = c;
   return 0;
 }

@@ -475,9 +475,7 @@ enemy_update(sprite_t* p)
     }
 
     if (
-#ifdef GAME_PAUSE_DISABLES_COLLISION
-	!game_paused && 
-#endif
+	game_collisions && 
 	ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(p, ptr)) {
       player_freeFall();
       //game_paused = 1;
