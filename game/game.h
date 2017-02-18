@@ -7,6 +7,8 @@
 
 
 #define DEBUG                     1
+#define GAME_KEYBOARD_ENABLED     1
+#define PLAYER_RECORDING          1
 #define PLAYER_HARDWARE_SPRITE    1
 //#define PLAYER_HSPRITE_CPU      1
 #define NEW_TILE_COLLISION        1
@@ -135,6 +137,7 @@ extern uint32_t game_score;
 #include "text.h"
 #include "disk.h"
 #include "sound.h"
+#include "keyboard.h"
 
 extern copper_t copper;
 

@@ -23,4 +23,7 @@ init_amiga(void)
   enemy_ctor();
   sprite_ctor();
   gfx_ctor();
+#ifdef GAME_KEYBOARD_ENABLED
+  keyboard_ctor();
+#endif
 }

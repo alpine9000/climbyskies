@@ -97,6 +97,12 @@ _spriteFrameBuffer:
 
 	include "out/fade_in.s"
 
+	align 4
+	xdef _player_record
+_player_record:
+	incbin "recordings/default.raw"
+
+	align 4
 	if SFX==1
 	xdef _sound_land
 _sound_land:	

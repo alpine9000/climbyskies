@@ -200,7 +200,7 @@ debug_showScore(void)
       text_drawScoreBoard(text_intToAscii(game_levelScore>>2, 4), 8*8);
       game_lastLevelScore = game_levelScore;
     }
-    
+   
     if (game_score != game_lastScore) {
       text_drawScoreBoard(text_intToAscii(game_score, 6), SCREEN_WIDTH-(6*8));
       game_lastScore = game_score;
@@ -646,6 +646,23 @@ game_loop()
 
     game_render();
 
+#ifdef PLAYER_RECORDING
+    switch (keyboard_getKey() ) {
+    case 'R':
+      palette_black();
+      game_newGame();
+      player_setRecord(PLAYER_RECORD_RECORD);
+      custom->color[1] = 0xF00;
+      break;
+    case 'P':
+      palette_black();
+      game_newGame();
+      custom->color[1] = 0x00F;
+      player_setRecord(PLAYER_RECORD_PLAYBACK);
+      break;
+    }
+#endif
+
 #if TRACKLOADER==0
     //    done = mouse_leftButtonPressed();
     if (mouse_leftButtonPressed()) {
@@ -658,12 +675,18 @@ game_loop()
       while (mouse_leftButtonPressed());
       palette_black();
       game_newGame();
-      
+#ifdef PLAYER_RECORDING
+      custom->color[1] = 0x09e;
+      player_setRecord(PLAYER_RECORD_IDLE);
+#endif
     }
 #endif
   }
 #if TRACKLOADER==0
  done:;
+#ifdef GAME_KEYBOARD_ENABLED
+  keyboard_dtor();
+#endif
 #endif
 }
 

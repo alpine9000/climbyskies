@@ -124,6 +124,21 @@ sprite_animation_t animations[] = {
 //static 
 player_t player;
 
+#ifdef PLAYER_RECORDING
+
+extern player_record_t player_record;
+
+void
+player_setRecord(player_record_state_t state)
+{
+  player_record.state = state;
+  player_record.index = 0;
+  player_record.lastJoystickPos = 0xffffffff;
+  player_record.joystickPos = 0;
+}
+
+#endif
+
 static void 
 player_setAnim(int16_t anim)
 {
@@ -143,6 +158,12 @@ player_setAnim(int16_t anim)
 void
 player_init(void)
 {
+#ifdef PLAYER_RECORDING
+  player_record.index = 0;
+  player_record.state = PLAYER_RECORD_IDLE;
+  player_record.lastJoystickPos = 0xffffffff;
+  player_record.frame = 0;
+#endif
 
   player.freeFall = 0;
   player.velocity.x = 0;
@@ -231,6 +252,27 @@ player_processJoystick(void)
 {
 #define NOT_UP_THRESHOLD 1
   static uint16_t notUpCount = NOT_UP_THRESHOLD;
+
+#ifdef PLAYER_RECORDING
+  if (player_record.state == PLAYER_RECORD_RECORD && player_record.lastJoystickPos != hw_joystickPos) {
+    if (player_record.index < PLAYER_MAX_RECORD) {
+      player_record.buffer[player_record.index].joystickPos = hw_joystickPos;
+      player_record.buffer[player_record.index].frame = player_record.frame;
+      player_record.lastJoystickPos = hw_joystickPos;
+      player_record.index++;
+    }
+  } else if (player_record.state == PLAYER_RECORD_PLAYBACK) {
+    if (player_record.index < PLAYER_MAX_RECORD) {
+      if (player_record.buffer[player_record.index].frame == player_record.frame) {
+	player_record.joystickPos = player_record.buffer[player_record.index].joystickPos;
+	player_record.index++;
+      }
+      hw_joystickPos = player_record.joystickPos;
+    }
+  }
+
+  player_record.frame++;
+#endif
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
