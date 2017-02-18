@@ -14,14 +14,14 @@ frame_buffer_t game_onScreenBuffer;
 frame_buffer_t game_saveBuffer;
 frame_buffer_t game_scoreBoardFrameBuffer;
 
-int game_cameraY;
-int game_screenScrollY;
-int game_scrollCount;
-int game_scroll;
+int16_t game_cameraY;
+int16_t game_screenScrollY;
+int16_t game_scrollCount;
+int16_t game_scroll;
 #ifdef GAME_PAUSE_DISABLES_COLLISION
-int game_paused;
+int16_t game_paused;
 #endif
-int game_numEnemies;
+int16_t game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
@@ -35,7 +35,7 @@ game_render(void);
 static void
 game_scrollBackground(void);
 static void
-game_setCamera(int offset);
+game_setCamera(int16_t offset);
 
 static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
@@ -45,22 +45,22 @@ static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BY
 static frame_buffer_t saveBuffer1;
 static frame_buffer_t saveBuffer2;
 static uint32_t lastVerticalBlankCount;
-static int turtle;
+static int16_t turtle;
 
 #define AVERAGE_LENGTH 16
 static uint16_t rasterLines[AVERAGE_LENGTH];
 static uint16_t rasterLinesIndex = 0;
 static uint16_t maxRasterLine = 0;
 static uint16_t average = 0;
-static int game_shake;
-static int game_scoreBoardMode;
+static int16_t game_shake;
+static int16_t game_scoreBoardMode;
 static uint32_t game_lastScore;
 static uint32_t game_lastLevelScore;
 static uint16_t game_lastAverage;
 static uint16_t game_lastMaxRasterLine;
-static int game_lastEnemyCount;
-static int game_lastItemCount;
-static int game_levelComplete;
+static int16_t game_lastEnemyCount;
+static int16_t game_lastItemCount;
+static int16_t game_levelComplete;
 
 
 
@@ -69,7 +69,7 @@ static int game_levelComplete;
 
 static void (*game_tileRender)(uint16_t hscroll);
 
-static int tileY;
+static int16_t tileY;
 
 #ifdef PLAYER_HSPRITE_CPU
 				 //static 
@@ -251,7 +251,7 @@ game_refreshDebugScoreboard(void)
   game_lastItemCount = -1;
   text_drawScoreBoard("            " , SCREEN_WIDTH-(12*8));  
   text_drawScoreBoard("            " , 0);  
-  for (int i = 0, x = (SCREEN_WIDTH/2)-15; i < 3; i++, x+=10) {
+  for (int16_t i = 0, x = (SCREEN_WIDTH/2)-15; i < 3; i++, x+=10) {
     gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 0, 16,  8);
   }
 
@@ -350,7 +350,7 @@ game_shakeScreen(void)
 }
 
 static void
-game_setCamera(int offset)
+game_setCamera(int16_t offset)
 {
   game_cameraY -= offset;
 
@@ -382,12 +382,12 @@ game_scrollBackground(void)
 {
   game_setCamera(game_scroll);
 
-  int tileIndex = game_screenScrollY % TILE_HEIGHT;
-  int count = abs(game_scroll);
+  int16_t tileIndex = game_screenScrollY % TILE_HEIGHT;
+  int16_t count = abs(game_scroll);
 
   gfx_setupRenderTileOffScreen();
 
-  for (int s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
+  for (int16_t s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
     (*game_tileRender)(tileY);
   }
 
@@ -411,7 +411,7 @@ debug_showRasterLine(void)
   
 
   if (game_scoreBoardMode == 1 && hw_getRasterLine() < 250) {
-    static int frame = 0;
+    static int16_t frame = 0;
     
     if (frame == 0) {
       if (average != game_lastAverage) {
@@ -457,7 +457,7 @@ debug_showRasterLine(void)
   }
 
   average = 0;
-  for (int i = 0; i < AVERAGE_LENGTH; i++) {
+  for (int16_t i = 0; i < AVERAGE_LENGTH; i++) {
     average += rasterLines[i];
   }
   average = average >> 4 /* / AVERAGE_LENGTH */;
@@ -495,7 +495,7 @@ game_render(void)
 
 
 void
-game_setBackgroundScroll(int s)
+game_setBackgroundScroll(int16_t s)
 {
   game_scroll = s;
   if (game_scroll >= 0) {
@@ -519,7 +519,7 @@ game_setLevelComplete(void)
 __EXTERNAL void
 game_loop()
 {
-  int joystickDown = 1;
+  int16_t joystickDown = 1;
 
   for (;;) {
 
@@ -573,7 +573,7 @@ game_loop()
 
 
 #ifdef PLAYER_HARDWARE_SPRITE
-    int y = player.sprite.y-game_cameraY;
+    int16_t y = player.sprite.y-game_cameraY;
     uint16_t vStartLo = y + RASTER_Y_START;
     uint16_t vStopLo = vStartLo + PLAYER_HEIGHT;
     uint16_t vStopHi = ((vStopLo) & 0x100) >> 8;
@@ -668,7 +668,7 @@ game_loop()
 }
 
 #if 0
-void *__memset(__REG("a0", void *dst), __REG("d0", int c), __REG("d1", uint32_t n))
+void *__memset(__REG("a0", void *dst), __REG("d0", int32_t c), __REG("d1", uint32_t n))
 {
   if (n) {
     char *d = dst;

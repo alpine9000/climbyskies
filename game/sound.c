@@ -15,8 +15,8 @@ static void
 sound_playFalling(void);
 
 typedef struct {
-  int count;
-  int delay;
+  int16_t count;
+  int16_t delay;
   void (*play)(void);
 } sound_config_t;
 
@@ -49,7 +49,7 @@ static sound_config_t sound_queue[] = {
   
 };
 
-static int sound_next = -1;
+static int16_t sound_next = -1;
 
 
 static void 
@@ -128,7 +128,7 @@ sound_vbl(void)
 {
   static UWORD empty[2] = {0,0};
   
-  for (int i = 3; i < 4; i++) {
+  for (int16_t i = 3; i < 4; i++) {
     volatile struct AudChannel *aud = &custom->aud[i];    
     aud->ac_len = 2;
     //    aud->ac_per = 1;
@@ -152,7 +152,7 @@ sound_schedule(void)
 void
 sound_queueSound(sound_t sound)
 {
-  if ((int)sound >= sound_next) {
+  if ((int16_t)sound >= sound_next) {
     sound_queue[sound].count = sound_queue[sound].delay;
     sound_next = sound;
   }

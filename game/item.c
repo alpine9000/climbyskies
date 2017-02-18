@@ -16,9 +16,9 @@ typedef struct item {
   sprite_save_t saves[2];
   sprite_animation_t* anim;
   item_anim_t animId;
-  int frameCounter;
+  int16_t frameCounter;
   item_state_t state;
-  int deadRenderCount;
+  int16_t deadRenderCount;
   unsigned short* tilePtr;
 } item_t;
 
@@ -33,7 +33,7 @@ static sprite_animation_t item_animations[] = {
   },
 };
 
-int item_count;
+int16_t item_count;
 static item_t* item_activeList;
 static item_t* item_freeList;
 static item_t item_buffer[ITEM_MAX_ITEMS];
@@ -101,7 +101,7 @@ item_remove(item_t* ptr)
 
 
 void
-item_add(int x, int y, int anim, unsigned short* tilePtr)
+item_add(int16_t x, int16_t y, int16_t anim, unsigned short* tilePtr)
 {
   item_t* ptr = item_getFree();
   ptr->tilePtr = tilePtr;
@@ -130,7 +130,7 @@ item_init(void)
   item_freeList = &item_buffer[0];
   item_freeList->prev = 0;
   item_t* ptr = item_freeList;
-  for (int i = 1; i < ITEM_MAX_ITEMS; i++) {
+  for (int16_t i = 1; i < ITEM_MAX_ITEMS; i++) {
       ptr->next = &item_buffer[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
@@ -142,8 +142,8 @@ INLINE void
 item_save(frame_buffer_t fb, sprite_t* a)
 {
   image_t* image = a->image;//&sprite_imageAtlas[a->imageIndex];
-  int h = image->h;
-  int y = a->y;
+  int16_t h = image->h;
+  int16_t y = a->y;
   if (y < game_cameraY) {
     h -= (game_cameraY - y);
     y += (game_cameraY - y);
@@ -212,7 +212,7 @@ item_render(frame_buffer_t fb)
 }
 
 
-static inline int
+static inline int16_t
 item_aabb(sprite_t* p, item_t* item)
 {
   if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY) &&
@@ -254,7 +254,7 @@ item_update(sprite_t* p)
     item_t* save = ptr;
     ptr = ptr->next;
 
-    int remove = 0;
+    int16_t remove = 0;
 
     if (save->state == ITEM_DEAD && (save->deadRenderCount++ > 2)) {
       remove = 1;

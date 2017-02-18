@@ -6,7 +6,7 @@
 extern char* fontAtlas[128];
 
 INLINE void
-text_drawCharScoreBoard(char c, int x)
+text_drawCharScoreBoard(char c, int16_t x)
 {
   char* src = fontAtlas[(int)c];
   char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*5);
@@ -22,7 +22,7 @@ text_drawCharScoreBoard(char c, int x)
 }
 
 INLINE void
-_text_drawChar8(frame_buffer_t frameBuffer, char c, int x, int y)
+_text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y)
 {
   USE(y);
   char* src = fontAtlas[(int)c];
@@ -37,7 +37,7 @@ _text_drawChar8(frame_buffer_t frameBuffer, char c, int x, int y)
 }
 
 INLINE void
-__text_drawChar8(frame_buffer_t frameBuffer, char c, int x, int y, int sy, int ny)
+__text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y, int16_t sy, int16_t ny)
 {
   USE(y);
   char* src = fontAtlas[(int)c];
@@ -54,10 +54,10 @@ __text_drawChar8(frame_buffer_t frameBuffer, char c, int x, int y, int sy, int n
 }
 
 INLINE void
-text_drawChar8(frame_buffer_t fb, char c, int x, int y)
+text_drawChar8(frame_buffer_t fb, char c, int16_t x, int16_t y)
 {
-  //  int by = 0;
-  int h = 8;
+  //  int16_t by = 0;
+  int16_t h = 8;
   y = y-game_screenScrollY;
   if (y >= 0) {
     //    (*render)(fb, image->x, by, sprite->x, y, image->w, h);

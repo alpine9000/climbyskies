@@ -20,13 +20,13 @@ typedef struct enemy {
   sprite_save_t saves[2];
   sprite_animation_t* anim;
   enemy_anim_t animId;
-  int frameCounter;
-  int width;
-  int height;
+  int16_t frameCounter;
+  int16_t width;
+  int16_t height;
   enemy_state_t state;
-  int deadRenderCount;
-  int onGround;
-  int skyCount;
+  int16_t deadRenderCount;
+  int16_t onGround;
+  int16_t skyCount;
   unsigned short* tilePtr;
 } enemy_t;
 
@@ -73,25 +73,25 @@ static sprite_animation_t enemy_animations[] = {
   }
 };
 
-int enemy_count;
+int16_t enemy_count;
 static enemy_t* enemy_activeList;
 static enemy_t* enemy_freeList;
-static int enemy_configIndex;
-static int enemy_yIndex;
+static int16_t enemy_configIndex;
+static int16_t enemy_yIndex;
 static uint16_t enemy_yStarts[WORLD_HEIGHT];
 static enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
 
 typedef struct {
-  int x;
-  int y;
-  int dx;
-  int onGround;
-  int height;
+  int16_t x;
+  int16_t y;
+  int16_t dx;
+  int16_t onGround;
+  int16_t height;
   enemy_anim_t anim;
 } enemy_config_t;
 
 #if 0
-static int enemy_y[ENEMY_MAX_Y] = {
+static int16_t enemy_y[ENEMY_MAX_Y] = {
   0,
   97,
   193
@@ -202,7 +202,7 @@ enemy_remove(enemy_t* ptr)
 
 static
  void
-enemy_add(int x, int y, int dx, int height, int onGround, int anim, unsigned short* tilePtr)
+enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, unsigned short* tilePtr)
 {
   if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
     return;
@@ -247,7 +247,7 @@ enemy_addNew(void)
   enemy_config_t* config = &enemy_configs[enemy_configIndex];
 
   do {
-    int y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]]-config->height;
+    int16_t y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]]-config->height;
     if (!config->onGround) {    
       y -= 25;
     }
@@ -258,7 +258,7 @@ enemy_addNew(void)
     }
 
     enemy_t* ptr = enemy_activeList;
-    int lineBusy = 0;
+    int16_t lineBusy = 0;
     while (ptr != 0) {
       if (ptr->sprite.y+ptr->height == y+config->height) {
 	lineBusy = 1;
@@ -280,7 +280,7 @@ enemy_addNew(void)
 #endif
 
 void
-enemy_addMapObject(int id, int x, int y, unsigned short* tilePtr)
+enemy_addMapObject(int16_t id, int16_t x, int16_t y, unsigned short* tilePtr)
 {
   enemy_config_t* config = &enemy_configs[id];
   enemy_add(x, y-config->height+config->y, config->dx, config->height, config->onGround, config->anim, tilePtr);
@@ -291,7 +291,7 @@ enemy_addMapObject(int id, int x, int y, unsigned short* tilePtr)
 void
 enemy_ctor(void)
 {
-  for (int i = 0; i < WORLD_HEIGHT; i++) {
+  for (int16_t i = 0; i < WORLD_HEIGHT; i++) {
     enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0);
     // enemy_yStarts[i] = ((i / (TILE_HEIGHT*6))*(TILE_HEIGHT*6))+(TILE_HEIGHT*1)+((TILE_HEIGHT*6)*0);
   }
@@ -308,7 +308,7 @@ enemy_init(void)
   enemy_freeList = &enemy_buffer[0];
   enemy_freeList->prev = 0;
   enemy_t* ptr = enemy_freeList;
-  for (int i = 1; i < ENEMY_MAX_ENEMIES; i++) {
+  for (int16_t i = 1; i < ENEMY_MAX_ENEMIES; i++) {
       ptr->next = &enemy_buffer[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
@@ -357,19 +357,19 @@ enemy_render(frame_buffer_t fb)
   }
 }
 
-static inline int
+static inline int16_t
 enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
 #define ENEMY_COLLISION_FUZZY 6
   
-  int x1 = p->x + ENEMY_COLLISION_FUZZY;
-  int w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2);
-  int x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY;
-  int w2 = enemy->width - (ENEMY_COLLISION_FUZZY*2);
-  int y1 = p->y + ENEMY_COLLISION_FUZZY;
-  int h1 = PLAYER_HEIGHT - (ENEMY_COLLISION_FUZZY*2);
-  int y2 = enemy->sprite.y + ENEMY_COLLISION_FUZZY;
-  int h2 = enemy->height - (ENEMY_COLLISION_FUZZY);
+  int16_t x1 = p->x + ENEMY_COLLISION_FUZZY;
+  int16_t w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2);
+  int16_t x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY;
+  int16_t w2 = enemy->width - (ENEMY_COLLISION_FUZZY*2);
+  int16_t y1 = p->y + ENEMY_COLLISION_FUZZY;
+  int16_t h1 = PLAYER_HEIGHT - (ENEMY_COLLISION_FUZZY*2);
+  int16_t y2 = enemy->sprite.y + ENEMY_COLLISION_FUZZY;
+  int16_t h2 = enemy->height - (ENEMY_COLLISION_FUZZY);
   
   if (x1 < x2 + w2 &&
       x1 + w1 > x2 &&
@@ -381,10 +381,10 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 }
 
 
-int
-enemy_headsmash(int x, int y)
+int16_t
+enemy_headsmash(int16_t x, int16_t y)
 {
-  int smash = 0;
+  int16_t smash = 0;
   enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
@@ -403,18 +403,18 @@ enemy_headsmash(int x, int y)
 void
 enemy_update(sprite_t* p)
 {
-  int removedCount = 0;
+  int16_t removedCount = 0;
   enemy_t* ptr = enemy_activeList;
 
   while (ptr != 0) {
-    int newX =  ptr->sprite.x+ptr->velocity.x;
+    int16_t newX =  ptr->sprite.x+ptr->velocity.x;
     if (newX > SCREEN_WIDTH) {
       newX = -ptr->width;
     } else if (newX < -32) {
       newX = SCREEN_WIDTH;
     }
 
-    int x;
+    int16_t x;
     
     if ((ptr->sprite.x >= PLAYER_WIDTH  && ptr->sprite.x < (SCREEN_WIDTH-PLAYER_WIDTH))) {
       if (ptr->velocity.x > 0) {
@@ -438,7 +438,7 @@ enemy_update(sprite_t* p)
     }
 
     ptr->sprite.y += ptr->velocity.y;
-    int y = ptr->sprite.y + ptr->height;
+    int16_t y = ptr->sprite.y + ptr->height;
     if (ptr->state == ENEMY_ALIVE && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
       if (BACKGROUND_TILE(x, y) == TILE_SKY) {
 	if (++ptr->skyCount > 1) { // two skies means nothing to stand on

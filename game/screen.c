@@ -7,7 +7,7 @@ screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
   /* poke bitplane pointers into copper list */
   uint32_t bitplanesPtr = (uint32_t)frameBuffer;
 
-  for (int i = 0; i < SCREEN_BIT_DEPTH; i++) {
+  for (int16_t i = 0; i < SCREEN_BIT_DEPTH; i++) {
     copperPtr[1] = (uint16_t)bitplanesPtr;
     copperPtr[3] = (uint16_t)(((uint32_t)bitplanesPtr)>>16);
     bitplanesPtr = bitplanesPtr + (FRAME_BUFFER_WIDTH_BYTES);

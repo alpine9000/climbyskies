@@ -2,9 +2,9 @@
 #define __ACTOR_H
 
 typedef struct {
-  int start;
-  int stop;
-  int speed;
+  int16_t start;
+  int16_t stop;
+  int16_t speed;
 } animation_t;  
 
 

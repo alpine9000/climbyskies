@@ -23,13 +23,13 @@ typedef struct {
 #ifdef PLAYER_HARDWARE_SPRITE
   sprite_hsprite_t* hsprite;
 #endif
-  int animId;
+  int16_t animId;
   velocity_t velocity;
   sprite_animation_t* anim;
   sprite_save_t saves[2];
-  int flashCounter;
-  int frameCounter;
-  int freeFall;
+  int16_t flashCounter;
+  int16_t frameCounter;
+  int16_t freeFall;
   player_state_t state;
 } player_t;
 
@@ -46,7 +46,7 @@ player_render(frame_buffer_t fb);
 void 
 player_update(void);
 void
-player_setAction(int action);
+player_setAction(int16_t action);
 void
 player_freeFall(void);
 void

@@ -2,8 +2,8 @@ INLINE void
 sprite_save(frame_buffer_t fb, sprite_t* a)
 {
   image_t* image = a->image;//&sprite_imageAtlas[a->imageIndex];
-  int h = image->h;
-  int y = a->y;
+  int32_t h = image->h;
+  int32_t y = a->y;
   if (y < game_cameraY) {
     h -= (game_cameraY - y);
     y += (game_cameraY - y);
@@ -38,9 +38,9 @@ INLINE void
 _sprite_render(frame_buffer_t fb, sprite_t* sprite, void (*render)(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h))
 {
   image_t* image = sprite->image;//&sprite_imageAtlas[sprite->imageIndex];
-  int by = image->y;
-  int h = image->h;
-  int y = sprite->y;
+  int32_t by = image->y;
+  int32_t h = image->h;
+  int32_t y = sprite->y;
   if (y < game_cameraY) {
     h -= (game_cameraY - y);
     by += (game_cameraY - y);

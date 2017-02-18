@@ -125,7 +125,7 @@ sprite_animation_t animations[] = {
 player_t player;
 
 static void 
-player_setAnim(int anim)
+player_setAnim(int16_t anim)
 {
   if (player.animId != anim) {
     player.animId = anim;
@@ -175,8 +175,8 @@ player_init(void)
 }
 
 
-static int
-player_tileOverlaps(int x, int y)
+static int32_t
+player_tileOverlaps(int32_t x, int32_t y)
 {
   if (x >= 0 && x < SCREEN_WIDTH && y >= 0) {
     return BACKGROUND_TILE(x, y);
@@ -187,16 +187,16 @@ player_tileOverlaps(int x, int y)
 
 #ifdef NEW_TILE_COLLISION
 typedef struct {
-  int x;
-  int y;
-  int tile;
+  int16_t x;
+  int16_t y;
+  int32_t tile;
 } collision_status_t;
     
 static collision_status_t collisionStatus[6];
 
 
 static void
-player_pointCollision(int pointIndex, int x, int y)
+player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
 {
   collisionStatus[pointIndex].tile =  player_tileOverlaps(x, y);
   collisionStatus[pointIndex].x = x;
@@ -204,7 +204,7 @@ player_pointCollision(int pointIndex, int x, int y)
 }
 
 static int
-player_tileCollision(int x, int y)
+player_tileCollision(int16_t x, int16_t y)
 {
   player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
   player_pointCollision(1, x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
@@ -213,7 +213,7 @@ player_tileCollision(int x, int y)
   player_pointCollision(4, x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
   player_pointCollision(5, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
-  for (int i = 0; i < 6; i++) {
+  for (int16_t i = 0; i < 6; i++) {
     if (TILE_COLLISION(collisionStatus[i].tile)) {
       return 1;
     }
@@ -223,33 +223,14 @@ player_tileCollision(int x, int y)
 }
 
 #else 
-static int overlappingTiles[6];
 
-static int
-player_tileCollision(int x, int y)
-{
-  overlappingTiles[0] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
-  overlappingTiles[1] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
-  overlappingTiles[2] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  overlappingTiles[3] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  overlappingTiles[4] = player_tileOverlaps(x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
-  overlappingTiles[5] = player_tileOverlaps(x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
-
-  for (int i = 0; i < 6; i++) {
-    if (overlappingTiles[i] != TILE_SKY) {
-      return overlappingTiles[i];
-    }
-  }
-  
-  return 0;
-}
 #endif
 
 static void
 player_processJoystick(void)
 {
 #define NOT_UP_THRESHOLD 1
-  static unsigned int notUpCount = NOT_UP_THRESHOLD;
+  static uint16_t notUpCount = NOT_UP_THRESHOLD;
 
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
@@ -301,15 +282,15 @@ player_processJoystick(void)
 static int
 player_moveX(void)
 {
-  int newX = player.sprite.x+player.velocity.x;
+  int16_t newX = player.sprite.x+player.velocity.x;
 
   
-  int collision = player_tileCollision(newX, player.sprite.y);
+  int16_t collision = player_tileCollision(newX, player.sprite.y);
   if (collision) {
     if (player.velocity.x < 0) {
-      int maxX = 0;
-      int index = 0;
-      for (int i = 0; i < 6; i++) {
+      int16_t maxX = 0;
+      int16_t index = 0;
+      for (int16_t i = 0; i < 6; i++) {
 	if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].x > maxX) {
 	  maxX = collisionStatus[i].x;
 	  index = i;
@@ -317,9 +298,9 @@ player_moveX(void)
       }
       newX = ((collisionStatus[index].x>>4)<<4)+TILE_WIDTH-PLAYER_FUZZY_WIDTH+1;
     } else if (player.velocity.x > 0) {
-      int minX = 0x7FFFFFFF;
-      int index = 0;
-      for (int i = 0; i < 6; i++) {
+      int16_t minX = 0x7FFF;
+      int16_t index = 0;
+      for (int16_t i = 0; i < 6; i++) {
         if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].x < minX) {
           minX = collisionStatus[i].x;
           index = i;
@@ -344,16 +325,16 @@ player_moveX(void)
   return collision;
 }
 
-static int
+static int16_t
 player_moveY(void)
 {
-  int newY = player.sprite.y+player.velocity.y;
-  int collision = player_tileCollision(player.sprite.x, newY);
+  int16_t newY = player.sprite.y+player.velocity.y;
+  int16_t collision = player_tileCollision(player.sprite.x, newY);
   if (collision) {
     if (player.velocity.y <= 0) {
-      int maxY = 0;
-      int index = 0;
-      for (int i = 0; i < 6; i++) {
+      int16_t maxY = 0;
+      int16_t index = 0;
+      for (int16_t i = 0; i < 6; i++) {
 	if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].y > maxY) {
 	  maxY = collisionStatus[i].y;
 	  index = i;
@@ -361,9 +342,9 @@ player_moveY(void)
       }
       newY = ((collisionStatus[index].y>>4)<<4)+TILE_HEIGHT+1;
     } else if (player.velocity.y > 0) {
-      int minY = 0x7FFFFFFF;
-      int index = 0;
-      for (int i = 0; i < 6; i++) {
+      int16_t minY = 0x7FFF;
+      int16_t index = 0;
+      for (int16_t i = 0; i < 6; i++) {
         if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].y < minY) {
           minY = collisionStatus[i].y;
           index = i;
@@ -415,7 +396,7 @@ player_updateAlive(void)
   }
 
   velocity_t intendedVelocity = player.velocity;
-  int collision = 0;
+  int16_t collision = 0;
 
 #ifdef NEW_TILE_COLLISION
   
@@ -427,9 +408,9 @@ player_updateAlive(void)
 
 #else
   if (player.velocity.x != 0) {
-    int xInc = (player.velocity.x > 0) ? 1 : -1;
-    int x = player.sprite.x;
-    for (int c = 0; c != abs(player.velocity.x); c++) {      
+    int16_t xInc = (player.velocity.x > 0) ? 1 : -1;
+    int16_t x = player.sprite.x;
+    for (int16_t c = 0; c != abs(player.velocity.x); c++) {      
       if (!player_tileCollision(x+xInc, player.sprite.y)) {
 	x += xInc;
       } else {
@@ -448,10 +429,10 @@ player_updateAlive(void)
   }
 
   if (player.velocity.y != 0) {
-    int speedY = player.velocity.y;
-    int yInc = (speedY > 0) ? 1 : -1;
-    int y = player.sprite.y;
-    for (int c = 0; c != abs(speedY); c++) {      
+    int16_t speedY = player.velocity.y;
+    int16_t yInc = (speedY > 0) ? 1 : -1;
+    int16_t y = player.sprite.y;
+    for (int16_t c = 0; c != abs(speedY); c++) {      
       if (!player_tileCollision(player.sprite.x, y+yInc)) {
 	y += yInc;
       } else {
@@ -472,12 +453,12 @@ player_updateAlive(void)
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
 
-    int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
-    int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
-    //int x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
-    //int y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
+    int16_t x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
+    int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
+    //int16_t x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
+    //int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
 
-    int kill = 0;
+    int16_t kill = 0;
 #ifdef FIX_TILE_INVALIDATE_BUG
     if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
       level.background_tileAddresses[y][x] = TILE_SKY;
@@ -504,7 +485,7 @@ player_updateAlive(void)
     player.state = PLAYER_STATE_DEFAULT;
   }
 
-  static volatile int lastY = -1;
+  static volatile int16_t lastY = -1;
 
   if (player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
 
@@ -699,7 +680,7 @@ void
 player_hSpriteRender(void)
 {
 #if PLAYER_HSPRITE_CPU
-  int i = 0;
+  int16_t i = 0;
   if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
     custom->sprpt[i++] = player.hsprite->hsprite00;
     custom->sprpt[i++] = player.hsprite->hsprite01;
@@ -711,7 +692,7 @@ player_hSpriteRender(void)
     custom->sprpt[i] = sprite_nullhsprite;
   }
 #else
-  int i, index = 1;
+  int16_t i, index = 1;
   if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
     copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite00 & 0xffff);
     index += 2;

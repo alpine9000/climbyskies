@@ -5,8 +5,8 @@
 
 typedef struct {
   sprite_t sprite;
-  int deltaX;
-  int deltaY;
+  int16_t deltaX;
+  int16_t deltaY;
   sprite_save_t saves[2];
 } cloud_t;
 
@@ -25,7 +25,7 @@ int16_t cloudX[] = {
   -1
 };
 
-static int cloudXIndex = 0;
+static int16_t cloudXIndex = 0;
 
 static cloud_t clouds[CLOUD_NUM_CLOUDS];
 
@@ -72,13 +72,13 @@ cloud_init(void)
 
 #if 1
     memcpy(clouds, _clouds, sizeof(clouds));
-    for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
+    for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
       cloud_t* cloud = &clouds[i];
       cloud->sprite.save = &cloud->saves[0];
     }
 #else
     // crashes with -mregparm=2 and vasm default optimisations
-      for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
+      for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
 	cloud_t* cloud = &clouds[i];
         clouds[i] = _clouds[i];
 #if 1
@@ -109,7 +109,7 @@ cloud_saveBackground(frame_buffer_t fb)
   _custom->bltalwm = 0xffff;
 #endif
 
-  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
+  for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
     cloud_save(fb, &cloud->sprite);
     cloud->sprite.save = cloud->sprite.save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
@@ -158,7 +158,7 @@ cloud_restoreBackground(void)
   _custom->bltalwm = 0xffff;
 #endif
 
-  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
+  for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
     cloud_restore(cloud->sprite.save);
   }
@@ -169,7 +169,7 @@ void
 cloud_render(frame_buffer_t fb)
 {
   cloud_setupRenderSpriteNoMask();
-  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
+  for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     cloud_spriteRender(fb, &cloud->sprite);
   }
@@ -177,15 +177,15 @@ cloud_render(frame_buffer_t fb)
 #ifdef CLOUD_ENABLE_SETUPRENDERPARTIALTILE
   cloud_setupRenderPartialTile();
 #endif
-  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
+  for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    int py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
-    int px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
+    int16_t py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
+    int16_t px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
 
-    for (int x = 0; x < 3; x++) {
+    for (int16_t x = 0; x < 3; x++) {
       if (px+x < MAP_TILE_WIDTH) {
-	for (int y = 0; y < 3; y++) {	  
-	  int tile = level.background_tileAddresses[py+y][px+x];
+	for (int16_t y = 0; y < 3; y++) {	  
+	  uint16_t tile = level.background_tileAddresses[py+y][px+x];
 	  if (tile != TILE_SKY) {
 	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
 	  }
@@ -202,7 +202,7 @@ cloud_update(void)
   if (game_cameraY >= WORLD_HEIGHT-SCREEN_HEIGHT) {
     return;
   }
-  for (int i = 0; i < CLOUD_NUM_CLOUDS; i++) {
+  for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     if (game_scrollCount > 0) {
       cloud->sprite.y-=(game_scroll>>2 /* /4 */);

@@ -423,12 +423,12 @@ sprite_ctor(void)
   }
 
 #ifdef PLAYER_HSPRITE_CPU  
-  for (int i = 0; i < 8; i++) {
+  for (int16_t i = 0; i < 8; i++) {
     custom->sprpt[i] = sprite_nullhsprite;
   }
 #else
-  int index = 1;
-  for (int i = 0; i < 8; i++) {
+  int16_t index = 1;
+  for (int16_t i = 0; i < 8; i++) {
     copper.sprpt[index] = ((uint32_t)sprite_nullhsprite & 0xffff);
     index += 2;
     copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;

@@ -37,9 +37,9 @@ cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, f
 static inline void
 cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 {
-  int h = 16;
+  int32_t h = 16;
   if (y < game_cameraY) {
-    int offset = game_cameraY - y;
+    int32_t offset = game_cameraY - y;
     h -= offset;
     y += offset;
     tile += gfx_dyOffsetsLUT[offset];
@@ -148,9 +148,9 @@ static inline void
 cloud_spriteRender(frame_buffer_t fb, sprite_t* sprite)
 {
   image_t* image = &sprite_imageAtlas[sprite->imageIndex];
-  int by = image->y;
-  int h = image->h;
-  int y = sprite->y;
+  int32_t by = image->y;
+  int32_t h = image->h;
+  int32_t y = sprite->y;
   if (y < game_cameraY) {
     h -= (game_cameraY - y);
     by += (game_cameraY - y);
@@ -215,8 +215,8 @@ static inline void
 cloud_save(frame_buffer_t fb, sprite_t* a)
 {
   image_t* image = &sprite_imageAtlas[a->imageIndex];
-  int h = image->h;
-  int y = a->y;
+  int32_t h = image->h;
+  int32_t y = a->y;
   if (y < game_cameraY) {
     h -= (game_cameraY - y);
     y += (game_cameraY - y);

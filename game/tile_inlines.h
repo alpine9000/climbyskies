@@ -1,5 +1,5 @@
 INLINE void
-tile_processMapObjectUp(unsigned short id, int x, int y, unsigned short* tilePtr)
+tile_processMapObjectUp(unsigned short id, int16_t x, int16_t y, unsigned short* tilePtr)
 {
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
@@ -9,7 +9,7 @@ tile_processMapObjectUp(unsigned short id, int x, int y, unsigned short* tilePtr
 }
 
 INLINE void
-tile_processMapObjectDown(unsigned short id, int x, int y, unsigned short* tilePtr)
+tile_processMapObjectDown(unsigned short id, int16_t x, int16_t y, unsigned short* tilePtr)
 {
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
@@ -21,7 +21,7 @@ tile_processMapObjectDown(unsigned short id, int x, int y, unsigned short* tileP
 INLINE void
 tile_renderNextTile(uint16_t hscroll)
 {
-  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
 
   if (y < 0) {
     y = FRAME_BUFFER_HEIGHT+y;
@@ -53,7 +53,7 @@ tile_renderNextTile(uint16_t hscroll)
 INLINE void
 tile_renderNextTileDown(uint16_t hscroll)
 {
-  int y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
 
   if (y < 0) {
     y = FRAME_BUFFER_HEIGHT+y;
@@ -73,7 +73,7 @@ tile_renderNextTileDown(uint16_t hscroll)
   gfx_quickRenderTileOffScreen(game_offScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
 
-  int itemOffset = 16;
+  int16_t itemOffset = 16;
   unsigned short* ptr = tile_itemPtr+OFFSET;
 
   if (*(ptr) != 0) {

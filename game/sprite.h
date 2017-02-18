@@ -8,8 +8,8 @@ typedef struct {
 
 
 typedef struct {
-  int x;
-  int y;
+  int16_t x;
+  int16_t y;
 } velocity_t;
 
 
@@ -21,9 +21,9 @@ typedef struct {
 } image_t;
 
 typedef struct {
-  int x;
-  int y;
-  int imageIndex;
+  int16_t x;
+  int16_t y;
+  int16_t imageIndex;
   sprite_save_t* save;
   image_t* image;
 } sprite_t;

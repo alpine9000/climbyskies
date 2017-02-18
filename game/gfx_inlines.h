@@ -24,8 +24,8 @@ gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
   
   fb += gfx_dyOffsetsLUT[y] + (x>>3);
 
-  int colorInPlane;
-  for (int plane = 0; plane < SCREEN_BIT_DEPTH; plane++) {
+  int32_t colorInPlane;
+  for (int32_t plane = 0; plane < SCREEN_BIT_DEPTH; plane++) {
     colorInPlane = (1<<plane) & color;
     hw_waitBlitter();
     
@@ -71,7 +71,7 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   frame_buffer_t source = spriteFrameBuffer;
   frame_buffer_t mask = spriteMask;
   uint32_t widthWords =  ((w+15)>>4)+1;
-  int shift = (dx&0xf);
+  int32_t shift = (dx&0xf);
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
@@ -135,7 +135,7 @@ gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, 
   static volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = spriteFrameBuffer;
   uint32_t widthWords =  ((w+15)>>4);
-  int shift = (dx&0xf);
+  int32_t shift = (dx&0xf);
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
@@ -296,9 +296,9 @@ gfx_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, fra
 INLINE void
 gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
 {
-  int h = 16;
+  int32_t h = 16;
   if (y < game_cameraY) {
-    int offset = game_cameraY - y;
+    int32_t offset = game_cameraY - y;
     h -= offset;
     y += offset;
     tile += gfx_dyOffsetsLUT[offset];

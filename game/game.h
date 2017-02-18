@@ -103,11 +103,11 @@ typedef volatile uint8_t * frame_buffer_t;
 typedef volatile struct Custom* custom_t;
 
 extern custom_t custom; 
-extern int game_cameraY;
-extern int game_screenScrollY;
-extern int game_scrollCount;
-extern int game_scroll;
-extern int game_paused;
+extern int16_t game_cameraY;
+extern int16_t game_screenScrollY;
+extern int16_t game_scrollCount;
+extern int16_t game_scroll;
+extern int16_t game_paused;
 extern uint32_t game_frameCount;
 extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;
@@ -143,7 +143,7 @@ game_init(void);
 void 
 game_loop(void);
 void
-game_setBackgroundScroll(int s);
+game_setBackgroundScroll(int16_t s);
 void
 game_shakeScreen(void);
 void

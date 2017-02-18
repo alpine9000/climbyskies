@@ -4,7 +4,7 @@
 
 unsigned short* tile_tilePtr;
 unsigned short* tile_itemPtr;
-int tile_tileX;
+int16_t tile_tileX;
 static tile_redraw_t* invalidTiles = 0;
 static tile_redraw_t* invalidFreeList = 0;
 static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
@@ -17,7 +17,7 @@ tile_init(void)
    invalidFreeList->prev = 0;
   //  invalidFreeList->next = 0;
   tile_redraw_t* ptr = invalidFreeList;
-  for (int i = 1; i < MAX_INVALID_TILES; i++) {
+  for (int16_t i = 1; i < MAX_INVALID_TILES; i++) {
       ptr->next = &invalidTileBuffers[i];
       ptr->next->prev = ptr;
       ptr = ptr->next;
@@ -27,12 +27,12 @@ tile_init(void)
 #if 0
   uint16_t* src = &background_tileAddresses[0][0];
   uint16_t* dest = &level.background_tileAddresses[0][0];
-  for (int i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
+  for (int16_t i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
     *dest++ = *src++;
   }
   src = &item_tileAddresses[0][0];
   dest = &level.item_tileAddresses[0][0];
-  for (int i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
+  for (int16_t i = 0; i < MAP_TILE_HEIGHT*MAP_TILE_WIDTH; i++) {
     *dest++ = *src++;
   }
 #else
@@ -99,7 +99,7 @@ tile_removeInvalid(tile_redraw_t* ptr)
 
 
 void
-tile_invalidateTile(int x, int y, int offset)
+tile_invalidateTile(int16_t x, int16_t y, int16_t offset)
 {
   tile_redraw_t* ptr = tile_getFree();
   ptr->x = x;
@@ -150,7 +150,7 @@ tile_renderScreen(void)
     }
   }
   
-  int y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
+  int16_t y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
     unsigned long offset = *tile_tilePtr;
     gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
