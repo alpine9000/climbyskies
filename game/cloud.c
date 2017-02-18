@@ -174,9 +174,8 @@ cloud_render(frame_buffer_t fb)
     cloud_spriteRender(fb, &cloud->sprite);
   }
 
-#ifdef CLOUD_ENABLE_SETUPRENDERPARTIALTILE
   cloud_setupRenderPartialTile();
-#endif
+
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     int16_t py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);

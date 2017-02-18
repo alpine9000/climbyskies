@@ -121,6 +121,14 @@ sprite_animation_t animations[] = {
 };
 
 
+typedef struct {
+  int16_t x;
+  int16_t y;
+  int32_t tile;
+} collision_status_t;
+    
+static collision_status_t player_collisionStatus[6];
+
 //static 
 player_t player;
 
@@ -206,22 +214,12 @@ player_tileOverlaps(int32_t x, int32_t y)
 }
 
 
-#ifdef NEW_TILE_COLLISION
-typedef struct {
-  int16_t x;
-  int16_t y;
-  int32_t tile;
-} collision_status_t;
-    
-static collision_status_t collisionStatus[6];
-
-
 static void
 player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
 {
-  collisionStatus[pointIndex].tile =  player_tileOverlaps(x, y);
-  collisionStatus[pointIndex].x = x;
-  collisionStatus[pointIndex].y = y;
+  player_collisionStatus[pointIndex].tile =  player_tileOverlaps(x, y);
+  player_collisionStatus[pointIndex].x = x;
+  player_collisionStatus[pointIndex].y = y;
 }
 
 static int
@@ -235,7 +233,7 @@ player_tileCollision(int16_t x, int16_t y)
   player_pointCollision(5, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
   for (int16_t i = 0; i < 6; i++) {
-    if (TILE_COLLISION(collisionStatus[i].tile)) {
+    if (TILE_COLLISION(player_collisionStatus[i].tile)) {
       return 1;
     }
   }
@@ -243,9 +241,6 @@ player_tileCollision(int16_t x, int16_t y)
   return 0;
 }
 
-#else 
-
-#endif
 
 static void
 player_processJoystick(void)
@@ -320,7 +315,6 @@ player_processJoystick(void)
 }
 
 
-#ifdef NEW_TILE_COLLISION
 static int
 player_moveX(void)
 {
@@ -333,22 +327,22 @@ player_moveX(void)
       int16_t maxX = 0;
       int16_t index = 0;
       for (int16_t i = 0; i < 6; i++) {
-	if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].x > maxX) {
-	  maxX = collisionStatus[i].x;
+	if (TILE_COLLISION(player_collisionStatus[i].tile) && player_collisionStatus[i].x > maxX) {
+	  maxX = player_collisionStatus[i].x;
 	  index = i;
 	}
       }
-      newX = ((collisionStatus[index].x>>4)<<4)+TILE_WIDTH-PLAYER_FUZZY_WIDTH+1;
+      newX = ((player_collisionStatus[index].x>>4)<<4)+TILE_WIDTH-PLAYER_FUZZY_WIDTH+1;
     } else if (player.velocity.x > 0) {
       int16_t minX = 0x7FFF;
       int16_t index = 0;
       for (int16_t i = 0; i < 6; i++) {
-        if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].x < minX) {
-          minX = collisionStatus[i].x;
+        if (TILE_COLLISION(player_collisionStatus[i].tile) && player_collisionStatus[i].x < minX) {
+          minX = player_collisionStatus[i].x;
           index = i;
         }
       }
-      newX = ((collisionStatus[index].x>>4)<<4)-(PLAYER_WIDTH)+PLAYER_FUZZY_WIDTH-1;
+      newX = ((player_collisionStatus[index].x>>4)<<4)-(PLAYER_WIDTH)+PLAYER_FUZZY_WIDTH-1;
     }
   }
 
@@ -377,22 +371,22 @@ player_moveY(void)
       int16_t maxY = 0;
       int16_t index = 0;
       for (int16_t i = 0; i < 6; i++) {
-	if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].y > maxY) {
-	  maxY = collisionStatus[i].y;
+	if (TILE_COLLISION(player_collisionStatus[i].tile) && player_collisionStatus[i].y > maxY) {
+	  maxY = player_collisionStatus[i].y;
 	  index = i;
 	}
       }
-      newY = ((collisionStatus[index].y>>4)<<4)+TILE_HEIGHT+1;
+      newY = ((player_collisionStatus[index].y>>4)<<4)+TILE_HEIGHT+1;
     } else if (player.velocity.y > 0) {
       int16_t minY = 0x7FFF;
       int16_t index = 0;
       for (int16_t i = 0; i < 6; i++) {
-        if (TILE_COLLISION(collisionStatus[i].tile) && collisionStatus[i].y < minY) {
-          minY = collisionStatus[i].y;
+        if (TILE_COLLISION(player_collisionStatus[i].tile) && player_collisionStatus[i].y < minY) {
+          minY = player_collisionStatus[i].y;
           index = i;
         }
       }
-      newY = ((collisionStatus[index].y>>4)<<4)-(PLAYER_HEIGHT);
+      newY = ((player_collisionStatus[index].y>>4)<<4)-(PLAYER_HEIGHT);
     }
   }
 
@@ -401,14 +395,13 @@ player_moveY(void)
   } else {
     player.velocity.y = newY - player.sprite.y;
   }
-  if (newY+PLAYER_HEIGHT - game_cameraY < SCREEN_HEIGHT+HSPRITE_MAX_OVERDRAW) {
+  if (newY+PLAYER_HEIGHT - game_cameraY < SCREEN_HEIGHT+SPRITE_MAX_HSPRITE_OVERDRAW) {
     player.sprite.y = newY;
   } else {
-    player.sprite.y = game_cameraY + SCREEN_HEIGHT + HSPRITE_MAX_OVERDRAW - PLAYER_HEIGHT;
+    player.sprite.y = game_cameraY + SCREEN_HEIGHT + SPRITE_MAX_HSPRITE_OVERDRAW - PLAYER_HEIGHT;
   }
   return collision;
 }
-#endif
 
 
 static void
@@ -440,58 +433,16 @@ player_updateAlive(void)
   velocity_t intendedVelocity = player.velocity;
   int16_t collision = 0;
 
-#ifdef NEW_TILE_COLLISION
-  
   if (player.velocity.x != 0) {
     collision = player_moveX();
   } 
   collision |= player_moveY();
   
-
-#else
-  if (player.velocity.x != 0) {
-    int16_t xInc = (player.velocity.x > 0) ? 1 : -1;
-    int16_t x = player.sprite.x;
-    for (int16_t c = 0; c != abs(player.velocity.x); c++) {      
-      if (!player_tileCollision(x+xInc, player.sprite.y)) {
-	x += xInc;
-      } else {
-	collision = 1;
-	break;
-      }
-    }
-
-    if (x > SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH) {
-      x = SCREEN_WIDTH-PLAYER_VISIBLE_WIDTH;
-    } else if (x < -PLAYER_FUZZY_WIDTH) {
-      x = -PLAYER_FUZZY_WIDTH;
-    }
-    player.velocity.x = x - player.sprite.x;
-    player.sprite.x = x;
-  }
-
-  if (player.velocity.y != 0) {
-    int16_t speedY = player.velocity.y;
-    int16_t yInc = (speedY > 0) ? 1 : -1;
-    int16_t y = player.sprite.y;
-    for (int16_t c = 0; c != abs(speedY); c++) {      
-      if (!player_tileCollision(player.sprite.x, y+yInc)) {
-	y += yInc;
-      } else {
-	collision = 1;
-	break;
-      }
-    }
-    player.velocity.y = y - player.sprite.y;
-    player.sprite.y = y;
-  } 
-#endif
-
   if (collision && intendedVelocity.y > 0 &&  player.velocity.y == 0 /*intendedVelocity.y != player.velocity.y *//*&& intendedVelocity.x == player.velocity.x*/) {
     if (player.state != PLAYER_STATE_ONGROUND) {
       player.state = PLAYER_STATE_ONGROUND;
     }
-  } else if (PLAYER_HEADSMASH && collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
+  } else if (collision && intendedVelocity.y < 0 &&  intendedVelocity.y != player.velocity.y && intendedVelocity.x == player.velocity.x)  {
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
 
@@ -501,7 +452,6 @@ player_updateAlive(void)
     //int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
 
     int16_t kill = 0;
-#ifdef FIX_TILE_INVALIDATE_BUG
     if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
       level.background_tileAddresses[y][x] = TILE_SKY;
       tile_invalidateTile(x<<4, y<<4, 0);
@@ -513,16 +463,6 @@ player_updateAlive(void)
       kill |= enemy_headsmash(((x+1)<<4)+(TILE_WIDTH/2), y<<4);
     }
     sound_queueSound(kill ? SOUND_KILL : SOUND_HEADSMASH);
-#else
-    level.background_tileAddresses[y][x] = TILE_SKY;
-    tile_invalidateTile(x<<4, y<<4, 0);
-    level.background_tileAddresses[y][x+1] = TILE_SKY;
-    tile_invalidateTile((x+1)<<4, y<<4, 0);
-#endif
-
-
-    // tile_invalidateTile(x*TILE_WIDTH, y*TILE_HEIGHT, 0);
-    // tile_invalidateTile((x+1)*(TILE_WIDTH), y*TILE_HEIGHT, 0);
   } else {   
     player.state = PLAYER_STATE_DEFAULT;
   }
