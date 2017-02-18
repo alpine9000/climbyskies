@@ -54,6 +54,9 @@ typedef struct {
   int16_t frameCounter;
   int16_t freeFall;
   player_state_t state;
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
+  uint16_t hspriteCompatible;
+#endif
 } player_t;
 
 extern player_t player;
@@ -74,10 +77,14 @@ void
 player_freeFall(void);
 void
 player_hSpriteRender(void);
+void
+player_updateCopper(void);
 
 #ifdef PLAYER_RECORDING
 void
 player_setRecord(player_record_state_t state);
+player_record_state_t
+player_getRecord(void);
 #endif
 
 #endif

@@ -215,7 +215,19 @@ game_refreshScoreboard(void)
   game_lastLevelScore = 0;
 
   if (game_scoreBoardMode == 0) {
-    text_drawScoreBoard("SCORE  " , SCREEN_WIDTH-(12*8));  
+    
+    switch (player_getRecord()) {
+    case PLAYER_RECORD_IDLE:
+      text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(13*8));  
+      break;
+    case PLAYER_RECORD_RECORD:
+      text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(13*8));        
+      break;
+    case PLAYER_RECORD_PLAYBACK:
+      text_drawScoreBoard("  PLAY  " , SCREEN_WIDTH-(13*8));        
+      break;
+    }
+
     text_drawScoreBoard("BONUS 00           " , 0);  
     debug_showScore();
     uint32_t i, x;
@@ -402,10 +414,10 @@ static void
 debug_showRasterLine(void)
 {
   if (turtle > 1) {
-    custom->color[1] = 0xf00;
+    custom->color[16] = 0xf00;
     turtle--;
   } else if (turtle == 1) {
-    custom->color[1] = 0x09e;
+    custom->color[16] = 0x09e;
     turtle--;
   }
   
@@ -474,9 +486,9 @@ game_render(void)
 
   enemy_saveBackground(game_offScreenBuffer);
 
-#ifndef PLAYER_HARDWARE_SPRITE
+  //#ifndef PLAYER_HARDWARE_SPRITE
   player_saveBackground(game_offScreenBuffer);
-#endif
+  //#endif
 
   cloud_saveBackground(game_offScreenBuffer);
   
@@ -487,9 +499,7 @@ game_render(void)
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
   SPEED_COLOR(0x005);
-#ifndef PLAYER_HARDWARE_SPRITE
-   player_render(game_offScreenBuffer);
-#endif
+  player_render(game_offScreenBuffer);
   game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
@@ -573,36 +583,7 @@ game_loop()
 
 
 #ifdef PLAYER_HARDWARE_SPRITE
-    int16_t y = player.sprite.y-game_cameraY;
-    uint16_t vStartLo = y + RASTER_Y_START;
-    uint16_t vStopLo = vStartLo + PLAYER_HEIGHT;
-    uint16_t vStopHi = ((vStopLo) & 0x100) >> 8;
-    uint16_t hStartHi = (player.sprite.x + RASTER_X_START) >> 1;
-    uint16_t hStartHi2 = (player.sprite.x + 16 + RASTER_X_START) >> 1;
-
-    if (vStopLo >= RASTER_Y_START + SCREEN_HEIGHT) {
-      vStopLo =  RASTER_Y_START + SCREEN_HEIGHT;
-    }
-
-    player.hsprite->hsprite00->vStartLo = vStartLo;
-    player.hsprite->hsprite00->hStartHi = hStartHi;
-    player.hsprite->hsprite00->vStopLo =  vStopLo;
-    player.hsprite->hsprite00->vStopHi =  vStopHi;
-    
-    player.hsprite->hsprite01->vStartLo = vStartLo;
-    player.hsprite->hsprite01->hStartHi = hStartHi;
-    player.hsprite->hsprite01->vStopLo =  vStopLo;
-    player.hsprite->hsprite01->vStopHi =  vStopHi;
-
-    player.hsprite->hsprite10->vStartLo = vStartLo;
-    player.hsprite->hsprite10->hStartHi = hStartHi2;
-    player.hsprite->hsprite10->vStopLo =  vStopLo;
-    player.hsprite->hsprite10->vStopHi =  vStopHi;
-    
-    player.hsprite->hsprite11->vStartLo = vStartLo;
-    player.hsprite->hsprite11->hStartHi = hStartHi2;
-    player.hsprite->hsprite11->vStopLo =  vStopLo;
-    player.hsprite->hsprite11->vStopHi =  vStopHi;
+    player_hSpriteRender();
 #endif
     
     sound_schedule();
@@ -610,7 +591,7 @@ game_loop()
     sound_vbl();
 
 #ifdef PLAYER_HARDWARE_SPRITE
-    player_hSpriteRender();
+    player_updateCopper();
 #endif
     
 
@@ -637,9 +618,9 @@ game_loop()
     SPEED_COLOR(0xff0);
     item_restoreBackground();
     SPEED_COLOR(0xf00);
-#ifndef PLAYER_HARDWARE_SPRITE
+    //#ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
-#endif
+    //#endif
     SPEED_COLOR(0x00f);
     cloud_restoreBackground();
     SPEED_COLOR(0x000);
@@ -652,35 +633,35 @@ game_loop()
       palette_black();
       game_newGame();
       player_setRecord(PLAYER_RECORD_RECORD);
-      custom->color[1] = 0xF00;
+      game_refreshScoreboard();
       break;
     case 'P':
       palette_black();
       game_newGame();
-      custom->color[1] = 0x00F;
       player_setRecord(PLAYER_RECORD_PLAYBACK);
+      game_refreshScoreboard();
       break;
-    }
-#endif
-
-#if TRACKLOADER==0
-    //    done = mouse_leftButtonPressed();
-    if (mouse_leftButtonPressed()) {
-      goto done;
-    }
-#endif
-
-#ifdef DEBUG
-    if (mouse_leftButtonPressed()) {
-      while (mouse_leftButtonPressed());
+    case 'S':
+      player_setRecord(PLAYER_RECORD_IDLE);
+      game_refreshScoreboard();
+      break;
+    case 'N':
       palette_black();
       game_newGame();
 #ifdef PLAYER_RECORDING
-      custom->color[1] = 0x09e;
       player_setRecord(PLAYER_RECORD_IDLE);
+      game_refreshScoreboard();
+#endif
+      break;
+#if TRACKLOADER==0
+    case 'Q':
+      goto done;
+      break;
 #endif
     }
+
 #endif
+
   }
 #if TRACKLOADER==0
  done:;

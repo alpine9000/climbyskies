@@ -8,15 +8,16 @@
 
 #define DEBUG                         1
 #define INLINE_EVERYTHING             1
-#define SHOW_SPEED                    1
+//#define SHOW_SPEED                    1
 #define GAME_KEYBOARD_ENABLED         1
 #define GAME_PAUSE_DISABLES_COLLISION 1
 #define PLAYER_RECORDING              1
 #define PLAYER_HARDWARE_SPRITE        1
+#define PLAYER_BLIT_SPRITE_OVERDRAW   1
 //#define PLAYER_HSPRITE_CPU          1
 //#define CLOUD_FULLCOLOR             1
 #define SPRITE_MAX_HSPRITE_OVERDRAW   7
-
+#define INDICATOR_COLOR_INDEX        16
 
 #ifdef INLINE_EVERYTHING
 #define INLINE static inline

@@ -13,7 +13,7 @@ music_play(__REG("d0", int32_t moduleIndex))
 {
   USE(moduleIndex);
   USE(music_module[0]);
-  P61_Master = 32;
+  P61_Master = MUSIC_MAX_MUSIC_VOLUME;
   disk_loadData(&music_module, &music_song1, MAX_P61_SIZE);
   P61_Init(&music_module);
 }

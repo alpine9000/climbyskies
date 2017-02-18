@@ -136,6 +136,12 @@ player_t player;
 
 extern player_record_t player_record;
 
+player_record_state_t
+player_getRecord(void)
+{
+  return player_record.state;
+}
+
 void
 player_setRecord(player_record_state_t state)
 {
@@ -191,15 +197,8 @@ player_init(void)
   player.saves[1].blit[0].size = 0;
   player.saves[1].blit[1].size = 0;
   player.sprite.save = &player.saves[0];
-
-#if 0
-  player.hsprite00 = (sprite_control_t*)&sprite_playerLeftRun0_0_sprite0[0];
-  player.hsprite01 = (sprite_control_t*)&sprite_playerLeftRun0_0_sprite1[0];
-  player.hsprite10 = (sprite_control_t*)&sprite_playerLeftRun1_0_sprite0[0];
-  player.hsprite11 = (sprite_control_t*)&sprite_playerLeftRun1_0_sprite1[0];
-  
-  player.hsprite01->attach = 1;
-  player.hsprite11->attach = 1;
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
+  player.hspriteCompatible = 1;
 #endif
 }
 
@@ -395,11 +394,17 @@ player_moveY(void)
   } else {
     player.velocity.y = newY - player.sprite.y;
   }
+
+#ifndef PLAYER_BLIT_SPRITE_OVERDRAW
   if (newY+PLAYER_HEIGHT - game_cameraY < SCREEN_HEIGHT+SPRITE_MAX_HSPRITE_OVERDRAW) {
     player.sprite.y = newY;
   } else {
     player.sprite.y = game_cameraY + SCREEN_HEIGHT + SPRITE_MAX_HSPRITE_OVERDRAW - PLAYER_HEIGHT;
   }
+#else
+  player.sprite.y = newY;
+  player.hspriteCompatible = ((player.sprite.y+PLAYER_HEIGHT)-game_cameraY) < SCREEN_HEIGHT+SPRITE_MAX_HSPRITE_OVERDRAW;
+#endif
   return collision;
 }
 
@@ -635,35 +640,109 @@ player_update(void)
 void
 player_saveBackground(frame_buffer_t fb)
 {
+#ifdef PLAYER_HARDWARE_SPRITE
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
+  if (!player.hspriteCompatible) {
+    sprite_save(fb, &player.sprite);
+    player.sprite.save = player.sprite.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
+  } else {
+    player.sprite.save->blit[0].size = 0;
+    player.sprite.save->blit[1].size = 0;
+    player.sprite.save = player.sprite.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
+  }
+#else
+  USE(fb);
+#endif
+#else
   sprite_save(fb, &player.sprite);
   player.sprite.save = player.sprite.save == &player.saves[0] ? &player.saves[1] : &player.saves[0];
+#endif 
 }
 
 
 void
 player_restoreBackground(void)
 {
+#ifdef PLAYER_HARDWARE_SPRITE
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
   sprite_restore(player.sprite.save);
+#endif
+#else
+  sprite_restore(player.sprite.save);
+#endif
 }
 
-
-void
-player_render(frame_buffer_t fb)
-{
-  if (player.flashCounter == 0) {
-    sprite_render(fb, player.sprite);
-  } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
-    sprite_render(fb, player.sprite);
-  }
-}
 
 #ifdef PLAYER_HARDWARE_SPRITE
 void
 player_hSpriteRender(void)
 {
+  int16_t y = player.sprite.y-game_cameraY;
+  uint16_t vStartLo = y + RASTER_Y_START;
+  uint16_t vStopLo = vStartLo + PLAYER_HEIGHT;
+  uint16_t vStopHi = ((vStopLo) & 0x100) >> 8;
+  uint16_t hStartHi = (player.sprite.x + RASTER_X_START) >> 1;
+  uint16_t hStartHi2 = (player.sprite.x + 16 + RASTER_X_START) >> 1;
+  
+  if (vStopLo >= RASTER_Y_START + SCREEN_HEIGHT) {
+    vStopLo =  RASTER_Y_START + SCREEN_HEIGHT;
+  }
+  
+  player.hsprite->hsprite00->vStartLo = vStartLo;
+  player.hsprite->hsprite00->hStartHi = hStartHi;
+  player.hsprite->hsprite00->vStopLo =  vStopLo;
+  player.hsprite->hsprite00->vStopHi =  vStopHi;
+  
+  player.hsprite->hsprite01->vStartLo = vStartLo;
+  player.hsprite->hsprite01->hStartHi = hStartHi;
+  player.hsprite->hsprite01->vStopLo =  vStopLo;
+  player.hsprite->hsprite01->vStopHi =  vStopHi;
+  
+  player.hsprite->hsprite10->vStartLo = vStartLo;
+  player.hsprite->hsprite10->hStartHi = hStartHi2;
+  player.hsprite->hsprite10->vStopLo =  vStopLo;
+  player.hsprite->hsprite10->vStopHi =  vStopHi;
+  
+  player.hsprite->hsprite11->vStartLo = vStartLo;
+  player.hsprite->hsprite11->hStartHi = hStartHi2;
+  player.hsprite->hsprite11->vStopLo =  vStopLo;
+  player.hsprite->hsprite11->vStopHi =  vStopHi;
+}
+#endif
+
+
+void
+player_render(frame_buffer_t fb)
+{
+#ifdef PLAYER_HARDWARE_SPRITE
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
+  if (!player.hspriteCompatible) {
+    if (player.flashCounter == 0) {
+      sprite_render(fb, player.sprite);
+    } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
+      sprite_render(fb, player.sprite);
+    }
+  }
+#else
+  USE(fb);
+#endif
+#else
+    if (player.flashCounter == 0) {
+      sprite_render(fb, player.sprite);
+    } else if (player.flashCounter != 50 && player.flashCounter & 0x4) {
+      sprite_render(fb, player.sprite);
+    }
+#endif
+
+}
+
+#ifdef PLAYER_HARDWARE_SPRITE
+void
+player_updateCopper(void)
+{
 #if PLAYER_HSPRITE_CPU
   int16_t i = 0;
-  if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
+  if (player.hspriteCompatible && player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
     custom->sprpt[i++] = player.hsprite->hsprite00;
     custom->sprpt[i++] = player.hsprite->hsprite01;
     custom->sprpt[i++] = player.hsprite->hsprite10;
@@ -675,7 +754,11 @@ player_hSpriteRender(void)
   }
 #else
   int16_t i, index = 1;
-  if (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
+  if (
+#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
+player.hspriteCompatible && 
+#endif
+    (player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4))) {
     copper.sprpt[index] = ((uint32_t)player.hsprite->hsprite00 & 0xffff);
     index += 2;
     copper.sprpt[index] = (uint32_t)player.hsprite->hsprite00 >> 16;

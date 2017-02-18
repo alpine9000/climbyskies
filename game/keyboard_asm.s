@@ -55,7 +55,13 @@ kbint:
 	;; lea	keys(pc),a2
 	;; l	move.b	d1,(a2,d0.w)
 
+	cmp.w	_keyboard_code,d0
+	beq	.same
 	move.w  d0,_keyboard_code
+	bra	.diff
+.same
+	move.w  #1,_keyboard_code
+.diff
 	;; clr.w	$100
 
 	;; handshake
@@ -84,8 +90,8 @@ oldint:
 _keyboard_keymap:
 	dc.b    0,"1234567890-=",$5c,0,"0" ; $00-$0f
 	dc.b    "QWERTYUIOP[]",0,"123"	   ; $10-$1f
-	dc.b    "ASDFGHJKL		   ;'",0,0,"456" ; $20-$2f
-	dc.b    "<ZXCVBNM,./",0,".789"			 ; $30-$3f
-	dc.b    ' ',8,0,10,10,27,8,0			 ; $40-$47
+	dc.b    "ASDFGHJKL;'",0,0,"456"    ; $20-$2f
+	dc.b    "<ZXCVBNM,./",0,".789"	   ; $30-$3f
+	dc.b    ' ',8,0,10,10,27,8,0	   ; $40-$47
 
 	align 4
