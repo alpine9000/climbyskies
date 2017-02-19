@@ -37,6 +37,12 @@
 
 #define COLOR00 0x0180
 #define COLOR01 0x0182
+#define COLOR02 0x0184
+#define COLOR03 0x0186
+#define COLOR04 0x0188
+#define COLOR05 0x018a
+#define COLOR06 0x018c
+#define COLOR07 0x018e
 
 #define COP2LCH 0x084
 #define COP2LCL 0x086

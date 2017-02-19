@@ -9,7 +9,7 @@ gfx_ctor()
   for (uint16_t y = 0; y <= FRAME_BUFFER_HEIGHT; y++) {
     gfx_dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
   }
-  
+
   for (uint16_t h = 0; h <= 64; h++) {
     gfx_heightLUT[h] = (h*SCREEN_BIT_DEPTH)<<6;
   }

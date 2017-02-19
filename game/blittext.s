@@ -3,6 +3,7 @@
 	xdef _text_drawText8Blitter
 	xdef _text_intToAscii
 	xref _gfx_dyOffsetsLUT
+	xdef font
 	
 BLIT_LF_MINTERM		equ $ca		; cookie cut
 BLIT_WIDTH_WORDS	equ 2		; blit 2 words to allow shifting
@@ -12,7 +13,7 @@ FONT_WIDTH		equ 8
 FONTMAP_WIDTH_BYTES	equ 32
 _SCREEN_BIT_DEPTH	equ 5
 FONT_BIT_DEPTH	        equ 1
-_BITPLANE_WIDTH_BYTES	equ 320/8
+_BITPLANE_WIDTH_BYTES	equ 256/8
 MODULO	                equ (_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(_BITPLANE_WIDTH_BYTES*(_SCREEN_BIT_DEPTH-1))
 FONTMAP_MODULO		equ (FONTMAP_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(FONTMAP_WIDTH_BYTES*(FONT_BIT_DEPTH-1))
 	
@@ -36,9 +37,11 @@ _text_drawText8Blitter:
 
 	
 	move.l	#font,a5						; font pointer
-	;; mulu.w	#_BITPLANE_WIDTH_BYTES*_SCREEN_BIT_DEPTH,d1		; d1 = ypos bytes
-	lea 	_gfx_dyOffsetsLUT,a2
-	move.w  (a2,d1.l),d1
+	mulu.w	#_BITPLANE_WIDTH_BYTES*_SCREEN_BIT_DEPTH,d1		; d1 = ypos bytes
+	;; 	mulu.w #_BITPLANE_WIDTH_BYTES,d1
+	;; 	lea 	_gfx_dyOffsetsLUT,a2
+	;; 	move.w  (a2,d1.l),d1
+
 	move.l	a0,a2							; bitplane pointer	
 	adda.w	d1,a2							; dest += YPOS_BYTES	
  	move.w	d0,d1							; xpos

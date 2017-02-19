@@ -3,7 +3,29 @@
 extern void palette_menuInstall(void);
 extern frame_buffer_t menuFrameBuffer;
 
-static  __section(data_c)  copper_t menu_copper  = {
+#define MENU_NUM_ITEMS             4
+#define MENU_TOP_COLOR             0x7ef
+#define MENU_BOTTOM_COLOR          0x5cd
+#define MENU_TOP_COLOR_SELECTED    0xbe0
+#define MENU_BOTTOM_COLOR_SELECTED 0x9d4
+
+#define MENU_COPPER_WAIT_TOP(x) { 0x9fd1 + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_WAIT_BOTTOM(x) { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
+
+typedef struct {
+  uint16_t wait1[2];
+  uint16_t color1[2];
+  uint16_t wait2[2];
+  uint16_t color2[2];
+} menu_line_copper_t;
+
+typedef struct {
+  uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
+  menu_line_copper_t lines[MENU_NUM_ITEMS];
+  uint16_t end[2];
+} menu_copper_t;
+
+static  __section(data_c)  menu_copper_t menu_copper  = {
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -16,6 +38,34 @@ static  __section(data_c)  copper_t menu_copper  = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
+
+  .lines = {
+    [0] = {
+      .wait1 = MENU_COPPER_WAIT_TOP(0),
+      .color1 = { COLOR07, MENU_TOP_COLOR_SELECTED}, 
+      .wait2 =  MENU_COPPER_WAIT_BOTTOM(0),
+      .color2 = { COLOR07, MENU_BOTTOM_COLOR_SELECTED}, 
+    },
+    [1] = {
+      .wait1 = MENU_COPPER_WAIT_TOP(1),
+      .color1 = { COLOR07, MENU_TOP_COLOR}, 
+      .wait2 = MENU_COPPER_WAIT_BOTTOM(1),
+      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
+    },
+    [2] = {
+      .wait1 = MENU_COPPER_WAIT_TOP(2),
+      .color1 = { COLOR07, MENU_TOP_COLOR}, 
+      .wait2 = MENU_COPPER_WAIT_BOTTOM(2),
+      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
+    },
+    [3] = {
+      .wait1 = MENU_COPPER_WAIT_TOP(3),
+      .color1 = { COLOR07, MENU_TOP_COLOR}, 
+      .wait2 = MENU_COPPER_WAIT_BOTTOM(3),
+      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
+    }
+  },
+
   .end = {0xFFFF, 0xFFFE}
 
 };
@@ -35,6 +85,7 @@ menu_pokeCopperList(frame_buffer_t frameBuffer)
   }
 }
 
+
 static int16_t
 menu_processKeyboard(void)
 {
@@ -49,19 +100,64 @@ menu_processKeyboard(void)
   return 0;
 }
 
+char* menu_items[MENU_NUM_ITEMS+1] = {
+  "PLAY NOW!",
+  "MUSIC - ON",
+  "HI SCORES",
+  "CREDITS",
+  0
+};
+
+
+static int
+_strlen(char* s) 
+{
+  int count = 0;
+  while (*s++ != 0) {
+    count++;
+  }
+
+  return count;
+}
+
+
+static void
+menu_render(frame_buffer_t fb)
+{
+  fb += 2*SCREEN_WIDTH_BYTES;
+  int y = 130;
+
+  for (int i = 0; menu_items[i] != 0; i++) {
+    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2)+1, y+1);
+    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2), y);
+    y+= 16;
+  }
+  
+  y = 130;
+
+  fb -= SCREEN_WIDTH_BYTES;
+  for (int i = 0; menu_items[i] != 0; i++) {
+    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2), y);
+    y+= 16;
+  }
+}
+
+
 int16_t
 menu_loop(void)
 {
   volatile uint16_t scratch;
 
   hw_waitVerticalBlank();
+  custom->dmacon = DMAF_RASTER|DMAF_SPRITE;
+
   palette_black();
 
   disk_loadData((void*)game_onScreenBuffer, (void*)menuFrameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
 
   uint16_t volatile* copperPtr = (uint16_t*)&menu_copper;
 
-  custom->dmacon = (DMAF_SPRITE); // turn off sprite dma
+  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR);
 
   /* set up playfield */
   
@@ -82,12 +178,13 @@ menu_loop(void)
 
   menu_pokeCopperList(game_onScreenBuffer);
 
+  hw_waitVerticalBlank();
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
-
-  hw_waitVerticalBlank();
   palette_menuFadeIn();
 
+  hw_waitVerticalBlank();
+  menu_render(game_onScreenBuffer);
   int exit = 0;
 
   while (!exit) {
@@ -98,7 +195,10 @@ menu_loop(void)
     exit = menu_processKeyboard();
   }
 
+  hw_waitVerticalBlank();
+  custom->dmacon = DMAF_RASTER;
   palette_black();
+
 
   return exit;
 }
