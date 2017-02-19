@@ -456,18 +456,25 @@ player_updateAlive(void)
     //int16_t x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
     //int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
 
-    int16_t kill = 0;
-    if (TILE_COLLISION(level.background_tileAddresses[y][x])) {
+    int16_t kill = 0, smash = 0;
+    if (TILE_SMASHABLE(level.background_tileAddresses[y][x])) {
       level.background_tileAddresses[y][x] = TILE_SKY;
       tile_invalidateTile(x<<4, y<<4, 0);
       kill = enemy_headsmash((x<<4)+(TILE_WIDTH/2), y<<4);
+      smash = 1;
     }
-    if (TILE_COLLISION(level.background_tileAddresses[y][x+1])) {
+    if (TILE_SMASHABLE(level.background_tileAddresses[y][x+1])) {
       level.background_tileAddresses[y][x+1] = TILE_SKY;
       tile_invalidateTile((x+1)<<4, y<<4, 0);
       kill |= enemy_headsmash(((x+1)<<4)+(TILE_WIDTH/2), y<<4);
+      smash |= 1;
     }
-    sound_queueSound(kill ? SOUND_KILL : SOUND_HEADSMASH);
+    if (!smash) {
+      sound_queueSound(SOUND_LAND);
+    } else {
+      sound_queueSound(kill ? SOUND_KILL : SOUND_HEADSMASH);
+    }
+
   } else {   
     player.state = PLAYER_STATE_DEFAULT;
   }
