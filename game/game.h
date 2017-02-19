@@ -128,6 +128,7 @@ extern uint32_t game_score;
 #include "disk.h"
 #include "sound.h"
 #include "keyboard.h"
+#include "menu.h"
 
 extern copper_t copper;
 

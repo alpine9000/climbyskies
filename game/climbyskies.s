@@ -5,6 +5,7 @@
 	xdef _custom
 	xdef _spriteMask
 	xdef _spriteFrameBuffer
+	xdef _menuFrameBuffer
 	
 	if TRACKLOADER=1
 byteMap:
@@ -23,7 +24,6 @@ Entry:
 
 Main:
 	jsr	_init_amiga
-	jsr	_game_init
 	jsr	_game_loop
 
 	if TRACKLOADER=0
@@ -87,21 +87,32 @@ l385	equ	0
 	align 4
 _spriteBitplanes:
 	incbin	"out/sprite.bin"
-
 spriteMask
 	incbin	"out/sprite-mask.bin"
 _spriteMask:
 	dc.l	spriteMask
+_menuFrameBuffer:
+	dc.l	_menuBitplanes
 _spriteFrameBuffer:
 	dc.l	_spriteBitplanes
 
 	include "out/fade_in.s"
+	include "out/menu_fade_in.s"	
 
+	section .noload
+	cnop 0,512
+_menuBitplanes
+	incbin	"out/menu.bin"
+	cnop 0,512
+	
+	section  .data
+	
 	align 4
 	xdef _player_record
 _player_record:
 	incbin "recordings/default.raw"
 
+	section data_c
 	align 4
 	if SFX==1
 	xdef _sound_land

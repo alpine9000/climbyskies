@@ -7,5 +7,6 @@ void
 palette_black(void);
 void
 palette_fadeIn(void);
-
+void
+palette_menuFadeIn(void);
 #endif

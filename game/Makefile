@@ -10,15 +10,15 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s
 
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png font8x8.png 
+IMAGES=sprite.png font8x8.png menu.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/fade_in.s out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
+ASSETS=$(IMAGEDATA) out/fade_in.s out/menu_fade_in.s out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -167,6 +167,12 @@ out/background-map.c: assets/background.tmx
 out/sprite.bin: assets/sprite.png palette.pal
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224
 out/bootblock.bin: out/bootblock.o
+
+
+out/menu.bin: assets/menu.png menu.pal
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/menu.png --output=out/menu --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=menu.pal
+
+out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@
 
 out/font%.bin: assets/font%.png palette.pal
@@ -219,6 +225,12 @@ out/sprite_playerLeftStand1_%.png: assets/sprite.png
 
 out/fade_in.s: ./palette.pal
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palette.pal --output=fadeIn > $@
+
+out/menu_fade_in.s: ./out/menu.pal
+	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=out/menu.pal --output=menuFadeIn > $@
+
+
+./out/menu.pal: out/menu.bin
 
 out/bootblock.o: $(BOOTBLOCK_ASM) $(PROGRAM_BIN)
 	$(VASM) $(VASM_ARGS)  -DUSERSTACK_ADDRESS="\$$$(USERSTACK_ADDRESS)" -DBASE_ADDRESS="\$$$(BASE_ADDRESS)"  $< -o $@ -I$(AMIGA_INCLUDE)

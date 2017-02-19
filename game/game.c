@@ -145,6 +145,17 @@ static int16_t tileY;
 
 };
 
+void
+game_ctor(void)
+{
+  game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
+  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
+  game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
+  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
+  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
+  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
+}
+
 __EXTERNAL void
 game_init()
 {
@@ -164,17 +175,10 @@ game_init()
 
   game_score = 0;
   game_lives = 3;
-  game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
-  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
-  game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
-  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
-  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
-  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
+
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
 
-  music_play(0);   
-  hw_interruptsInit(); // Don't enable interrupts until music is set up
   
   game_newGame();
 }
@@ -555,11 +559,9 @@ game_processKeyboard(void)
     game_refreshScoreboard();
 #endif
     break;
-#if TRACKLOADER==0
   case 'Q':
     return 1;
     break;
-#endif
   }
 #endif
   return 0;
@@ -571,6 +573,20 @@ game_loop()
 {
   static int16_t operationCount = -1;
   int16_t joystickDown = 1;
+
+  game_ctor();
+
+  music_play(0);   
+  hw_interruptsInit(); // Don't enable interrupts until music is set up
+
+ menu:
+  if (menu_loop()) {
+#if TRACKLOADER==0
+    goto done;
+#endif
+  }
+
+  game_init();
 
   for (;;) {
 
@@ -683,9 +699,7 @@ game_loop()
   skip:;
 
     if (game_processKeyboard()) {
-#if TRACKLOADER==0
-      goto done;
-#endif
+      goto menu;
     }
     operationCount++;
   }

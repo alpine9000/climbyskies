@@ -1,7 +1,7 @@
 MEMORY 
 {
     disk: org = 0x4000, len = 901120-0x4000
-    ram: org = 0x00000, len = 0x160000
+    ram: org = 0x00000, len = 0x80000
 }
 
 SECTIONS
