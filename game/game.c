@@ -214,7 +214,8 @@ game_refreshScoreboard(void)
   game_lastLevelScore = 0;
 
   if (game_scoreBoardMode == 0) {
-    
+
+#ifdef PLAYER_RECORDING    
     switch (player_getRecord()) {
     case PLAYER_RECORD_IDLE:
       text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(13*8));  
@@ -223,9 +224,12 @@ game_refreshScoreboard(void)
       text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(13*8));        
       break;
     case PLAYER_RECORD_PLAYBACK:
+#endif
       text_drawScoreBoard("  PLAY  " , SCREEN_WIDTH-(13*8));        
+#ifdef PLAYER_RECORDING
       break;
     }
+#endif
 
     text_drawScoreBoard("BONUS 00           " , 0);  
     debug_showScore();
@@ -411,16 +415,7 @@ game_scrollBackground(void)
 
 static void
 debug_showRasterLine(void)
-{
-  if (game_turtle > 1) {
-    custom->color[16] = 0xf00;
-    game_turtle--;
-  } else if (game_turtle == 1) {
-    custom->color[16] = 0x09e;
-    game_turtle--;
-  }
-  
-
+{  
   if (game_scoreBoardMode == 1 && hw_getRasterLine() < 250) {
     static int16_t frame = 0;
     
@@ -525,15 +520,65 @@ game_setLevelComplete(void)
   }
 }
 
+int16_t
+game_processKeyboard(void)
+{
+#ifdef PLAYER_RECORDING
+  switch (keyboard_getKey() ) {
+  case 'T':
+    game_singleStep = 1;
+    break;
+  case ' ':
+    game_paused = !game_paused;
+    break;
+  case 'R':
+    palette_black();
+    game_newGame();
+    player_setRecord(PLAYER_RECORD_RECORD);
+    game_refreshScoreboard();
+    break;
+  case 'P':
+    palette_black();
+    game_newGame();
+    player_setRecord(PLAYER_RECORD_PLAYBACK);
+    game_refreshScoreboard();
+    break;
+  case 'S':
+    player_setRecord(PLAYER_RECORD_IDLE);
+    game_refreshScoreboard();
+    break;
+  case 'N':
+    palette_black();
+    game_newGame();
+#ifdef PLAYER_RECORDING
+    player_setRecord(PLAYER_RECORD_IDLE);
+    game_refreshScoreboard();
+#endif
+    break;
+#if TRACKLOADER==0
+  case 'Q':
+    return 1;
+    break;
+#endif
+  }
+#endif
+  return 0;
+}
+
+
 __EXTERNAL void
 game_loop()
 {
+  static int16_t operationCount = -1;
   int16_t joystickDown = 1;
 
   for (;;) {
 
+    if (game_paused && game_singleStep != 1) {
+      goto skip;
+    }
+    game_singleStep = 0;
     hw_readJoystick();
-
 
     if (!joystickDown && JOYSTICK_BUTTON_DOWN) {    
       joystickDown = 1;
@@ -548,15 +593,13 @@ game_loop()
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
-    if (!game_paused || game_singleStep > 0) {
-      game_singleStep = 0;
-      SPEED_COLOR(0xF0F);
-      player_update();
-      SPEED_COLOR(0x0fF);
-      enemy_update(&player.sprite);
-      SPEED_COLOR(0x2f2);
-      item_update(&player.sprite);
-    }
+
+    SPEED_COLOR(0xF0F);
+    player_update();
+    SPEED_COLOR(0x0fF);
+    enemy_update(&player.sprite);
+    SPEED_COLOR(0x2f2);
+    item_update(&player.sprite);
 
 
     if (game_shake == 0) {
@@ -573,10 +616,23 @@ game_loop()
     } 
 
 
-    SPEED_COLOR(0xfff);
-    debug_showRasterLine();
-    debug_showScore();
-    SPEED_COLOR(0x000);
+    if (game_turtle > 1) {
+      custom->color[16] = 0xf00;
+      game_turtle--;
+    } else if (game_turtle == 1) {
+      custom->color[16] = 0x09e;
+      game_turtle--;
+    }
+
+    if (operationCount == 10) {
+      
+      SPEED_COLOR(0xfff);
+      debug_showRasterLine();
+      debug_showScore();
+      SPEED_COLOR(0x000);
+      
+      operationCount = 0;
+    } 
 
 
 #ifdef PLAYER_HARDWARE_SPRITE
@@ -624,48 +680,17 @@ game_loop()
 
     game_render();
 
-#ifdef PLAYER_RECORDING
-    switch (keyboard_getKey() ) {
-    case 'T':
-      game_singleStep = 1;
-      break;
-    case ' ':
-      game_paused = !game_paused;
-      break;
-    case 'R':
-      palette_black();
-      game_newGame();
-      player_setRecord(PLAYER_RECORD_RECORD);
-      game_refreshScoreboard();
-      break;
-    case 'P':
-      palette_black();
-      game_newGame();
-      player_setRecord(PLAYER_RECORD_PLAYBACK);
-      game_refreshScoreboard();
-      break;
-    case 'S':
-      player_setRecord(PLAYER_RECORD_IDLE);
-      game_refreshScoreboard();
-      break;
-    case 'N':
-      palette_black();
-      game_newGame();
-#ifdef PLAYER_RECORDING
-      player_setRecord(PLAYER_RECORD_IDLE);
-      game_refreshScoreboard();
-#endif
-      break;
+  skip:;
+
+    if (game_processKeyboard()) {
 #if TRACKLOADER==0
-    case 'Q':
       goto done;
-      break;
 #endif
     }
-
-#endif
-
+    operationCount++;
   }
+
+
 #if TRACKLOADER==0
  done:;
 #ifdef GAME_KEYBOARD_ENABLED
@@ -673,6 +698,7 @@ game_loop()
 #endif
 #endif
 }
+
 
 #if 0
 void *__memset(__REG("a0", void *dst), __REG("d0", int32_t c), __REG("d1", uint32_t n))

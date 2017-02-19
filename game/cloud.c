@@ -174,8 +174,12 @@ cloud_render(frame_buffer_t fb)
     cloud_spriteRender(fb, &cloud->sprite);
   }
 
-  cloud_setupRenderPartialTile();
-
+#ifdef CLOUD_TILE_MASKS
+    int16_t mask = -1;
+#else
+    cloud_setupRenderPartialTile();
+#endif
+  
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     int16_t py = (cloud->sprite.y>>4); // (cloud->sprite.y/TILE_HEIGHT);
@@ -186,7 +190,23 @@ cloud_render(frame_buffer_t fb)
 	for (int16_t y = 0; y < 3; y++) {	  
 	  uint16_t tile = level.background_tileAddresses[py+y][px+x];
 	  if (tile != TILE_SKY) {
+#ifdef CLOUD_TILE_MASKS
+	    if (tile > TILE_MASKED_BLIT_RANGE) {
+	      if (mask != 1) {
+		cloud_setupRenderPartialTileMask();
+		mask = 1;
+	      }
+	      cloud_renderTileMask(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, tile);
+	    } else {
+	      if (mask != 0) {
+		cloud_setupRenderPartialTile();
+		mask = 0;
+	      }
+	      cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
+	    }
+#else
 	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
+#endif
 	  }
 	}
       }

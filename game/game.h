@@ -12,9 +12,10 @@
 #define GAME_KEYBOARD_ENABLED         1
 #define PLAYER_RECORDING              1
 #define PLAYER_HARDWARE_SPRITE        1
-#define PLAYER_BLIT_SPRITE_OVERDRAW   1
+//#define PLAYER_BLIT_SPRITE_OVERDRAW   1
 //#define PLAYER_HSPRITE_CPU          1
 //#define CLOUD_FULLCOLOR             1
+#define CLOUD_TILE_MASKS              1
 #define SPRITE_MAX_HSPRITE_OVERDRAW   7
 #define INDICATOR_COLOR_INDEX        16
 

@@ -7,8 +7,31 @@ cloud_setupRenderPartialTile(void)
   volatile struct Custom* _custom = CUSTOM;
   hw_waitBlitter();
 
+  _custom->bltcon0 = (SRCA|DEST|0xf0/*|shift<<ASHIFTSHIFT*/);
+  //  _custom->bltcon1 = 0; //shift<<BSHIFTSHIFT;
+  //  _custom->bltafwm = 0xffff;
+  //  _custom->bltalwm = 0xFFFF;
+
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
+}
+
+static inline 
+void
+cloud_setupRenderPartialTileMask(void)
+{
+  volatile struct Custom* _custom = CUSTOM;
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca);
+  //  _custom->bltcon1 = 0;
+  //  _custom->bltafwm = 0xffff;
+  //  _custom->bltalwm = 0xFFFF;
+
+  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(1<<1));
+  _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(1<<1));
+  _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(1<<1));
+  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(1<<1));
 }
 
 
@@ -28,6 +51,32 @@ cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, f
   _custom->bltsize = gfx_heightLUT[h] | 1;
 }
 
+#ifdef CLOUD_TILE_MASKS
+static inline void
+cloud_renderPartialTileMask(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, uint16_t tileOffset)
+{
+  volatile struct Custom* _custom = CUSTOM;
+
+  if (y < 0) {
+    return;
+  }
+
+  frame_buffer_t tile = spriteFrameBuffer + tileOffset;
+  frame_buffer_t mask = spriteMask + tileOffset;
+
+  dest += gfx_dyOffsetsLUT[y] + (x>>3);
+
+  hw_waitBlitter();
+
+  _custom->bltapt = (uint8_t*)mask;
+  _custom->bltbpt = (uint8_t*)tile;
+  _custom->bltcpt = (uint8_t*)dest;
+  _custom->bltdpt = (uint8_t*)dest;
+
+  _custom->bltsize = gfx_heightLUT[h] | 1;
+}
+
+#endif
 
 static inline void
 cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
@@ -57,6 +106,35 @@ cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
   }
 }
 
+#ifdef CLOUD_TILE_MASKS
+static inline void
+cloud_renderTileMask(frame_buffer_t fb, int16_t x, int16_t y, uint16_t tileOffset)
+{
+  int32_t h = 16;
+  if (y < game_cameraY) {
+    int32_t offset = game_cameraY - y;
+    h -= offset;
+    y += offset;
+    tileOffset += gfx_dyOffsetsLUT[offset];
+    if (h <= 0) {
+      return;
+    }
+  }
+
+  y = y-game_cameraY-game_screenScrollY;
+
+  if (y >= 0) {
+    cloud_renderPartialTileMask(fb, x, y, h, tileOffset);
+  } else {
+    if (y > -h) {
+      cloud_renderPartialTileMask(fb, x, y, h+y, tileOffset);
+      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tileOffset);
+    } else {
+      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_HEIGHT+y, h, tileOffset);
+    }
+  }
+}
+#endif
 
 static inline void
 cloud_setupRenderSpriteNoMask(void)
