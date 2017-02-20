@@ -7,6 +7,9 @@
 
 typedef enum {
   ITEM_ANIM_COIN = 0,
+  ITEM_ANIM_LIGHTNING, // Ability to kill enemies
+  ITEM_ANIM_HEART, // Extra life
+  ITEM_ANIM_HEADSMASH, // Smash non smashable platforms
 } item_anim_t;
 
 extern int16_t item_count;

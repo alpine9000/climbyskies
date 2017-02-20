@@ -5,9 +5,9 @@ extern unsigned short* tile_tilePtr;
 extern unsigned short* tile_itemPtr;
 extern int16_t tile_tileX;
 
-#define TILE_SKY               0xbba6
-#define TILE_MASKED_BLIT_RANGE 0x5799//0xc88
-#define TILE_COLLISION(x) (x < 0x579a)
+#define TILE_SKY               0xeda6//0xbba6
+#define TILE_MASKED_BLIT_RANGE 0//0x5799
+#define TILE_COLLISION(x) (x < 0xe100)//(x < 0x579a)
 #define TILE_SMASHABLE(x) (x < 0x1900)
 #define BACKGROUND_TILE(x,y) (*(&level.background_tileAddresses[0][0] + ((((y)>>4)<<4) + ((x)>>4))))
 //#define BACKGROUND_TILE(x,y) (*(&backgroundTiles[0][0] + ((((y/TILE_HEIGHT)*TILE_WIDTH)) + (x/TILE_WIDTH))))

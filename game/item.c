@@ -103,22 +103,24 @@ item_remove(item_t* ptr)
 void
 item_add(int16_t x, int16_t y, int16_t anim, unsigned short* tilePtr)
 {
-  item_t* ptr = item_getFree();
-  ptr->tilePtr = tilePtr;
-  ptr->state = ITEM_ALIVE;
-  ptr->sprite.y = y;
-  ptr->sprite.save = &ptr->saves[0];
-  ptr->saves[0].blit[0].size = 0;
-  ptr->saves[0].blit[1].size = 0;
-  ptr->saves[1].blit[0].size = 0;
-  ptr->saves[0].blit[1].size = 0;
-  ptr->sprite.x = x;
-  ptr->anim = &item_animations[anim];
-  ptr->animId = anim;
-  ptr->sprite.imageIndex = ptr->anim->animation.start;
-  ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
-  ptr->frameCounter = 0;
-  item_addItem(ptr);
+  if (item_count < ITEM_MAX_ITEMS) {
+    item_t* ptr = item_getFree();
+    ptr->tilePtr = tilePtr;
+    ptr->state = ITEM_ALIVE;
+    ptr->sprite.y = y;
+    ptr->sprite.save = &ptr->saves[0];
+    ptr->saves[0].blit[0].size = 0;
+    ptr->saves[0].blit[1].size = 0;
+    ptr->saves[1].blit[0].size = 0;
+    ptr->saves[0].blit[1].size = 0;
+    ptr->sprite.x = x;
+    ptr->anim = &item_animations[anim];
+    ptr->animId = anim;
+    ptr->sprite.imageIndex = ptr->anim->animation.start;
+    ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+    ptr->frameCounter = 0;
+    item_addItem(ptr);
+  }
 }
 
 

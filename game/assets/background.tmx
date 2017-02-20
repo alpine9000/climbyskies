@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="202" tilewidth="16" tileheight="16" nextobjectid="1">
- <tileset firstgid="1" name="sprite" tilewidth="16" tileheight="16" tilecount="320" columns="20">
-  <image source="sprite.png" width="320" height="256"/>
+ <tileset firstgid="1" name="sprite" tilewidth="16" tileheight="16" tilecount="640" columns="20">
+  <image source="sprite.png" width="320" height="512"/>
   <tile id="1">
    <properties>
     <property name="Blah" type="int" value="0"/>
@@ -63,7 +63,7 @@
    </properties>
   </tile>
  </tileset>
- <tileset firstgid="321" name="sprite" tilewidth="16" tileheight="16" tilecount="320" columns="20">
+ <tileset firstgid="641" name="sprite" tilewidth="16" tileheight="16" tilecount="320" columns="20">
   <image source="../../../../../climbyskies/game/assets/sprite.png" width="320" height="256"/>
   <tile id="1">
    <properties>
@@ -128,12 +128,12 @@
  </tileset>
  <layer name="background" width="16" height="202">
   <data encoding="base64" compression="zlib">
-   eJztmltSAjEQRSOyBR1Ziz8uADeIrkFdA7owZ0pThkvffpBRZJKPW7FImipOv/Jwl1K6GzWcaXy46ppD25HlY/oZcX41fnatzN+nQ+H8Jn2JzZfaKfPaXNaLskabm8t+r6zBucxV88U6Hc9lu8xV80WZJ/kzya5lrb85S/4oua/BH1m5HjGumXtN3fLEviZP7P6mvZQXjDf6Bflr8S/5Bfn3+D/ki3Ft5UPJd0jHcd05x+Ttv6z+ePuvp/4ssc4waf3Xkxda/+15YcuKe8Y9j1bcS9wHwr+luPfyx7oT5Z95a/xb5G7xZ/0X+zXjz+oM69fdD73/nsMP0fNvpP9K518pL1rizfizuEZf4D2QFdfoi7zWcw9USvJRxG8S4wj3WnvJR/vE+yv6A/3A+DN/oB+i/JcqaY9ffs7Ov3me9VJrn482LdcgD2+rTlm8I/23JVnxbeWFFt+n5EVrsuIa+61V/9Ee+21N/b/0GiXZR+4/JfvI/ed//P1/aa/1CO/7Czufed9favc9l54DnvdHzIno+yO+0ff3Ry6r/iN31n+tfc0c719Li31NGOfe9zDkzc5nWjxMaom1xN16D7C4n1rnW+a+Jdw9sa9x73t+Lut+H3uC1X+13lv66VRfLC0/rHpj7X+sesPu4ZC/lytb5+XC1tXae+tOlD/6Icof/dD3nz5hzUfulj3W/Cj3FayJ1B20neSNb8nWa89sJ1n5kVmzeYv/YHy/xX9pdd0r9r7FxtLXK6H+bAyh/fT30zg+V/z+19H27Yz276PtRyV/736d/f+J97wg+aPV2Jd4RsfbUTcVY43tNH4CcEUEKQ==
+   eJztm8dywkAMhu28BzxMSCVwTa9HSG/H9HLglEeOPEGTHaFmDNhrOHwDQSxhfmmllTbpJEnSBTolPf6kk+MZeClgfwXeCtjfgQ/gcwx7H/gCvoW1mv0JWAbWgQ2gCwxy2DO2gQPgEDhjfodktzS1sDS1sDS34DTNtL4GboBb4FFZ3yF6Uq03ib2Z/NEYcsroHWp9ROy4Dj9nEvumCoSac3pr9jLjP3YeBL290PgPobEe/ozPufhHuHUN8lz7bjHkpjvgnvGDVQ+QNrBF/OCJd+QYOElH/VDXeJeYp/xT9X2h1V+6L2ge0OovZ+PqqFZ/qa3suC2KlH+8cPmHe59UC6T8Q5FqQezxbulP4z18v6U/F+/0/Zb+NN69/oodKd/T3MTFo5TvOX9I53kp32v5p8px7tHb6n/rUn+rBJd3Fv3v7PDk/9AXMef/OuUn9EMzGcVzJkU/NJJRPGdS9EPZ8VuUcc+euC+k2NfOiaE/pFi28gz6oy7x7+l/qzh/jlHrECn2Ja1pPdDyPq292eue+ot609rr2Rex4el/tRps9b9WDfbUU60Gl63ftLDyEZKn/+LW5+2/NBb3j9XJ/7EQe/8VS52VCGNa01mqAZ75p1YDvP1UXc//00K7e/ScX6x10vx5KfI94b135MhTdyXqmueL4DkLeWcPkk+8s4dJ+KRK+4O7d9dqL90f2r07139Ru3bvzvVf83b/2BdeRzzzT+3845l/WvPnKsXzOPp78z13BvLe/0pnoDzzZO4MVHb8Tgtt5hDuB2u+Kc39B8p6Ses63/v2A53zzqLDeVs75feBZ56MOnP61u3vHiSu0v+4D/MSV6fPGV3WUjvu0V8txi/7qS/uM3/tFNBmlvQU20Xqv4PpBbpn6y6BFUZfa5+0hutWgV2ir/Zde4Hu2bq9NN44Dxm338oo+v8XZa3Fx1+ikjcR
   </data>
  </layer>
- <layer name="item" width="16" height="202">
+ <layer name="item" width="16" height="202" visible="0">
   <data encoding="base64" compression="zlib">
-   eJztmT0OwjAMhdsBmGCHDXZ+FrgA3AfuAJeDDXbYYIcNJhxBJVQ1bYLbxHbySZaQKqvIdt5z2ySJUKCTC9vrobGHOCDyzxAXzTWT+t4hHoj718UUYobIX0KsavovTRJn/kMrTZJ2+n9+H3IHlvm/tR9D7gRxfy4cIU6I/CvEDZH/hHh9f8fZb1bvf9HVmore5ynTf5O54aL/kQ8+9F+RzZI0/aek8yaE5AWuNF9HleZT6IW0/Z9CTTnQBQ3uIXR4CLmjkvyqPswhdyHIB0zx5b8K1RNp/qvg4MGh6pJPD1Y1p/rclVHkvzazQs1/I+W40n/dDEnU/yqo+kMInuBS/4vqyVH/beCi/yHMuik+nwEUmQdI6glVjc8jqeZVUHj/Rr3ekvWfeu1d4VvvVR9C2/l1uPaJ/Bmw/V7DBQpaX7TnRw1yg2mdOfRDsidj4dA/HfHbi1uoeQLn2a2buvcg29pS3IPWcDY3iPO5hdxdQOebAm+uk1yE
+   eJztmbFuwjAQhh2kwgR7u8HewgIvQN+3vANdylb2ssFOt3bqWWmkKIpjO5fYd2d/0klI0a+gu+P/HaJUhgKzRvleT40PqBNC/wV1MVxz6e8d6htx/6FYQ20Q+j3U60DfZUzyzpc8FEpNi/76R9A+eerrvX8G7Qvi/lz4hDoj9FeoG0L/A/X7/znv/rh+X8fUayp+36TL/132hov/Z0pi+L+m2iVp/k/J511IKQtCeb4Jm+dTmIW08z+FnnJgDh68QPjwErSrDr1tDlvQ7gTlgCux8lejZyItfzUcMjhVX4qZwbrnVJ+7Ktry12dXqOVvpptQ/m/aIYn+b4NqPqSQCSH9v62fHP3fBy7+n8KuuxLzGUBTZYCkmVD1+CaSem6Dwv9v1Pst2f+p9z4Usf1ezyG1M7+J0DnR/A34vq/hAgWvbzvnZw8Kg2ufOcxDciZj4TA/E/ndS1ioZQLn3R2aoc9Bvr2leA56myh1mPTXH0H7jtBn/PkDRvVdiA==
   </data>
  </layer>
 </map>

@@ -440,7 +440,8 @@ enemy_update(sprite_t* p)
     ptr->sprite.y += ptr->velocity.y;
     int16_t y = ptr->sprite.y + ptr->height;
     if (ptr->state == ENEMY_ALIVE && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
-      if (BACKGROUND_TILE(x, y) == TILE_SKY) {
+      //if (BACKGROUND_TILE(x, y) == TILE_SKY) {
+      if (!TILE_COLLISION(BACKGROUND_TILE(x, y))) {
 	if (++ptr->skyCount > 1) { // two skies means nothing to stand on
 	    ptr->state = ENEMY_REMOVED;
 	} else {	    
