@@ -63,8 +63,8 @@
    </properties>
   </tile>
  </tileset>
- <tileset firstgid="641" name="sprite" tilewidth="16" tileheight="16" tilecount="320" columns="20">
-  <image source="../../../../../climbyskies/game/assets/sprite.png" width="320" height="256"/>
+ <tileset firstgid="641" name="sprite" tilewidth="16" tileheight="16" tilecount="640" columns="20">
+  <image source="../../../../../climbyskies/game/assets/sprite.png" width="320" height="512"/>
   <tile id="1">
    <properties>
     <property name="Blah" type="int" value="0"/>

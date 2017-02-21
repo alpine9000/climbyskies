@@ -25,5 +25,5 @@ item_render(frame_buffer_t fb);
 void
 item_update(sprite_t* p);
 void
-item_add(int16_t x, int16_t y, int16_t anim, unsigned short* tilePtr);
+item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr);
 #endif

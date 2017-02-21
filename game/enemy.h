@@ -26,7 +26,7 @@ enemy_update(sprite_t* p);
 void
 enemy_ctor(void);
 void
-enemy_addMapObject(int16_t id, int16_t x, int16_t y, unsigned short* tilePtr);
+enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtr);
 int16_t
 enemy_headsmash(int16_t x, int16_t y);
 #endif

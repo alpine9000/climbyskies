@@ -21,8 +21,9 @@ init_amiga(void)
   custom->bplcon4 = 0x11;
 
   enemy_ctor();
-  sprite_ctor();
   gfx_ctor();
+  sprite_ctor();
+
 #ifdef GAME_KEYBOARD_ENABLED
   keyboard_ctor();
 #endif

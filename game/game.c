@@ -60,7 +60,8 @@ static uint16_t game_lastMaxRasterLine;
 static int16_t game_lastEnemyCount;
 static int16_t game_lastItemCount;
 static int16_t game_levelComplete;
-
+static int16_t game_missedFrameCount;
+static int16_t game_lastMissedFrameCount;
 
 
 
@@ -302,6 +303,8 @@ game_newGame(void)
   game_lastMaxRasterLine = -1;
   game_lastEnemyCount = -1;
   game_lastItemCount = -1;
+  game_lastMissedFrameCount = -1;
+  game_missedFrameCount = 0;
   tileY = 0;
 
   game_switchFrameBuffers();
@@ -443,9 +446,14 @@ debug_showRasterLine(void)
 	text_drawScoreBoard(text_intToAscii(item_count, 4), 15*8);
 	game_lastItemCount = item_count;
       }
+    } else if (frame == 4) {
+      if (game_missedFrameCount != game_lastMissedFrameCount) {
+	text_drawScoreBoard(text_intToAscii(game_missedFrameCount, 4), 20*8);
+	game_lastMissedFrameCount = game_missedFrameCount;
+      }
     }
     frame++;
-    if (frame > 3) {
+    if (frame > 4) {
       frame = 0;
     }
   }
@@ -640,7 +648,7 @@ game_loop()
       game_turtle--;
     }
 
-    if (operationCount == 10) {
+    if (1 || operationCount == 10) {
       
       SPEED_COLOR(0xfff);
       debug_showRasterLine();
@@ -667,6 +675,7 @@ game_loop()
     if (game_lastVerticalBlankCount == 0) {
 
     } else if (hw_verticalBlankCount-game_lastVerticalBlankCount > 1) {
+      game_missedFrameCount++;
       game_turtle = 5;
     }
       

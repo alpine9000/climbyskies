@@ -19,7 +19,7 @@ typedef struct item {
   int16_t frameCounter;
   item_state_t state;
   int16_t deadRenderCount;
-  unsigned short* tilePtr;
+  uint16_t* tilePtr;
 } item_t;
 
 static sprite_animation_t item_animations[] = {
@@ -101,7 +101,7 @@ item_remove(item_t* ptr)
 
 
 void
-item_add(int16_t x, int16_t y, int16_t anim, unsigned short* tilePtr)
+item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr)
 {
   if (item_count < ITEM_MAX_ITEMS) {
     item_t* ptr = item_getFree();
@@ -217,6 +217,8 @@ item_render(frame_buffer_t fb)
 static inline int16_t
 item_aabb(sprite_t* p, item_t* item)
 {
+
+#ifndef PLAYER_COLLISION_BOX
   if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY) &&
       (p->x+(ITEM_COLLISION_FUZZY)) + PLAYER_WIDTH-(ITEM_COLLISION_FUZZY) > (item->sprite.x+(ITEM_COLLISION_FUZZY)) &&
       p->y < item->sprite.y + item->sprite.image->h &&
@@ -224,6 +226,16 @@ item_aabb(sprite_t* p, item_t* item)
     return 1;
   }
   return 0;
+#else
+  if ((p->collisionBox.x1 < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY)) &&
+      (p->collisionBox.x2 > (item->sprite.x+(ITEM_COLLISION_FUZZY))) &&
+      (p->collisionBox.y1 < (item->sprite.y + item->sprite.image->h)) &&
+      (p->collisionBox.y2 > item->sprite.y)) {
+    return 1;
+  }
+  return 0;
+
+#endif
 }
 
 

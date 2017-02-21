@@ -27,7 +27,7 @@ typedef struct enemy {
   int16_t deadRenderCount;
   int16_t onGround;
   int16_t skyCount;
-  unsigned short* tilePtr;
+  uint16_t* tilePtr;
 } enemy_t;
 
 static sprite_animation_t enemy_animations[] = {
@@ -202,7 +202,7 @@ enemy_remove(enemy_t* ptr)
 
 static
  void
-enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, unsigned short* tilePtr)
+enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, uint16_t* tilePtr)
 {
   if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
     return;
@@ -280,7 +280,7 @@ enemy_addNew(void)
 #endif
 
 void
-enemy_addMapObject(int16_t id, int16_t x, int16_t y, unsigned short* tilePtr)
+enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 {
   enemy_config_t* config = &enemy_configs[id];
   enemy_add(x, y-config->height+config->y, config->dx, config->height, config->onGround, config->anim, tilePtr);
@@ -313,10 +313,6 @@ enemy_init(void)
       ptr->next->prev = ptr;
       ptr = ptr->next;
   }
-
-  //  enemy_addNew();
-  //  enemy_addNew();
-  //  enemy_addNew();
 }
 
 
@@ -349,6 +345,7 @@ void
 enemy_render(frame_buffer_t fb)
 {
   enemy_t* ptr = enemy_activeList;
+ 
   while (ptr != 0) {
     if (ptr->state != ENEMY_REMOVED) {
       sprite_render(fb, ptr->sprite);
@@ -362,14 +359,15 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
 #define ENEMY_COLLISION_FUZZY 6
   
-  int16_t x1 = p->x + ENEMY_COLLISION_FUZZY;
-  int16_t w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2);
-  int16_t x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY;
-  int16_t w2 = enemy->width - (ENEMY_COLLISION_FUZZY*2);
-  int16_t y1 = p->y + ENEMY_COLLISION_FUZZY;
-  int16_t h1 = PLAYER_HEIGHT - (ENEMY_COLLISION_FUZZY*2);
-  int16_t y2 = enemy->sprite.y + ENEMY_COLLISION_FUZZY;
-  int16_t h2 = enemy->height - (ENEMY_COLLISION_FUZZY);
+#ifndef PLAYER_COLLISION_BOX
+  int16_t x1 = p->x + ENEMY_COLLISION_FUZZY; // player
+  int16_t w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2); // player
+  int16_t x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY; // enemy
+  int16_t w2 = enemy->width - (ENEMY_COLLISION_FUZZY*2); // enemy
+  int16_t y1 = p->y + ENEMY_COLLISION_FUZZY; // player
+  int16_t h1 = PLAYER_HEIGHT - (ENEMY_COLLISION_FUZZY*2); // player
+  int16_t y2 = enemy->sprite.y + ENEMY_COLLISION_FUZZY; // enemy
+  int16_t h2 = enemy->height - (ENEMY_COLLISION_FUZZY); //enemy
   
   if (x1 < x2 + w2 &&
       x1 + w1 > x2 &&
@@ -378,6 +376,21 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
     return 1;
   }
   return 0;
+#else
+
+  int16_t ex1 = enemy->sprite.x + ENEMY_COLLISION_FUZZY; // enemy
+  int16_t ex2 = ex1 + enemy->width - (ENEMY_COLLISION_FUZZY*2); // enemy
+  int16_t ey1 = enemy->sprite.y + ENEMY_COLLISION_FUZZY; // enemy
+  int16_t ey2 = ey1 + (enemy->height-ENEMY_COLLISION_FUZZY); // enemy
+  
+  if (p->collisionBox.x1 < ex2 &&
+      p->collisionBox.x2 > ex1 &&
+      p->collisionBox.y1 < ey2 &&
+      p->collisionBox.y2 > ey1) {
+    return 1;
+  }
+  return 0;
+#endif
 }
 
 

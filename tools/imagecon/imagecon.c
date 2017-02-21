@@ -24,7 +24,7 @@ imagecon_config_t config = {
   .overridePalette = 0,
   .paletteOffset = 0,
   .maskTransparentColor = 0,
-  .fullColorPaletteFile = 0,
+  .fullColorPaletteFile = 1,
   .darken = 0
 };
 

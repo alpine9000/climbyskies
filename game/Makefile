@@ -165,7 +165,8 @@ out/background-map.c: assets/background.tmx
 	@rm background-sprites.c
 
 out/sprite.bin: assets/sprite.png palette.pal
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=assets/sprite.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224
+	../tools/croppa/out/croppa --width=320 --height=336 --input=assets/sprite.png --output=out/sprite-resized.png
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=out/sprite-resized.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224
 out/bootblock.bin: out/bootblock.o
 
 

@@ -21,10 +21,9 @@
 #define MAPOBJECT_TOP_RENDER_RIGHT_DRAGON (MAPOBJECT_TOP_RENDER_ENEMY_FLAG | ENEMY_ANIM_RIGHT_DRAGON)
 #define MAPOBJECT_BOTTOM_RENDER_RIGHT_DRAGON (MAPOBJECT_BOTTOM_RENDER_ENEMY_FLAG | ENEMY_ANIM_RIGHT_DRAGON)
 
-
 typedef struct {
-  unsigned short background_tileAddresses[202][16];
-  unsigned short item_spriteIds[202][16];
+  uint16_t background_tileAddresses[202][16];
+  uint16_t item_spriteIds[202][16];
 } level_t;
 
 extern level_t level1;

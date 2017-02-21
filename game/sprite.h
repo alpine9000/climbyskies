@@ -20,12 +20,25 @@ typedef struct {
   int16_t h;
 } image_t;
 
+
+#ifdef PLAYER_COLLISION_BOX
+typedef struct {
+  int16_t x1;
+  int16_t x2;
+  int16_t y1;
+  int16_t y2;
+} collision_coords_t;
+#endif
+
 typedef struct {
   int16_t x;
   int16_t y;
   int16_t imageIndex;
   sprite_save_t* save;
   image_t* image;
+#ifdef PLAYER_COLLISION_BOX
+  collision_coords_t collisionBox;
+#endif
 } sprite_t;
 
 #ifdef PLAYER_HARDWARE_SPRITE

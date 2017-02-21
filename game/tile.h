@@ -1,8 +1,8 @@
 #ifndef __TILE_H
 #define __TILE_H
 
-extern unsigned short* tile_tilePtr;
-extern unsigned short* tile_itemPtr;
+extern uint16_t* tile_tilePtr;
+extern uint16_t* tile_itemPtr;
 extern int16_t tile_tileX;
 
 #define TILE_SKY               0xeda6//0xbba6

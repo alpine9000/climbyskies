@@ -51,10 +51,10 @@ _sprite_render(frame_buffer_t fb, sprite_t* sprite, void (*render)(frame_buffer_
     h -= (y-game_cameraY+h)-SCREEN_HEIGHT;
   }
 
-    if (h <= 0) {
-      return;
-    }
-    
+  if (h <= 0) {
+    return;
+  }
+  
   y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
     (*render)(fb, image->x, by, sprite->x, y, image->w, h);

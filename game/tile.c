@@ -2,8 +2,8 @@
 
 #define MAX_INVALID_TILES 100
 
-unsigned short* tile_tilePtr;
-unsigned short* tile_itemPtr;
+uint16_t* tile_tilePtr;
+uint16_t* tile_itemPtr;
 int16_t tile_tileX;
 static tile_redraw_t* invalidTiles = 0;
 static tile_redraw_t* invalidFreeList = 0;
@@ -137,10 +137,10 @@ tile_renderScreen(void)
   tile_itemPtr = &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1];
   for (int16_t y = SCREEN_HEIGHT-TILE_HEIGHT; y >= 0; y-=TILE_HEIGHT) {
     for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-      unsigned long offset = *tile_tilePtr;
+      uint16_t offset = *tile_tilePtr; // todo: 16 ?
       gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
       gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
-      unsigned short item = *tile_itemPtr;
+      uint16_t item = *tile_itemPtr;
       if (item != 0) {
 	//	item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
 	tile_processMapObjectDown(item, x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
@@ -152,7 +152,7 @@ tile_renderScreen(void)
   
   int16_t y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
-    unsigned long offset = *tile_tilePtr;
+    uint16_t offset = *tile_tilePtr; // todo: 16  ?
     gfx_renderTileOffScreen(game_onScreenBuffer, x, y, spriteFrameBuffer+offset);
     gfx_renderTileOffScreen(game_offScreenBuffer, x, y, spriteFrameBuffer+offset);
     if (*tile_itemPtr != 0) {

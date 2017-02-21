@@ -15,6 +15,7 @@
 #define JOYSTICK_RIGHT() (hw_joystickPos == 3)
 #define JOYSTICK_UP() (hw_joystickPos == 1)
 
+#define PLAYER_FUZZY_TOP            6
 #define PLAYER_FUZZY_BOTTOM         0
 #define PLAYER_OFFSET_Y             -1
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
@@ -628,6 +629,17 @@ player_updateFreeFall(void)
 }
 
 
+#ifdef PLAYER_COLLISION_BOX
+static inline void
+player_calculateCollisionBox(void)
+{
+  player.sprite.collisionBox.x1 = player.sprite.x + PLAYER_FUZZY_WIDTH;
+  player.sprite.collisionBox.x2 = player.sprite.collisionBox.x1 + (PLAYER_WIDTH - PLAYER_FUZZY_WIDTH);
+  player.sprite.collisionBox.y1 = player.sprite.y + PLAYER_FUZZY_TOP;
+  player.sprite.collisionBox.y2 = player.sprite.y + (PLAYER_HEIGHT - PLAYER_FUZZY_WIDTH);
+}
+#endif
+
 void
 player_update(void)
 {
@@ -641,6 +653,10 @@ player_update(void)
     player_updateAlive();
     player_processJoystick();
   }
+
+#ifdef PLAYER_COLLISION_BOX
+  player_calculateCollisionBox();
+#endif
 }
 
 

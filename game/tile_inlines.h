@@ -1,5 +1,5 @@
 INLINE void
-tile_processMapObjectUp(unsigned short id, int16_t x, int16_t y, unsigned short* tilePtr)
+tile_processMapObjectUp(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 {
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
@@ -9,7 +9,7 @@ tile_processMapObjectUp(unsigned short id, int16_t x, int16_t y, unsigned short*
 }
 
 INLINE void
-tile_processMapObjectDown(unsigned short id, int16_t x, int16_t y, unsigned short* tilePtr)
+tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 {
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
@@ -27,7 +27,7 @@ tile_renderNextTile(uint16_t hscroll)
     y = FRAME_BUFFER_HEIGHT+y;
   }
 
-  unsigned long offset = *tile_tilePtr;
+  uint16_t offset = *tile_tilePtr; // todo: 16 ?
 
   gfx_quickRenderTileOffScreen(game_offScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
@@ -69,12 +69,12 @@ tile_renderNextTileDown(uint16_t hscroll)
   }
 
 #define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
-  unsigned long offset = *(tile_tilePtr+OFFSET);
+  uint16_t offset = *(tile_tilePtr+OFFSET); // todo: 16 ?
   gfx_quickRenderTileOffScreen(game_offScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, spriteFrameBuffer+offset);
 
   int16_t itemOffset = 16;
-  unsigned short* ptr = tile_itemPtr+OFFSET;
+  uint16_t* ptr = tile_itemPtr+OFFSET;
 
   if (*(ptr) != 0) {
     if (ptr < &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {
