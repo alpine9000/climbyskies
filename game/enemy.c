@@ -345,7 +345,6 @@ void
 enemy_render(frame_buffer_t fb)
 {
   enemy_t* ptr = enemy_activeList;
- 
   while (ptr != 0) {
     if (ptr->state != ENEMY_REMOVED) {
       sprite_render(fb, ptr->sprite);

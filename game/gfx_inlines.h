@@ -31,7 +31,7 @@ gfx_fillRect(frame_buffer_t fb, uint16_t x, uint16_t y, uint16_t w, uint16_t h, 
     
     _custom->bltcon0 = (SRCC|DEST|0xca);
     _custom->bltcon1 = 0;
-    _custom->bltafwm = 0xffff;
+    //    _custom->bltafwm = 0xffff;
     _custom->bltalwm = 0xffff;
     _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH-1))+(FRAME_BUFFER_WIDTH_BYTES-2);
     _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH-1))+(FRAME_BUFFER_WIDTH_BYTES-2);
@@ -77,16 +77,16 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
   mask += gfx_dyOffsetsLUT[sy] + (sx>>3);
 
-  hw_waitBlitter();
-
+  hw_waitBlitter();   
+  //  _custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0x0000;
   _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca|shift<<ASHIFTSHIFT);
   _custom->bltcon1 = shift<<BSHIFTSHIFT;
-  _custom->bltafwm = 0xffff;
-  _custom->bltalwm = 0x0000;
   _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  
   _custom->bltapt = (uint8_t*)mask;
   _custom->bltbpt = (uint8_t*)source;
   _custom->bltcpt = (uint8_t*)dest;
@@ -95,6 +95,7 @@ gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_
   _custom->bltsize = gfx_heightLUT[h] | widthWords;
 
 }
+
 
 INLINE void
 gfx_renderTileMask(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t h, uint16_t tileOffset)
@@ -113,7 +114,7 @@ gfx_renderTileMask(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t h, uint1
 
   _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca|shift<<ASHIFTSHIFT);
   _custom->bltcon1 = shift<<BSHIFTSHIFT;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0x0000;
   _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
@@ -141,16 +142,21 @@ gfx_renderSprite16NoShift(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t d
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
   mask += gfx_dyOffsetsLUT[sy] + (sx>>3);
 
-  hw_waitBlitter();
-
-  _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca|0);
-  _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
-  _custom->bltalwm = 0xffff;
-  _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
-  _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  if (!gfx_renderSprite16NoShiftSetup) {
+    gfx_renderSprite16NoShiftSetup = 1;
+    hw_waitBlitter();
+    
+    _custom->bltcon0 = (SRCA|SRCB|SRCC|DEST|0xca|0);
+    _custom->bltcon1 = 0;
+    //    _custom->bltafwm = 0xffff;
+    _custom->bltalwm = 0xffff;
+    _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+    _custom->bltbmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+    _custom->bltcmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+    _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
+  } else {
+    hw_waitBlitter();
+  }
   _custom->bltapt = (uint8_t*)mask;
   _custom->bltbpt = (uint8_t*)source;
   _custom->bltcpt = (uint8_t*)dest;
@@ -176,7 +182,7 @@ gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, 
 
   _custom->bltcon0 = (SRCA|DEST|0xf0|shift<<ASHIFTSHIFT);
   _custom->bltcon1 = shift<<BSHIFTSHIFT;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
   _custom->bltdmod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
@@ -205,7 +211,7 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
   _custom->bltdmod = blit->mod;
@@ -233,7 +239,7 @@ gfx_saveSprite16(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
   _custom->bltdmod = blit->mod;
@@ -251,7 +257,7 @@ gfx_restoreSprite(gfx_blit_t* blit)
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
   _custom->bltdmod = blit->mod;
@@ -269,7 +275,7 @@ gfx_setupRenderTileOffScreen(void)
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
@@ -303,6 +309,7 @@ gfx_quickRenderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_bu
   _custom->bltsize = (16*SCREEN_BIT_DEPTH)<<6 | 1;
 }
 
+
 STATIC_INLINE void
 gfx_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, frame_buffer_t tile)
 {
@@ -316,7 +323,7 @@ gfx_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, fra
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;

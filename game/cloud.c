@@ -11,6 +11,7 @@ typedef struct {
 } cloud_t;
 
 static uint16_t cloud_sizeLUT[65];
+uint16_t cloud_spriteRenderSetup;
 
 static
 int16_t cloudX[] = {
@@ -105,7 +106,7 @@ cloud_saveBackground(frame_buffer_t fb)
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
 #endif
 
@@ -154,7 +155,7 @@ cloud_restoreBackground(void)
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
 #endif
 
@@ -168,7 +169,7 @@ cloud_restoreBackground(void)
 void
 cloud_render(frame_buffer_t fb)
 {
-  cloud_setupRenderSpriteNoMask();
+  cloud_initSpriteRender();
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
     cloud_spriteRender(fb, &cloud->sprite);
@@ -186,7 +187,7 @@ cloud_render(frame_buffer_t fb)
     int16_t px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
 
     for (int16_t x = 0; x < 3; x++) {
-      if (px+x < MAP_TILE_WIDTH) {
+    //if (px+x < MAP_TILE_WIDTH) { // todo: is this needed now ?
 	for (int16_t y = 0; y < 3; y++) {	  
 	  uint16_t tile = level.background_tileAddresses[py+y][px+x];
 	  if (tile != TILE_SKY) {
@@ -209,7 +210,7 @@ cloud_render(frame_buffer_t fb)
 #endif
 	  }
 	}
-      }
+    //}
     }
   }
 }

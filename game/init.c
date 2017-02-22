@@ -13,6 +13,7 @@ init_amiga(void)
   custom->intreq = 0x7fff; /* Clear all INT requests */
   custom->intreq = 0x7fff; /* Clear all INT requests */
 
+
   /* AGA compatibility stuff */
   custom->fmode = 0;
   custom->bplcon2 = 0x24;

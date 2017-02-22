@@ -2,6 +2,7 @@
 
 __EXTERNAL uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
 uint16_t gfx_heightLUT[65];
+uint16_t gfx_renderSprite16NoShiftSetup;
 
 void 
 gfx_ctor()

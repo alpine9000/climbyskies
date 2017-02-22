@@ -79,7 +79,6 @@ void
 sprite_ctor(void);
 
 #define sprite_render(fb, a) _sprite_render(fb, &a, gfx_renderSprite)
-#define sprite_renderNoMask(fb, a) _sprite_render(fb, &a, gfx_renderSpriteNoMask)
 #define sprite_render16NoShift(fb, a) _sprite_render(fb, &a, gfx_renderSprite16NoShift)
 
 typedef enum  {

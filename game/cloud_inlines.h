@@ -1,10 +1,18 @@
 
 
+inline void
+cloud_initSpriteRender(void)
+{
+  cloud_spriteRenderSetup = 0;
+}
+
 static inline 
 void
 cloud_setupRenderPartialTile(void)
 {
   volatile struct Custom* _custom = CUSTOM;
+
+  cloud_spriteRenderSetup = 1;
   hw_waitBlitter();
 
   _custom->bltcon0 = (SRCA|DEST|0xf0/*|shift<<ASHIFTSHIFT*/);
@@ -141,11 +149,12 @@ cloud_setupRenderSpriteNoMask(void)
 {
   volatile struct Custom* _custom = CUSTOM;
   
+  cloud_spriteRenderSetup = 1;
   hw_waitBlitter();
 
   _custom->bltcon0 = (SRCA|DEST|0xf0/*|shift<<ASHIFTSHIFT*/);
   _custom->bltcon1 = 0; //shift<<BSHIFTSHIFT;
-  _custom->bltafwm = 0xffff;
+  //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
 #ifdef CLOUD_FULLCOLOR
   _custom->bltamod = (FRAME_BUFFER_WIDTH_BYTES-((CLOUD_WIDTH/16)<<1));
@@ -177,7 +186,11 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
   frame_buffer_t _source = source + (FRAME_BUFFER_WIDTH_BYTES);
   frame_buffer_t _dest = dest + (FRAME_BUFFER_WIDTH_BYTES);
 
-  hw_waitBlitter();
+  if (!cloud_spriteRenderSetup) {
+    cloud_setupRenderSpriteNoMask();
+  } else {
+    hw_waitBlitter();
+  }
 
   _custom->bltapt = (uint8_t*)_source;
   _custom->bltdpt = (uint8_t*)_dest;
@@ -196,9 +209,9 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
 
 }
 
-
+#if 0
 static inline void
-cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
+_cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
 {
   volatile struct Custom* _custom = CUSTOM;
   frame_buffer_t source = spriteFrameBuffer;
@@ -211,8 +224,8 @@ cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t s
   _custom->bltapt = (uint8_t*)source;
   _custom->bltdpt = (uint8_t*)dest;
   _custom->bltsize = ((CLOUD_HEIGHT*SCREEN_BIT_DEPTH)<<6) | (CLOUD_WIDTH/16);
-
 }
+#endif
 
 
 static inline void
@@ -271,7 +284,7 @@ cloud_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy
 
   _custom->bltcon0 = (SRCA|DEST|0xf0);
   _custom->bltcon1 = 0;
-  _custom->bltafwm = 0xffff;
+  //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
 
   _custom->bltamod = blit->mod;
