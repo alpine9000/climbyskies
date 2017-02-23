@@ -111,6 +111,7 @@ extern uint32_t game_score;
 #include "hw.h"
 #include "init.h"
 #include "screen.h"
+#include "menu.h"
 #include "gfx.h"
 #include "mouse.h"
 #include "palette.h"
@@ -128,12 +129,10 @@ extern uint32_t game_score;
 #include "disk.h"
 #include "sound.h"
 #include "keyboard.h"
-#include "menu.h"
+
 
 extern copper_t copper;
 
-void
-game_init(void);
 void 
 game_loop(void);
 void

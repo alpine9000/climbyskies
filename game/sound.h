@@ -7,6 +7,7 @@ typedef enum {
   SOUND_PICKUP,
   SOUND_KILL,
   SOUND_FALLING,
+  SOUND_MENU
 } sound_t;
 
 #if SFX==1

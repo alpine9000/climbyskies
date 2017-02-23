@@ -15,7 +15,11 @@ text_intToAscii(__REG("d0", uint32_t number), __REG("d2", uint32_t numChars));
 #include "text_inlines.h"
 #else
 void
-text_drawScoreBoard(char* string, int32_t x, int32_t y);
+text_drawScoreBoard(char* string, int32_t x);
+void
+text_drawCharScoreBoard(char c, int16_t x);
+void
+text_drawText8(frame_buffer_t frameBuffer, char* string, int32_t x, int32_t y);
 #endif
 
 #endif

@@ -62,7 +62,7 @@ typedef struct {
 extern player_t player;
 
 void 
-player_init(void);
+player_init(menu_command_t command);
 void 
 player_saveBackground(frame_buffer_t fb);
 void

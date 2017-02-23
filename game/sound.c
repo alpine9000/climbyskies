@@ -46,6 +46,11 @@ static sound_config_t sound_queue[] = {
     .delay = 1,
     .play = &sound_playFalling
   },
+  [SOUND_MENU] = {
+    .count = 0,
+    .delay = 0,
+    .play = &sound_playHeadSmash
+  },
   
 };
 
@@ -82,7 +87,7 @@ static void
 sound_playHeadSmash(void)
 {
   volatile struct AudChannel *aud = &custom->aud[3];
-  
+
   aud->ac_ptr = &sound_pop;
   aud->ac_per = 321;
   aud->ac_vol = 64;
@@ -153,8 +158,16 @@ void
 sound_queueSound(sound_t sound)
 {
   if ((int16_t)sound >= sound_next) {
-    sound_queue[sound].count = sound_queue[sound].delay;
-    sound_next = sound;
+    if (sound_queue[sound].delay == 0) {
+      custom->dmacon = DMAF_AUD3;
+      sound_vbl();
+      hw_waitScanLines(4);
+      (*sound_queue[sound].play)();
+      sound_next = -1;
+    } else {
+      sound_queue[sound].count = sound_queue[sound].delay;
+      sound_next = sound;
+    }
   }
 }
 

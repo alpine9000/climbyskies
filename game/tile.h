@@ -26,6 +26,8 @@ void
 tile_renderNextTile(uint16_t hscroll);
 void
 tile_renderNextTileDown(uint16_t hscroll);
+void
+tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr);
 #else
 #include "tile_inlines.h"
 #endif

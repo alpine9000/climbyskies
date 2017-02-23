@@ -2,7 +2,7 @@
 	xdef _fontAtlas
 	xdef _text_drawText8Blitter
 	xdef _text_intToAscii
-	xref _gfx_dyOffsetsLUT
+	;; xref _gfx_dyOffsetsLUT
 	xdef font
 	
 BLIT_LF_MINTERM		equ $ca		; cookie cut
@@ -231,7 +231,7 @@ fontAtlas:
 _text_intToAscii:
 ;;;  d0.l number
 ;;;  d2.l numb chars
-	movem.l d1-d2/a1,-(a7)
+	movem.l d1-d2/a0-a1,-(a7)
 	lea     staticBuffer,a0
 	move.l  a0,a1
 	add.l   d2,a0
@@ -253,13 +253,13 @@ _text_intToAscii:
 	bra     .loop2
 .done:
 	move.l	#staticBuffer,d0
-	movem.l (a7)+,d1-d2/a1
-	        rts
+	movem.l (a7)+,d1-d2/a0-a1
+        rts
 
 
 staticBuffer:
-	        dc.b    "000000000"
-	        dc.b    0
+        dc.b    "000000000"
+        dc.b    0
 
 	if TRACKLOADER=0
 	section data_c

@@ -4,14 +4,11 @@
 extern void palette_menuInstall(void);
 extern frame_buffer_t menuFrameBuffer;
 
-#define MENU_NUM_ITEMS             4
+#define MENU_NUM_ITEMS             6
 #define MENU_TOP_COLOR             0x7ef
 #define MENU_BOTTOM_COLOR          0x5cd
 #define MENU_TOP_COLOR_SELECTED    0xbe0
 #define MENU_BOTTOM_COLOR_SELECTED 0x9d4
-
-#define MENU_COPPER_WAIT_TOP(x) { 0x9fd1 + (0x800*(x*2)), 0xfffe}
-#define MENU_COPPER_WAIT_BOTTOM(x) { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
 
 typedef struct {
   uint16_t wait1[2];
@@ -25,6 +22,17 @@ typedef struct {
   menu_line_copper_t lines[MENU_NUM_ITEMS];
   uint16_t end[2];
 } menu_copper_t;
+
+uint16_t menu_selected = 0;
+
+#define MENU_COPPER_WAIT_TOP(x) { 0x9fd1 + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_WAIT_BOTTOM(x) { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_LINE(c1, c2, x) [x] = {	\
+    .wait1 = MENU_COPPER_WAIT_TOP(x),\
+   .color1 = { COLOR07, c1},\
+   .wait2 =  MENU_COPPER_WAIT_BOTTOM(x),\
+   .color2 = { COLOR07, c2},\
+   }
 
 static  __section(data_c)  menu_copper_t menu_copper  = {
   .bpl1 = {
@@ -41,35 +49,25 @@ static  __section(data_c)  menu_copper_t menu_copper  = {
   },
 
   .lines = {
-    [0] = {
-      .wait1 = MENU_COPPER_WAIT_TOP(0),
-      .color1 = { COLOR07, MENU_TOP_COLOR_SELECTED}, 
-      .wait2 =  MENU_COPPER_WAIT_BOTTOM(0),
-      .color2 = { COLOR07, MENU_BOTTOM_COLOR_SELECTED}, 
-    },
-    [1] = {
-      .wait1 = MENU_COPPER_WAIT_TOP(1),
-      .color1 = { COLOR07, MENU_TOP_COLOR}, 
-      .wait2 = MENU_COPPER_WAIT_BOTTOM(1),
-      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
-    },
-    [2] = {
-      .wait1 = MENU_COPPER_WAIT_TOP(2),
-      .color1 = { COLOR07, MENU_TOP_COLOR}, 
-      .wait2 = MENU_COPPER_WAIT_BOTTOM(2),
-      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
-    },
-    [3] = {
-      .wait1 = MENU_COPPER_WAIT_TOP(3),
-      .color1 = { COLOR07, MENU_TOP_COLOR}, 
-      .wait2 = MENU_COPPER_WAIT_BOTTOM(3),
-      .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
-    }
+    MENU_COPPER_LINE(MENU_TOP_COLOR_SELECTED, MENU_BOTTOM_COLOR_SELECTED, 0),
+    MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 1),
+    MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 2),
+    MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 3),
+    MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 4),
+    MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 5),
   },
 
   .end = {0xFFFF, 0xFFFE}
 
 };
+
+static void
+menu_vbl(void)
+{
+  //  sound_schedule();
+  hw_waitVerticalBlank();
+  sound_vbl();
+}
 
 static void 
 menu_pokeCopperList(frame_buffer_t frameBuffer)
@@ -101,12 +99,52 @@ menu_processKeyboard(void)
   return 0;
 }
 
-char* menu_items[MENU_NUM_ITEMS+1] = {
-  "PLAY NOW!",
-  "MUSIC - ON",
-  "HI SCORES",
-  "CREDITS",
-  0
+typedef struct {
+  char* text;
+  menu_command_t command;
+  int16_t done;
+  void (*callback)(void);
+} menu_item_t;
+
+void menu_music_toggle(void);
+
+menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
+  {
+    .text = "PLAY NOW!",
+    .command = MENU_COMMAND_PLAY,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "RECORD GAME",
+    .command = MENU_COMMAND_RECORD,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "PLAY RECORDING",
+    .command = MENU_COMMAND_REPLAY,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "MUSIC - ON",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = menu_music_toggle
+  },
+  {
+    .text = "HI SCORES",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = 0
+  },
+  {
+    .text = "CREDITS",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = 0
+  }
 };
 
 
@@ -123,33 +161,105 @@ _strlen(char* s)
 
 
 static void
-menu_render(frame_buffer_t fb)
+menu_redraw(uint16_t i)
 {
+  frame_buffer_t fb = game_onScreenBuffer;
+  fb += 2*SCREEN_WIDTH_BYTES;
+
+  int16_t y = 130 + (menu_selected*16);
+  uint16_t len = _strlen(menu_items[i].text);
+
+  menu_vbl();
+
+  gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3), 9, 1);
+
+  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
+  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
+
+  fb -= SCREEN_WIDTH_BYTES;
+  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
+}
+
+static void
+menu_render(void)
+{
+  frame_buffer_t fb = game_onScreenBuffer;
   fb += 2*SCREEN_WIDTH_BYTES;
   int y = 130;
 
-  for (int i = 0; menu_items[i] != 0; i++) {
-    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2)+1, y+1);
-    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2), y);
+  menu_vbl();
+  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
+    uint16_t len = _strlen(menu_items[i].text);
+    //    gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3), 9, 1);
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
     y+= 16;
   }
   
   y = 130;
 
   fb -= SCREEN_WIDTH_BYTES;
-  for (int i = 0; menu_items[i] != 0; i++) {
-    text_drawMaskedText8Blitter(fb, menu_items[i], (SCREEN_WIDTH/2)-(_strlen(menu_items[i])<<2), y);
+  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
     y+= 16;
   }
 }
 
 
-int16_t
+void
+menu_music_toggle(void)
+{
+  if (music_toggle_music()) {
+    menu_items[menu_selected].text = "MUSIC - ON ";
+  } else {
+    menu_items[menu_selected].text = "MUSIC - OFF";
+  }
+
+  menu_redraw(menu_selected);
+}
+
+static void
+menu_up(void)
+{
+  if (menu_selected > 0) {
+    sound_queueSound(SOUND_MENU);
+    menu_vbl();
+    menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
+    menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR;
+    menu_selected--;
+    menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR_SELECTED;
+    menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR_SELECTED;    
+    do {
+      hw_readJoystick();
+    } while (JOYSTICK_UP());
+  }
+}
+
+static void
+menu_down(void)
+{
+  if (menu_selected < MENU_NUM_ITEMS-1) {
+    sound_queueSound(SOUND_MENU);    
+    menu_vbl();
+    menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
+    menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR;
+    menu_selected++;
+    menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR_SELECTED;
+    menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR_SELECTED;    
+
+    do {
+      hw_readJoystick();
+    } while (JOYSTICK_DOWN());
+  }
+}
+
+
+menu_command_t
 menu_loop(void)
 {
   volatile uint16_t scratch;
 
-  hw_waitVerticalBlank();
+  menu_vbl();
   custom->dmacon = DMAF_RASTER|DMAF_SPRITE;
 
   palette_black();
@@ -179,27 +289,43 @@ menu_loop(void)
 
   menu_pokeCopperList(game_onScreenBuffer);
 
-  hw_waitVerticalBlank();
+  menu_vbl();
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
   palette_menuFadeIn();
 
-  hw_waitVerticalBlank();
-  menu_render(game_onScreenBuffer);
-  int exit = 0;
-
-  while (!exit) {
+  menu_render();
+  menu_command_t command = MENU_COMMAND_PLAY;
+  int done = 0;
+  
+  while (!done) {
     hw_readJoystick();
-    if (JOYSTICK_BUTTON_DOWN) {    
-      break;
+    if (JOYSTICK_BUTTON_DOWN) {
+      command = menu_items[menu_selected].command;
+      done = menu_items[menu_selected].done;
+      if (menu_items[menu_selected].callback != 0) {
+	menu_items[menu_selected].callback();
+      }
+      do {
+	hw_readJoystick();
+      } while (JOYSTICK_BUTTON_DOWN);
     }
-    exit = menu_processKeyboard();
+    if (JOYSTICK_DOWN()) {
+      menu_down();
+    } else if (JOYSTICK_UP()) {
+      menu_up();
+    }
+    if (menu_processKeyboard()) {
+      command = MENU_COMMAND_EXIT;
+      done = 1;
+    }
+    menu_vbl();
   }
 
-  hw_waitVerticalBlank();
+  menu_vbl();
   custom->dmacon = DMAF_RASTER;
   palette_black();
 
 
-  return exit;
+  return command;
 }

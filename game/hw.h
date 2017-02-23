@@ -32,4 +32,10 @@ extern uint32_t hw_verticalBlankCount;
 
 #define JOYSTICK_BUTTON_DOWN (hw_joystickButton&0x1)
 
+#define JOYSTICK_IDLE() (hw_joystickPos == 0)
+#define JOYSTICK_LEFT() (hw_joystickPos == 7)
+#define JOYSTICK_RIGHT() (hw_joystickPos == 3)
+#define JOYSTICK_UP() (hw_joystickPos == 1)
+#define JOYSTICK_DOWN() (hw_joystickPos == 5)
+
 #endif

@@ -29,7 +29,7 @@ uint32_t game_lives;
 static void
 game_switchFrameBuffers(void);
 static void
-game_newGame(void);
+game_newGame(menu_command_t command);
 static void
 game_render(void);
 static 
@@ -162,7 +162,7 @@ game_ctor(void)
 }
 
 __EXTERNAL void
-game_init()
+game_init(menu_command_t command)
 {
 #if TRACKLOADER==1
   extern char* startBSS;
@@ -185,7 +185,7 @@ game_init()
   screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
 
   
-  game_newGame();
+  game_newGame(command);
 }
 
 static void
@@ -255,7 +255,7 @@ game_refreshScoreboard(void)
       break;
     case PLAYER_RECORD_PLAYBACK:
 #endif
-      text_drawScoreBoard("  PLAY  " , SCREEN_WIDTH-(13*8));        
+      text_drawScoreBoard("REPLAY  " , SCREEN_WIDTH-(13*8));        
 #ifdef PLAYER_RECORDING
       break;
     }
@@ -303,7 +303,7 @@ game_refreshDebugScoreboard(void)
 }
 
 static void
-game_newGame(void)
+game_newGame(menu_command_t command)
 {  
   custom->bltafwm = 0xffff;
   game_turtle = 0;
@@ -343,7 +343,7 @@ game_newGame(void)
   tile_init();
   tile_renderScreen();
 
-  player_init();
+  player_init(command);
 
   cloud_init();
   
@@ -577,14 +577,12 @@ game_processKeyboard(void)
     break;
   case 'R':
     palette_black();
-    game_newGame();
-    player_setRecord(PLAYER_RECORD_RECORD);
+    game_newGame(MENU_COMMAND_RECORD);
     game_refreshScoreboard();
     break;
   case 'P':
     palette_black();
-    game_newGame();
-    player_setRecord(PLAYER_RECORD_PLAYBACK);
+    game_newGame(MENU_COMMAND_REPLAY);
     game_refreshScoreboard();
     break;
   case 'S':
@@ -593,7 +591,7 @@ game_processKeyboard(void)
     break;
   case 'N':
     palette_black();
-    game_newGame();
+    game_newGame(MENU_COMMAND_PLAY);
 #ifdef PLAYER_RECORDING
     player_setRecord(PLAYER_RECORD_IDLE);
     game_refreshScoreboard();
@@ -619,14 +617,15 @@ game_loop()
   music_play(0);   
   hw_interruptsInit(); // Don't enable interrupts until music is set up
 
+  menu_command_t menuCommand;
  menu:
-  if (menu_loop()) {
+  if ((menuCommand = menu_loop()) == MENU_COMMAND_EXIT) {
 #if TRACKLOADER==0
     goto done;
 #endif
   }
 
-  game_init();
+  game_init(menuCommand);
 
   for (;;) {
 

@@ -10,10 +10,6 @@
 #define JOYSTICK_POS_DOWNLEFT  6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
-#define JOYSTICK_IDLE() (hw_joystickPos == 0)
-#define JOYSTICK_LEFT() (hw_joystickPos == 7)
-#define JOYSTICK_RIGHT() (hw_joystickPos == 3)
-#define JOYSTICK_UP() (hw_joystickPos == 1)
 
 #define PLAYER_FUZZY_TOP            6
 #define PLAYER_FUZZY_BOTTOM         0
@@ -146,6 +142,7 @@ player_getRecord(void)
 void
 player_setRecord(player_record_state_t state)
 {
+  player_record.frame = 0;
   player_record.state = state;
   player_record.index = 0;
   player_record.lastJoystickPos = 0xffffffff;
@@ -171,13 +168,23 @@ player_setAnim(int16_t anim)
 
 
 void
-player_init(void)
+player_init(menu_command_t command)
 {
 #ifdef PLAYER_RECORDING
-  player_record.index = 0;
-  player_record.state = PLAYER_RECORD_IDLE;
-  player_record.lastJoystickPos = 0xffffffff;
-  player_record.frame = 0;
+
+  switch (command) {
+  case MENU_COMMAND_REPLAY:
+    player_setRecord(PLAYER_RECORD_PLAYBACK);
+    break;
+  case MENU_COMMAND_RECORD:
+    player_setRecord(PLAYER_RECORD_RECORD);
+    break;
+  case MENU_COMMAND_PLAY:
+  default:
+    player_setRecord(PLAYER_RECORD_IDLE);
+    break;
+  }
+
 #endif
 
   player.freeFall = 0;

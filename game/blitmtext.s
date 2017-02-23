@@ -14,7 +14,7 @@ _BITPLANE_WIDTH_BYTES	equ 256/8
 MODULO	                equ (_BITPLANE_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(_BITPLANE_WIDTH_BYTES*(_SCREEN_BIT_DEPTH-1))
 FONTMAP_MODULO		equ (FONTMAP_WIDTH_BYTES-BLIT_WIDTH_BYTES)+(FONTMAP_WIDTH_BYTES*(FONT_BIT_DEPTH-1))	
 
-
+	section .text
 _text_drawMaskedText8Blitter:
 	;; a0 - bitplane
 	;; a1 - text
@@ -121,5 +121,6 @@ DrawChar8:
 	move.w 	#(FONT_HEIGHT)<<6|(BLIT_WIDTH_WORDS),BLTSIZE(a6)	;rectangle size, starts blit
 	rts
 
+	section data_c
 fontMask:
 	incbin	"out/font8x8-mask.bin"	

@@ -84,7 +84,7 @@ WaitScanLines:	 macro
 	
 	
 _hw_waitScanLines:
-		movem.l	d0-d1/a0,-(sp)
+		movem.l	d0-d2/a0,-(sp)
 	        lea     $dff006,a0
 	.nTimes:
 	        move.w  (a0),d0
@@ -96,7 +96,7 @@ _hw_waitScanLines:
 	        beq     .loop
 	        dbra    d2,.nTimes
 	.done:
-		movem.l	(sp)+,d0-d1/a0
+		movem.l	(sp)+,d0-d2/a0
 	rts
 	
 	
@@ -160,6 +160,16 @@ Level3InterruptHandler:
 .verticalBlank:
 	move.w	#INTF_VERTB,INTREQ(a6)	; clear interrupt bit	
 	add.l	#1,_hw_verticalBlankCount
+	move.w	_P61_Target,d0
+	cmp.w   P61_Master,d0
+	beq	.ok
+	blt	.lowerVolume
+	add.w	#1,P61_Master
+	bra	.ok
+.lowerVolume:
+	sub.w	#1,P61_Master
+	bra	.ok
+.ok:
 	cmp.w	#0,P61_Master
 	bne	.playMusic
 	move.w  #0,AUD0VOL(a6)

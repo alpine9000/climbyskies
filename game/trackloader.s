@@ -1,3 +1,4 @@
+	if TRACKLOADER=1
 *** MFMLoader.S by Photon ***	;requires a6=$dff002
 	xdef	_LoadMFMB
 	xdef 	LoadMFMB
@@ -208,3 +209,4 @@ LoadTrak:		;loadtrack+decode.a0=dst,d0=secoffs,d1=secsleft
 ;MFMbuf is placed here after bootblock end, $3c0.w or so when copied.
 MFMbuf:	
 	dcb.b	MFMlen
+	endif

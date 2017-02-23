@@ -43,7 +43,10 @@ void
 gfx_renderTileOffScreen(frame_buffer_t dest, int16_t sx, int16_t sy, frame_buffer_t tile);
 void
 gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile);
-
+void
+gfx_setupRenderTileOffScreen(void);
+void
+gfx_quickRenderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_buffer_t tile);
 #else
 
 #include "gfx_inlines.h"
