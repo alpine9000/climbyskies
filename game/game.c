@@ -13,7 +13,7 @@
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
-frame_buffer_t game_saveBuffer;
+//frame_buffer_t game_saveBuffer;
 frame_buffer_t game_scoreBoardFrameBuffer;
 
 int16_t game_cameraY;
@@ -39,13 +39,13 @@ static void
 game_setCamera(int16_t offset);
 
 static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+				 //				 static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+				 //				 static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
-static frame_buffer_t saveBuffer1;
-static frame_buffer_t saveBuffer2;
-static int16_t game_paused;
+				 //static frame_buffer_t saveBuffer1;
+				 //static frame_buffer_t saveBuffer2;
+uint16_t game_paused;
 static uint16_t game_singleStep;
 static uint32_t game_lastVerticalBlankCount;
 static int16_t game_turtle;
@@ -156,9 +156,9 @@ game_ctor(void)
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
-  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
-  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
-  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
+  //  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
+  //  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
+  //  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
 }
 
 __EXTERNAL void
@@ -538,7 +538,7 @@ game_render(void)
   enemy_render(game_offScreenBuffer);  
   SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
-  game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
+  //  game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
 

@@ -401,6 +401,7 @@ image_t sprite_imageAtlas[] = {
 };
 
 
+uint16_t sprite_6byteWideLUT[64];
 #ifdef PLAYER_HARDWARE_SPRITE
 __section(data_c) uint16_t sprite_nullhsprite[] = {
   0x0000, 0x0000,
@@ -422,6 +423,9 @@ sprite_ctor(void)
     }
   }
 
+  for (int16_t i = 0; i < 64; i++) {
+    sprite_6byteWideLUT[i] = i * (6*SCREEN_BIT_DEPTH);
+  }
 #ifdef PLAYER_HSPRITE_CPU  
   for (int16_t i = 0; i < 8; i++) {
     custom->sprpt[i] = sprite_nullhsprite;

@@ -4,10 +4,15 @@
 #define CLOUD_NUM_CLOUDS 3
 
 typedef struct {
+  uint8_t fb[(CLOUD_WIDTH/8)*SCREEN_BIT_DEPTH*CLOUD_HEIGHT];
+} cloud_sprite_save_t;
+
+typedef struct {
   sprite_t sprite;
   int16_t deltaX;
   int16_t deltaY;
   sprite_save_t saves[2];
+  cloud_sprite_save_t saveBuffers[2];
 } cloud_t;
 
 static uint16_t cloud_sizeLUT[65];
@@ -28,7 +33,7 @@ int16_t cloudX[] = {
 
 static int16_t cloudXIndex = 0;
 
-static cloud_t clouds[CLOUD_NUM_CLOUDS];
+static __section(bss_c) cloud_t clouds[CLOUD_NUM_CLOUDS];
 
 static cloud_t _clouds[CLOUD_NUM_CLOUDS] = {
   {
@@ -76,6 +81,7 @@ cloud_init(void)
     for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
       cloud_t* cloud = &clouds[i];
       cloud->sprite.save = &cloud->saves[0];
+      cloud->sprite.saveBuffer = cloud->saveBuffers[0].fb;
     }
 #else
     // crashes with -mregparm=2 and vasm default optimisations
@@ -114,6 +120,7 @@ cloud_saveBackground(frame_buffer_t fb)
     cloud_t* cloud = &clouds[i];
     cloud_save(fb, &cloud->sprite);
     cloud->sprite.save = cloud->sprite.save == &cloud->saves[0] ? &cloud->saves[1] : &cloud->saves[0];
+    cloud->sprite.saveBuffer = cloud->sprite.saveBuffer == cloud->saveBuffers[0].fb ? cloud->saveBuffers[1].fb : cloud->saveBuffers[0].fb;    
   }
 }
 
@@ -125,7 +132,7 @@ cloud_restoreSprite(gfx_blit_t* blit)
 
   hw_waitBlitter();
 
-  _custom->bltamod = blit->mod;
+  _custom->bltamod = 0;
   _custom->bltdmod = blit->mod;
   _custom->bltapt = (uint8_t*)blit->dest;
   _custom->bltdpt = (uint8_t*)blit->source;

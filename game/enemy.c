@@ -4,6 +4,8 @@
 #define ENEMY_MAX_CONFIGS     6
 #define ENEMY_MAX_Y           4
 #define ENEMY_DROP_THRESHOLD  64
+#define ENEMY_MAX_BLIT_WIDTH  48
+#define ENEMY_MAX_HEIGHT      37
 
 typedef enum {
   ENEMY_ALIVE,
@@ -11,6 +13,9 @@ typedef enum {
   ENEMY_REMOVED
 } enemy_state_t;
 
+typedef struct {
+  uint8_t fb[(ENEMY_MAX_BLIT_WIDTH/8)*SCREEN_BIT_DEPTH*ENEMY_MAX_HEIGHT];
+} enemy_sprite_save_t;
 
 typedef struct enemy {
   struct enemy *prev;
@@ -18,6 +23,7 @@ typedef struct enemy {
   sprite_t sprite;
   velocity_t velocity;
   sprite_save_t saves[2];
+  enemy_sprite_save_t saveBuffers[2];
   sprite_animation_t* anim;
   enemy_anim_t animId;
   int16_t frameCounter;
@@ -79,7 +85,7 @@ static enemy_t* enemy_freeList;
 static int16_t enemy_configIndex;
 static int16_t enemy_yIndex;
 static uint16_t enemy_yStarts[WORLD_HEIGHT];
-static enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
+static __section(bss_c) enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
 
 typedef struct {
   int16_t x;
@@ -215,6 +221,7 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   ptr->onGround = onGround;
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
+  ptr->sprite.saveBuffer = ptr->saveBuffers[0].fb;
   ptr->saves[0].blit[0].size = 0;
   ptr->saves[0].blit[1].size = 0;
   ptr->saves[1].blit[0].size = 0;
@@ -227,6 +234,8 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   }
 
   ptr->velocity.x = 0;*/
+
+
   ptr->velocity.x = dx;
   ptr->velocity.y = 0;
   ptr->anim = &enemy_animations[anim];
@@ -324,6 +333,7 @@ enemy_saveBackground(frame_buffer_t fb)
   while (ptr != 0) {
     sprite_save(fb, &ptr->sprite);
     ptr->sprite.save = ptr->sprite.save == &ptr->saves[0] ? &ptr->saves[1] : &ptr->saves[0];
+    ptr->sprite.saveBuffer = ptr->sprite.saveBuffer == ptr->saveBuffers[0].fb ? ptr->saveBuffers[1].fb : ptr->saveBuffers[0].fb;
     ptr = ptr->next;
   }
 }

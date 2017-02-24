@@ -11,7 +11,7 @@
 #define JOYSTICK_POS_DOWNRIGHT 4
 
 
-#define PLAYER_FUZZY_TOP            6
+#define PLAYER_FUZZY_TOP            3
 #define PLAYER_FUZZY_BOTTOM         0
 #define PLAYER_OFFSET_Y             -1
 #define PLAYER_INITIAL_Y_OFFSET     (PLAYER_HEIGHT+PLAYER_BASE_PLATFORM_HEIGHT)
@@ -232,11 +232,11 @@ player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
 static int
 player_tileCollision(int16_t x, int16_t y)
 {
-  player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
-  player_pointCollision(1, x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y);
+  player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
+  player_pointCollision(1, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
   player_pointCollision(2, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  player_pointCollision(3, x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  player_pointCollision(4, x+PLAYER_WIDTH-PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+  player_pointCollision(3, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+  player_pointCollision(4, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
   player_pointCollision(5, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
 
   for (int16_t i = 0; i < 6; i++) {
@@ -383,7 +383,7 @@ player_moveY(void)
 	  index = i;
 	}
       }
-      newY = ((player_collisionStatus[index].y>>4)<<4)+TILE_HEIGHT+1;
+      newY = ((player_collisionStatus[index].y>>4)<<4)+(TILE_HEIGHT-PLAYER_FUZZY_TOP)+1;
     } else if (player.velocity.y > 0) {
       int16_t minY = 0x7FFF;
       int16_t index = 0;

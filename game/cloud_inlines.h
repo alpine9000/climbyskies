@@ -264,17 +264,18 @@ cloud_spriteRender(frame_buffer_t fb, sprite_t* sprite)
 
 
 static inline void
-cloud_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
+cloud_saveSprite(frame_buffer_t source, frame_buffer_t dest, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   volatile struct Custom* _custom = CUSTOM;
-  blit->dest = game_saveBuffer;
+  //  blit->dest = game_saveBuffer;
+  blit->dest = dest;
   //  uint32_t widthWords =  ((w+15)>>4)+1;
   USE(w);
   uint32_t widthWords =  CLOUD_WIDTH_WORDS;//((w+15)>>4)+1;
 
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
-  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  //  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   blit->source = source;
   //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
   blit->size = gfx_heightLUT[h] | widthWords;
@@ -288,7 +289,7 @@ cloud_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy
   _custom->bltalwm = 0xffff;
 
   _custom->bltamod = blit->mod;
-  _custom->bltdmod = blit->mod;
+  _custom->bltdmod = 0;
   _custom->bltapt = (uint8_t*)blit->source;
   _custom->bltdpt = (uint8_t*)blit->dest;
   _custom->bltsize = blit->size;
@@ -317,14 +318,15 @@ cloud_save(frame_buffer_t fb, sprite_t* a)
   }
   y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
-    cloud_saveSprite(fb, &a->save->blit[0], a->x, y, image->w, h);
+    cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, y, image->w, h);
     a->save->blit[1].size = 0;
   } else {
     if (y > -h) {
-      cloud_saveSprite(fb, &a->save->blit[0], a->x, 0, image->w, h+y);    
-      cloud_saveSprite(fb, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
+      cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, image->w, h+y);    
+      frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((CLOUD_WIDTH/8)*SCREEN_BIT_DEPTH)); // TODO:
+      cloud_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
     } else {
-      cloud_saveSprite(fb, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
+      cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
       a->save->blit[1].size = 0;
     }
   }

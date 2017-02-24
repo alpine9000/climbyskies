@@ -35,6 +35,7 @@ typedef struct {
   int16_t y;
   int16_t imageIndex;
   sprite_save_t* save;
+  frame_buffer_t saveBuffer;
   image_t* image;
 #ifdef PLAYER_COLLISION_BOX
   collision_coords_t collisionBox;
@@ -63,6 +64,7 @@ typedef struct {
 extern sprite_hsprite_t sprite_hspriteAtlas[];
 #endif
 extern image_t sprite_imageAtlas[];
+extern uint16_t sprite_6byteWideLUT[64];
 
 #ifndef INLINE_EVERYTHING
 void

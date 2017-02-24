@@ -1,6 +1,6 @@
 #include "game.h"
 
-#define ITEM_MAX_ITEMS 100
+#define ITEM_MAX_ITEMS 10
 #define ITEM_COLLISION_FUZZY 8
 
 typedef enum {
@@ -8,12 +8,16 @@ typedef enum {
   ITEM_DEAD
 } item_state_t;
 
+typedef struct {
+  uint8_t fb[(ITEM_WIDTH/8)*SCREEN_BIT_DEPTH*ITEM_HEIGHT];
+} item_sprite_save_t;
 
 typedef struct item {
   struct item *prev;
   struct item *next;
   sprite_t sprite;
   sprite_save_t saves[2];
+  item_sprite_save_t saveBuffers[2];
   sprite_animation_t* anim;
   item_anim_t animId;
   int16_t frameCounter;
@@ -36,7 +40,7 @@ static sprite_animation_t item_animations[] = {
 int16_t item_count;
 static item_t* item_activeList;
 static item_t* item_freeList;
-static item_t item_buffer[ITEM_MAX_ITEMS];
+static __section(bss_c) item_t item_buffer[ITEM_MAX_ITEMS];
 
 
 static item_t*
@@ -109,6 +113,7 @@ item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr)
     ptr->state = ITEM_ALIVE;
     ptr->sprite.y = y;
     ptr->sprite.save = &ptr->saves[0];
+    ptr->sprite.saveBuffer = &ptr->saveBuffers[0].fb[0];
     ptr->saves[0].blit[0].size = 0;
     ptr->saves[0].blit[1].size = 0;
     ptr->saves[1].blit[0].size = 0;
@@ -162,14 +167,15 @@ item_save(frame_buffer_t fb, sprite_t* a)
   }
   y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
-    gfx_saveSprite16(fb, &a->save->blit[0], a->x, y, h);
+    gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, y, h);
     a->save->blit[1].size = 0;
   } else {
     if (y > -h) {
-      gfx_saveSprite16(fb, &a->save->blit[0], a->x, 0, h+y);    
-      gfx_saveSprite16(fb, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, -y);    
+      gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, h+y);
+      frame_buffer_t dest = a->saveBuffer + ((h+y)*SCREEN_BIT_DEPTH*2); // TODO
+      gfx_saveSprite16(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, -y);    
     } else {
-      gfx_saveSprite16(fb, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y,  h);    
+      gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y,  h);    
       a->save->blit[1].size = 0;
     }
   }
@@ -183,6 +189,7 @@ item_saveBackground(frame_buffer_t fb)
   while (ptr != 0) {
     item_save(fb, &ptr->sprite);
     ptr->sprite.save = ptr->sprite.save == &ptr->saves[0] ? &ptr->saves[1] : &ptr->saves[0];
+    ptr->sprite.saveBuffer = ptr->sprite.saveBuffer == ptr->saveBuffers[0].fb ? ptr->saveBuffers[1].fb : ptr->saveBuffers[0].fb;
     ptr = ptr->next;
   }
 }

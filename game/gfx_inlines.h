@@ -259,15 +259,16 @@ gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, 
 }
 
 INLINE void
-gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
+gfx_saveSprite(frame_buffer_t source, frame_buffer_t dest, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  blit->dest = game_saveBuffer;
+  blit->dest = dest;//game_saveBuffer;
   uint32_t widthWords =  ((w+15)>>4)+1;
   
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
-  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  //  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  // blit->dest +=  (destY * ((widthWords*2)*SCREEN_BIT_DEPTH));
   blit->source = source;
   //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
   blit->size = gfx_heightLUT[h] | widthWords;
@@ -280,22 +281,22 @@ gfx_saveSprite(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, 
   //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
-  _custom->bltdmod = blit->mod;
+  _custom->bltdmod = 0;
   _custom->bltapt = (uint8_t*)blit->source;
   _custom->bltdpt = (uint8_t*)blit->dest;
   _custom->bltsize = blit->size;
 }
 
 INLINE void
-gfx_saveSprite16(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t h)
+gfx_saveSprite16(frame_buffer_t source, frame_buffer_t dest, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  blit->dest = game_saveBuffer;
+  blit->dest = dest;
   uint32_t widthWords =  1;
   
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
-  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
+  //blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   blit->source = source;
   //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
   blit->size = gfx_heightLUT[h] | widthWords;
@@ -308,7 +309,7 @@ gfx_saveSprite16(frame_buffer_t source, gfx_blit_t* blit, int16_t dx, int16_t dy
   //  _custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
   _custom->bltamod = blit->mod;
-  _custom->bltdmod = blit->mod;
+  _custom->bltdmod = 0;
   _custom->bltapt = (uint8_t*)blit->source;
   _custom->bltdpt = (uint8_t*)blit->dest;
   _custom->bltsize = blit->size;
@@ -325,7 +326,25 @@ gfx_restoreSprite(gfx_blit_t* blit)
   _custom->bltcon1 = 0;
   //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
-  _custom->bltamod = blit->mod;
+  _custom->bltamod = 0;
+  _custom->bltdmod = blit->mod;
+  _custom->bltapt = (uint8_t*)blit->dest;
+  _custom->bltdpt = (uint8_t*)blit->source;
+  _custom->bltsize = blit->size;
+}
+
+INLINE void
+gfx_restoreSprite2(gfx_blit_t* blit)
+{
+  static volatile struct Custom* _custom = CUSTOM;
+
+  hw_waitBlitter();
+
+  _custom->bltcon0 = (SRCA|DEST|0xf0);
+  _custom->bltcon1 = 0;
+  //_custom->bltafwm = 0xffff;
+  _custom->bltalwm = 0xffff;
+  _custom->bltamod = 0;
   _custom->bltdmod = blit->mod;
   _custom->bltapt = (uint8_t*)blit->dest;
   _custom->bltdpt = (uint8_t*)blit->source;

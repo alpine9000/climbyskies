@@ -36,7 +36,7 @@ _text_drawMaskedText8Blitter:
 	move.w	#$ffff,BLTADAT(a6) 					; preload source mask so only BLTA?WM mask is used
 	move.l	a1,a3							; character pointer
 	move.l	#font,a5						; font pointer
-	move.l	#fontMask,d7						; font mask pointer
+	move.l	#font,d7						; font mask pointer
 	move.w	#FONTMAP_WIDTH_BYTES*FONT_HEIGHT,d3 	; bytes per font line
 .loop:
 	clr.l	d2
@@ -121,6 +121,8 @@ DrawChar8:
 	move.w 	#(FONT_HEIGHT)<<6|(BLIT_WIDTH_WORDS),BLTSIZE(a6)	;rectangle size, starts blit
 	rts
 
+	if 0
 	section data_c
 fontMask:
-	incbin	"out/font8x8-mask.bin"	
+	incbin	"out/font8x8-mask.bin"
+	endif

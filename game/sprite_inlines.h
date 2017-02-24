@@ -20,14 +20,16 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
   }
   y = y-game_cameraY-game_screenScrollY;
   if (y >= 0) {
-    gfx_saveSprite(fb, &a->save->blit[0], a->x, y, image->w, h);
+    gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, y, image->w, h);
     a->save->blit[1].size = 0;
   } else {
     if (y > -h) {
-      gfx_saveSprite(fb, &a->save->blit[0], a->x, 0, image->w, h+y);    
-      gfx_saveSprite(fb, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
+      gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, image->w, h+y);    
+      frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((48/8)*SCREEN_BIT_DEPTH)); // TODO:
+      //frame_buffer_t dest =  a->saveBuffer + sprite_6byteWideLUT[h+y];
+      gfx_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
     } else {
-      gfx_saveSprite(fb, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
+      gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
       a->save->blit[1].size = 0;
     }
   }
@@ -80,6 +82,20 @@ sprite_restore(sprite_save_t* save)
 
   if (save->blit[1].size > 0) {
     gfx_restoreSprite(&save->blit[1]);
+  }
+}
+
+INLINE void
+sprite_restore2(sprite_save_t* save)
+{
+  if (save->blit[0].size > 0) {
+    gfx_restoreSprite2(&save->blit[0]);
+  } else {
+    return;
+  }
+
+  if (save->blit[1].size > 0) {
+    gfx_restoreSprite2(&save->blit[1]);
   }
 }
 
