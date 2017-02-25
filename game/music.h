@@ -3,6 +3,7 @@
 
 #define MUSIC_MAX_MUSIC_VOLUME 32
 
+extern uint16_t P61_Target;
 extern uint16_t P61_Master;
 //extern void music_play(int32_t moduleIndex);
 void 

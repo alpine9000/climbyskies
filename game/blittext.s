@@ -230,13 +230,13 @@ fontAtlas:
 
 _text_intToAscii:
 ;;;  d0.l number
-;;;  d2.l numb chars
+;;;  d2.l num chars
 	movem.l d1-d2/a0-a1,-(a7)
 	lea     staticBuffer,a0
 	move.l  a0,a1
 	add.l   d2,a0
 	move.b  #0,(a0)
-	moveq #10,d2
+	moveq 	#10,d2
 .loop:
 	divu.w  d2,d0
 	swap    d0

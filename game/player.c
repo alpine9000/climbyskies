@@ -187,6 +187,17 @@ player_init(menu_command_t command)
 
 #endif
 
+
+#ifdef PLAYER_HARDWARE_SPRITE
+  for (int16_t i = 0, index = 1; i < 8; i++) {
+    copper.sprpt[index] = ((uint32_t)sprite_nullhsprite& 0xffff);
+    index += 2;
+    copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;
+    index += 2;
+  }
+#endif
+
+
   player.freeFall = 0;
   player.velocity.x = 0;
   player.velocity.y = 0;
@@ -205,6 +216,7 @@ player_init(menu_command_t command)
   player.saves[1].blit[0].size = 0;
   player.saves[1].blit[1].size = 0;
   player.sprite.save = &player.saves[0];
+
 #ifdef PLAYER_BLIT_SPRITE_OVERDRAW
   player.hspriteCompatible = 1;
 #endif
@@ -656,7 +668,7 @@ player_update(void)
 
   if (player.state == PLAYER_STATE_FREEFALL) {
     player_updateFreeFall();
-  } else {    
+  } else {
     player_updateAlive();
     player_processJoystick();
   }

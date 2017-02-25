@@ -8,9 +8,9 @@ extern char* fontAtlas[128];
 INLINE void
 text_drawCharScoreBoard(char c, int16_t x)
 {
+#define SCOREBOARD_TEXT_Y 4
   char* src = fontAtlas[(int)c];
-  char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*5);
-
+  char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH*SCOREBOARD_TEXT_Y))+(FRAME_BUFFER_WIDTH_BYTES*3);
   *dest = *src;
   *(dest+(1*FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH)) = *(src+(1*FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH));
   *(dest+(2*FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH)) = *(src+(2*FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH));

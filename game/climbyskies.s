@@ -6,6 +6,7 @@
 	xdef _spriteMask
 	xdef _spriteFrameBuffer
 	xdef _menuFrameBuffer
+	xdef _scoreBoardFrameBuffer
 	
 	if TRACKLOADER=1
 byteMap:
@@ -85,6 +86,8 @@ l385	equ	0
 	section data_c
 	endif
 	align 4
+_scoreBoardBitplanes:
+	incbin  "out/scoreboard.bin"
 _spriteBitplanes:
 	incbin	"out/sprite.bin"
 spriteMask
@@ -93,6 +96,8 @@ _spriteMask:
 	dc.l	spriteMask
 _menuFrameBuffer:
 	dc.l	_menuBitplanes
+_scoreBoardFrameBuffer:
+	dc.l	_scoreBoardBitplanes	
 _spriteFrameBuffer:
 	dc.l	_spriteBitplanes
 

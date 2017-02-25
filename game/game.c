@@ -13,7 +13,6 @@
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
-//frame_buffer_t game_saveBuffer;
 frame_buffer_t game_scoreBoardFrameBuffer;
 
 int16_t game_cameraY;
@@ -31,6 +30,8 @@ game_switchFrameBuffers(void);
 static void
 game_newGame(menu_command_t command);
 static void
+game_newLevel(menu_command_t command);
+static void
 game_render(void);
 static 
 void
@@ -39,12 +40,10 @@ static void
 game_setCamera(int16_t offset);
 
 static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-				 //				 static volatile __section(bss_c) uint8_t _saveBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
+static volatile __section(bss_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
 static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-				 //				 static volatile __section(bss_c) uint8_t _saveBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __section(bss_c) uint8_t _scoreBoardBuffer[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(SCOREBOARD_HEIGHT)];
-				 //static frame_buffer_t saveBuffer1;
-				 //static frame_buffer_t saveBuffer2;
+static volatile __section(bss_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
+
 uint16_t game_paused;
 static uint16_t game_singleStep;
 static uint32_t game_lastVerticalBlankCount;
@@ -66,10 +65,6 @@ static int16_t game_lastItemCount;
 static int16_t game_levelComplete;
 static int16_t game_missedFrameCount;
 static int16_t game_lastMissedFrameCount;
-
-
-
-
 
 static void (*game_tileRender)(uint16_t hscroll);
 
@@ -153,12 +148,12 @@ static int16_t tileY;
 void
 game_ctor(void)
 {
+  extern frame_buffer_t scoreBoardFrameBuffer;
+  game_scoreBoardFrameBuffer = scoreBoardFrameBuffer;//&_scoreBoardBuffer;
+  //  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
+
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
-  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
-  //  game_saveBuffer = (frame_buffer_t)&_saveBuffer1;
-  //  saveBuffer1 = (frame_buffer_t)&_saveBuffer1;
-  //  saveBuffer2 = (frame_buffer_t)&_saveBuffer2;
 }
 
 __EXTERNAL void
@@ -178,12 +173,11 @@ game_init(menu_command_t command)
   hw_waitVerticalBlank();
   palette_black();
 
-  game_score = 0;
-  game_lives = 3;
 
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
 
+  //gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
   
   game_newGame(command);
 }
@@ -191,7 +185,6 @@ game_init(menu_command_t command)
 static void
 debug_showScore(uint16_t refresh)
 {
-  
   if (game_levelComplete) {
     if (game_levelScore >= GAME_LEVEL_BONUS_TRANSFER_RATE<<2) {
       game_score+=GAME_LEVEL_BONUS_TRANSFER_RATE;
@@ -206,7 +199,7 @@ debug_showScore(uint16_t refresh)
 
   if (game_scoreBoardMode == 0) {
     if (game_levelScore != game_lastLevelScore) {
-      static char *buffer = "          ";
+      static char *buffer = "xxxxxxxxxx";
       char* score = text_intToAscii(game_levelScore>>2, 4);
       int x = 8*8;
       for (char* ptr = score, *btr = buffer; *ptr != 0; ptr++, btr++) {
@@ -216,14 +209,13 @@ debug_showScore(uint16_t refresh)
 	}
 	x+= 8;
       }
-      //      text_drawScoreBoard(, 8*8);
       game_lastLevelScore = game_levelScore;
     }
    
     if (game_score != game_lastScore) {
-      static char *buffer = "          ";
+      static char *buffer = "yyyyyyyyyy";
       char* score = text_intToAscii(game_score, 6);
-      int x = SCREEN_WIDTH-(6*8);
+      int x = SCREEN_WIDTH-(7*8);
       for (char* ptr = score, *btr = buffer; *ptr != 0; ptr++, btr++) {
 	if (*ptr != *btr || refresh) {	  
 	  text_drawCharScoreBoard(*ptr, x);
@@ -240,7 +232,7 @@ debug_showScore(uint16_t refresh)
 static void
 game_refreshScoreboard(void)
 {
-  game_lastScore = 1;
+  game_lastScore = 1;  
   game_lastLevelScore = 0;
 
   if (game_scoreBoardMode == 0) {
@@ -248,28 +240,28 @@ game_refreshScoreboard(void)
 #ifdef PLAYER_RECORDING    
     switch (player_getRecord()) {
     case PLAYER_RECORD_IDLE:
-      text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(13*8));  
+      text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(14*8));  
       break;
     case PLAYER_RECORD_RECORD:
-      text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(13*8));        
+      text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(14*8));        
       break;
     case PLAYER_RECORD_PLAYBACK:
 #endif
-      text_drawScoreBoard("REPLAY  " , SCREEN_WIDTH-(13*8));        
+      text_drawScoreBoard("REPLAY  " , SCREEN_WIDTH-(14*8));        
 #ifdef PLAYER_RECORDING
       break;
     }
 #endif
 
-    text_drawScoreBoard("BONUS 00           " , 0);  
+    text_drawScoreBoard("BONUS 0" , 8);  
     debug_showScore(1);
     uint32_t i, x;
-    for (i = 0, x = (SCREEN_WIDTH/2)-15; i < game_lives; i++, x+=10) {
-      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 176, x, 0, 16, 8);
+    for (i = 0, x = (SCREEN_WIDTH/2)-17; i < game_lives; i++, x+=10) {
+      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 176, x, 5, 16, 8);
     }
     
     for (; i < 3; i++, x+= 10) {
-      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 0, 16, 8);
+      gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 5, 16, 8);
     }
   }
 }
@@ -290,12 +282,11 @@ static
 void
 game_refreshDebugScoreboard(void)
 {
+  gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
   game_lastAverage = -1;
   game_lastMaxRasterLine = -1;
   game_lastEnemyCount = -1;
   game_lastItemCount = -1;
-  text_drawScoreBoard("            " , SCREEN_WIDTH-(12*8));  
-  text_drawScoreBoard("            " , 0);  
   for (int16_t i = 0, x = (SCREEN_WIDTH/2)-15; i < 3; i++, x+=10) {
     gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 0, 16,  8);
   }
@@ -304,7 +295,17 @@ game_refreshDebugScoreboard(void)
 
 static void
 game_newGame(menu_command_t command)
+{
+  game_score = 0;
+  game_lives = 3;
+
+  game_newLevel(command);
+}
+
+static void
+game_newLevel(menu_command_t command)
 {  
+
   custom->bltafwm = 0xffff;
   game_turtle = 0;
 #ifdef DEBUG
@@ -347,7 +348,7 @@ game_newGame(menu_command_t command)
 
   cloud_init();
   
-  gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+  //gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
 
   game_refreshScoreboard();
   //  text_drawScoreBoard(text_intToAscii(version, 4), SCREEN_WIDTH-(4*8));  
@@ -538,7 +539,6 @@ game_render(void)
   enemy_render(game_offScreenBuffer);  
   SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
-  //  game_saveBuffer = game_saveBuffer == saveBuffer1 ? saveBuffer2 : saveBuffer1;
 }
 
 
@@ -561,7 +561,19 @@ game_setLevelComplete(void)
     text_drawText8(game_offScreenBuffer+(FRAME_BUFFER_WIDTH_BYTES*3), "LEVEL COMPLETE!", 8+(SCREEN_WIDTH/2)-(8*8), (SCREEN_HEIGHT/2)-64);
     text_drawText8(game_onScreenBuffer+(FRAME_BUFFER_WIDTH_BYTES*3), "LEVEL COMPLETE!", 8+(SCREEN_WIDTH/2)-(8*8), (SCREEN_HEIGHT/2)-64);
     game_levelComplete = 1;
+    game_collisions = 0;
   }
+}
+
+static void
+game_nextLevel(void)
+{
+  palette_black();
+  game_newLevel(MENU_COMMAND_PLAY);
+#ifdef PLAYER_RECORDING
+  player_setRecord(PLAYER_RECORD_IDLE);
+  game_refreshScoreboard();
+#endif
 }
 
 int16_t
@@ -569,6 +581,19 @@ game_processKeyboard(void)
 {
 #ifdef PLAYER_RECORDING
   switch (keyboard_getKey() ) {
+  case 'D':
+    game_scoreBoardMode = !game_scoreBoardMode;
+    if (game_scoreBoardMode == 0) {
+      gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
+      game_refreshScoreboard();
+    } else {
+      game_refreshDebugScoreboard();
+    }
+    game_collisions = !game_collisions;
+    break;
+  case 'C':
+    game_setLevelComplete();
+    break;
   case 'T':
     game_singleStep = 1;
     break;
@@ -590,12 +615,7 @@ game_processKeyboard(void)
     game_refreshScoreboard();
     break;
   case 'N':
-    palette_black();
-    game_newGame(MENU_COMMAND_PLAY);
-#ifdef PLAYER_RECORDING
-    player_setRecord(PLAYER_RECORD_IDLE);
-    game_refreshScoreboard();
-#endif
+    game_nextLevel();
     break;
   case 'Q':
     return 1;
@@ -637,20 +657,6 @@ game_loop()
 #endif
 
     hw_readJoystick();
-
-    if (!joystickDown && JOYSTICK_BUTTON_DOWN) {    
-      joystickDown = 1;
-      game_scoreBoardMode = !game_scoreBoardMode;
-      if (game_scoreBoardMode == 0) {
-	game_refreshScoreboard();
-      } else {
-	game_refreshDebugScoreboard();
-      }
-      game_collisions = !game_collisions;
-    }
-
-    joystickDown = JOYSTICK_BUTTON_DOWN;
-
 
     SPEED_COLOR(0xF0F);
     player_update();
@@ -752,6 +758,16 @@ game_loop()
 #ifdef DEBUG
   skip:;
 #endif
+
+    if (!joystickDown && JOYSTICK_BUTTON_DOWN) {    
+      joystickDown = 1;
+      if (game_levelComplete && game_levelScore == 0) {
+	game_nextLevel();
+      }
+    }
+
+    joystickDown = JOYSTICK_BUTTON_DOWN;
+
 
     if (game_processKeyboard()) {
       goto menu;

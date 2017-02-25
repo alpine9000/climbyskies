@@ -16,7 +16,7 @@ SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s blitmtext.s blittext.s m
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png font8x8.png menu.png
+IMAGES=sprite.png font8x8.png menu.png scoreboard.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) out/fade_in.s out/menu_fade_in.s out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
 
@@ -172,6 +172,9 @@ out/bootblock.bin: out/bootblock.o
 
 out/menu.bin: assets/menu.png menu.pal
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/menu.png --output=out/menu --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=menu.pal
+
+out/scoreboard.bin: assets/scoreboard.png palette.pal
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palette.pal
 
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@

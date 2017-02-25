@@ -148,7 +148,7 @@ item_init(void)
 INLINE void
 item_save(frame_buffer_t fb, sprite_t* a)
 {
-  image_t* image = a->image;//&sprite_imageAtlas[a->imageIndex];
+  image_t* image = a->image;
   int16_t h = image->h;
   int16_t y = a->y;
   if (y < game_cameraY) {
@@ -166,6 +166,7 @@ item_save(frame_buffer_t fb, sprite_t* a)
     return;
   }
   y = y-game_cameraY-game_screenScrollY;
+  USE(fb);
   if (y >= 0) {
     gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, y, h);
     a->save->blit[1].size = 0;

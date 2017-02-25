@@ -213,6 +213,13 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
     return;
   }
+  enemy_t* p = enemy_activeList;
+  while (p != 0) {
+    if (p->sprite.y == y && *tilePtr == *p->tilePtr) {
+      return;
+    }
+    p = p->next;
+  }
   enemy_t* ptr = enemy_getFree();
   ptr->tilePtr = tilePtr;
   ptr->state = ENEMY_ALIVE;

@@ -187,6 +187,7 @@ menu_render(void)
   fb += 2*SCREEN_WIDTH_BYTES;
   int y = 130;
 
+#if 0
   menu_vbl();
   for (int i = 0; i < MENU_NUM_ITEMS; i++) {
     uint16_t len = _strlen(menu_items[i].text);
@@ -203,6 +204,19 @@ menu_render(void)
     text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
     y+= 16;
   }
+#else
+
+  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
+    uint16_t len = _strlen(menu_items[i].text);
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
+    fb -= SCREEN_WIDTH_BYTES;
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
+    fb += SCREEN_WIDTH_BYTES;
+    y+= 16;
+  }
+  
+#endif
 }
 
 
@@ -254,7 +268,7 @@ menu_down(void)
 }
 
 
-menu_command_t
+__EXTERNAL menu_command_t
 menu_loop(void)
 {
   volatile uint16_t scratch;
@@ -293,8 +307,29 @@ menu_loop(void)
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
   palette_menuFadeIn();
+  
+  custom->color[5] = 0x08d;  
+
+  for (int i = 0; i != MENU_NUM_ITEMS; i++) {
+    menu_copper.lines[i].color1[1] = 0x08d;
+    menu_copper.lines[i].color2[1] = 0x08d;
+  }
 
   menu_render();
+
+  menu_vbl();
+  custom->color[5] = 0x544;
+  
+  for (int i = 0; i != MENU_NUM_ITEMS; i++) {
+    if (i == menu_selected) {
+      menu_copper.lines[i].color1[1] = MENU_TOP_COLOR_SELECTED;
+      menu_copper.lines[i].color2[1] = MENU_BOTTOM_COLOR_SELECTED;
+    } else {
+      menu_copper.lines[i].color1[1] = MENU_TOP_COLOR;
+      menu_copper.lines[i].color2[1] = MENU_BOTTOM_COLOR;
+    }
+  }
+
   menu_command_t command = MENU_COMMAND_PLAY;
   int done = 0;
   

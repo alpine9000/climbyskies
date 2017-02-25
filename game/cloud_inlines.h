@@ -267,17 +267,13 @@ static inline void
 cloud_saveSprite(frame_buffer_t source, frame_buffer_t dest, gfx_blit_t* blit, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   volatile struct Custom* _custom = CUSTOM;
-  //  blit->dest = game_saveBuffer;
   blit->dest = dest;
-  //  uint32_t widthWords =  ((w+15)>>4)+1;
   USE(w);
-  uint32_t widthWords =  CLOUD_WIDTH_WORDS;//((w+15)>>4)+1;
+  uint32_t widthWords = CLOUD_WIDTH_WORDS;
 
   source += gfx_dyOffsetsLUT[dy] + (dx>>3);
 
-  //  blit->dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   blit->source = source;
-  //blit->size = (h*SCREEN_BIT_DEPTH)<<6 | widthWords;
   blit->size = gfx_heightLUT[h] | widthWords;
   blit->mod = (FRAME_BUFFER_WIDTH_BYTES-(widthWords<<1));
 
