@@ -21,12 +21,21 @@
 #define MAPOBJECT_TOP_RENDER_RIGHT_DRAGON (MAPOBJECT_TOP_RENDER_ENEMY_FLAG | ENEMY_ANIM_RIGHT_DRAGON)
 #define MAPOBJECT_BOTTOM_RENDER_RIGHT_DRAGON (MAPOBJECT_BOTTOM_RENDER_ENEMY_FLAG | ENEMY_ANIM_RIGHT_DRAGON)
 
-typedef struct {
-  uint16_t background_tileAddresses[202][16];
-  uint16_t item_spriteIds[202][16];
-} level_t;
+#define SPRITE_MAP_HEIGHT 336
+#define LEVEL_NUM_LEVELS 3
 
-extern level_t level1;
+typedef struct {
+  uint8_t spriteBitplanes[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
+  uint8_t spriteMask[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
+  uint16_t tileAddresses[202][16];
+  uint16_t item_spriteIds[202][16];
+  uint16_t fadeIn[PALETTE_FADE_IN_SIZE];
+  uint16_t clouds;
+} level_t DISK_SECTOR_ALIGN;
+
 extern level_t level;
+
+void
+level_load(uint16_t index);
 
 #endif

@@ -4,6 +4,7 @@ art
 *.dep
 assets/P61.*
 assets/*.gif
+assets/*.save
 bin
 save
 a.out

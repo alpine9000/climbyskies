@@ -70,6 +70,12 @@ typedef LONG int32_t;
 typedef ULONG uint32_t;
 typedef ULONG size_t;
 
+#if defined(__GNUC__)
+#define __NOLOAD __section(section noload)
+#else
+#define __NOLOAD __section(noload)
+#endif
+
 #define __EXTERNAL __attribute__((externally_visible))
 
 extern void* memcpy(void* destination, void* source, size_t num);
@@ -110,15 +116,16 @@ extern uint16_t game_paused;
 
 #include "registers.h"
 #include "hw.h"
+#include "disk.h"
 #include "init.h"
 #include "screen.h"
 #include "menu.h"
+#include "palette.h"
+#include "level.h"
 #include "gfx.h"
 #include "mouse.h"
-#include "palette.h"
 #include "sprite.h"
 #include "item.h"
-#include "level.h"
 #include "enemy.h"
 #include "tile.h"
 #include "copper.h"
@@ -127,7 +134,6 @@ extern uint16_t game_paused;
 #include "player.h"
 #include "cloud.h"
 #include "text.h"
-#include "disk.h"
 #include "sound.h"
 #include "keyboard.h"
 

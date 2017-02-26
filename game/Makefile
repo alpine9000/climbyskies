@@ -13,12 +13,15 @@ BOOTBLOCK_ASM=alpine_bootblock.s
 C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s blitmtext.s blittext.s music_asm.s keyboard_asm.s
 
+LEVEL_FILES=out/sprite_1.h out/background_1-map.c out/fade_in_1.h\
+	    out/sprite_2.h out/background_2-map.c out/fade_in_2.h\
+	    out/sprite_3.h out/background_3-map.c out/fade_in_3.h
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
 
-IMAGES=sprite.png font8x8.png menu.png scoreboard.png
+IMAGES=font8x8.png menu.png scoreboard.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/fade_in.s out/menu_fade_in.s out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
+ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-DUSE_GCC=$(USE_GCC) -Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -45,7 +48,7 @@ endif
 
 C_OPT=-O3 $(WHOLE_PROGRAM)
 C_OPT_ASM_OUTPUT=-O3
-BASE_CFLAGS=$(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
+BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 CFLAGS=$(C_OPT) $(BASE_CFLAGS)
 CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT) $(BASE_CFLAGS)
@@ -116,8 +119,9 @@ $(ADF): out/bootblock.bin
 
 wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
 
-out/adf/level.o: out/background-map.c level.c
-out/workbench/level.o: out/background-map.c level.c
+out/adf/menu.o: level.c out/menu_fade_in.h
+out/adf/level.o: level.c $(LEVEL_FILES)
+out/workbench/level.o: level.c $(LEVEL_FILES)
 
 #http://opengameart.org/content/jump-landing-sound
 out/jump.raw: assets/jump.wav
@@ -155,82 +159,84 @@ HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun
 out/adf/sprite.o: $(HSPRITE_HEADERS)
 out/workbench/sprite.o: $(HSPRITE_HEADERS)
 
-out/background-map.c: assets/background.tmx
+out/background_%-map.c: assets/background_%.tmx
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
-	@mv background-map.c out
-	@mv item-sprites.c out
-	@rm background-indexes.c
-	@rm item-indexes.c
-	@rm item-map.c
-	@rm background-sprites.c
+	@mv background_$*-map.c out
+	@mv item_$*-sprites.c out
+	@rm background_$*-indexes.c
+	@rm item_$*-indexes.c
+	@rm item_$*-map.c
+	@rm background_$*-sprites.c
 
-out/sprite.bin: assets/sprite.png palette.pal
-	../tools/croppa/out/croppa --width=320 --height=336 --input=assets/sprite.png --output=out/sprite-resized.png
-	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=out/sprite-resized.png --output=out/sprite --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palette.pal --output-mask --transparent-color=000,144,224
+out/sprite_%.h: assets/sprite_%.png palettes/palette_%.pal
+	../tools/croppa/out/croppa --width=320 --height=336 --input=assets/sprite_$*.png --output=out/sprite_$*-resized.png
+	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=out/sprite_$*-resized.png --output=out/sprite_$* --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palettes/palette_$*.pal --output-mask --transparent-color=000,144,224
+	cat out/sprite_$*.bin | ../tools/external/bin2c/bin2c > out/sprite_$*.h
+	cat out/sprite_$*-mask.bin | ../tools/external/bin2c/bin2c > out/sprite_$*-mask.h
+
 out/bootblock.bin: out/bootblock.o
-
 
 out/menu.bin: assets/menu.png menu.pal
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/menu.png --output=out/menu --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=menu.pal
 
-out/scoreboard.bin: assets/scoreboard.png palette.pal
-	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palette.pal
+out/scoreboard.bin: assets/scoreboard.png palettes/default.pal
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
 
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@
 
-out/font%.bin: assets/font%.png palette.pal
-	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=2 --use-palette=palette.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
+out/font%.bin: assets/font%.png palettes/default.pal
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=2 --use-palette=palettes/default.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
 
 
-out/sprite_player%-asprite.h: out/sprite_player%.png palette.pal
-	cat palette.pal | tail -16 > out/asprite.pal
-	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite.pal --output-asprite
+out/sprite_player%-asprite.h: out/sprite_player%.png palettes/default.pal
+	cat palettes/default.pal | tail -16 > out/asprite.pal
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite.pal --output-asprite --output-png
 
 .SECONDARY:
-out/sprite_playerLeftRun0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
+out/sprite_playerLeftRun0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
 .SECONDARY:
-out/sprite_playerLeftRun1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
+out/sprite_playerLeftRun1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
 .SECONDARY:
-out/sprite_playerRightRun0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
+out/sprite_playerRightRun0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
 .SECONDARY:
-out/sprite_playerRightRun1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
+out/sprite_playerRightRun1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
 .SECONDARY:
-out/sprite_playerRightJump0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+out/sprite_playerRightJump0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerRightJump1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+out/sprite_playerRightJump1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerLeftJump0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+out/sprite_playerLeftJump0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerLeftJump1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+out/sprite_playerLeftJump1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 
 .SECONDARY:
-out/sprite_playerRightStand0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
+out/sprite_playerRightStand0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
 .SECONDARY:
-out/sprite_playerRightStand1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
+out/sprite_playerRightStand1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
 .SECONDARY:
-out/sprite_playerLeftStand0_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
+out/sprite_playerLeftStand0_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
 .SECONDARY:
-out/sprite_playerLeftStand1_%.png: assets/sprite.png
-	../tools/croppa/out/croppa --input=assets/sprite.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+out/sprite_playerLeftStand1_%.png: assets/sprite_1.png
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
 
 
 
-out/fade_in.s: ./palette.pal
-	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palette.pal --output=fadeIn > $@
+out/fade_in_%.h: ./palettes/palette_%.pal
+	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palettes/palette_$*.pal --output=fadeIn_$* > $@
 
-out/menu_fade_in.s: ./out/menu.pal
+out/menu_fade_in.h: ./out/menu.pal
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=out/menu.pal --output=menuFadeIn > $@
 
 
@@ -264,7 +270,7 @@ endif
 out/workbench/%.o: out/%.c
 	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
-out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background-map.c
+out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background_1-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
 ifeq ($(USE_GCC), 1)
@@ -278,7 +284,7 @@ endif
 	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
 	-@rm big.c
 
-out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background-map.c
+out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background_1-map.c
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
 ifeq ($(USE_GCC), 1)

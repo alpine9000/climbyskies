@@ -196,7 +196,7 @@ cloud_render(frame_buffer_t fb)
     for (int16_t x = 0; x < 3; x++) {
     //if (px+x < MAP_TILE_WIDTH) { // todo: is this needed now ?
 	for (int16_t y = 0; y < 3; y++) {	  
-	  uint16_t tile = level.background_tileAddresses[py+y][px+x];
+	  uint16_t tile = level.tileAddresses[py+y][px+x];
 	  if (tile != TILE_SKY) {
 #ifdef CLOUD_TILE_MASKS
 	    if (tile > TILE_MASKED_BLIT_RANGE) {
@@ -210,7 +210,7 @@ cloud_render(frame_buffer_t fb)
 		cloud_setupRenderPartialTile();
 		mask = 0;
 	      }
-	      cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
+	      cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, level.spriteBitplanes+tile);
 	    }
 #else
 	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);

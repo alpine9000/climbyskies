@@ -1,12 +1,10 @@
 #ifndef __PALETTE_H
 #define __PALETTE_H
 
-void
-palette_install(void);
+#define PALETTE_FADE_IN_SIZE (65*32)
+
 void 
 palette_black(void);
 void
-palette_fadeIn(void);
-void
-palette_menuFadeIn(void);
+palette_fadeIn(uint16_t* fadeInFadeTable);
 #endif

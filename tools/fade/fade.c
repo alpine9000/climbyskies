@@ -173,11 +173,8 @@ main(int argc, char** argv)
     }
   }
 
-  printf("    xdef _%sFadeTable\n", config.output);
-  printf("_%sFadeTable:\n", config.output);
-
   for (int s = 0; s < config.steps+1; s++) {
-    printf(".step%d\n", s);
+    printf("//.step%d\n", s);
     for (int i = 0; i < config.numColors; i++) {
       int dr = ((((float)original[i].r)-(float)from[i].r)/(float)config.steps)*s;
       int dg = ((((float)original[i].g)-(float)from[i].g)/(float)config.steps)*s;
@@ -192,12 +189,12 @@ main(int argc, char** argv)
 	       original[i].b,from[i].b, db, from[i].b+db);
       }
 
-      printf("\tdc.w\t$%03x\n", 
+      printf("0x%03x,\n", 
 	     ((from[i].r+dr)>>4)<<8|
 	     ((from[i].g+dg)>>4)<<4|
 	     ((from[i].b+db)>>4));
     }
   }
 
-  printf("_%sFadeComplete:\n", config.output);
+  printf("//_%sFadeComplete:\n", config.output);
 }

@@ -134,8 +134,8 @@ INLINE void
 gfx_renderSprite(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
-  frame_buffer_t mask = spriteMask;
+  frame_buffer_t source = level.spriteBitplanes;
+  frame_buffer_t mask = level.spriteMask;
   uint32_t widthWords =  ((w+15)>>4)+1;
   int32_t shift = (dx&0xf);
   
@@ -167,8 +167,8 @@ INLINE void
 gfx_renderTileMask(frame_buffer_t dest, int16_t dx, int16_t dy, int16_t h, uint16_t tileOffset)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
-  frame_buffer_t mask = spriteMask;
+  frame_buffer_t source = level.spriteBitplanes;
+  frame_buffer_t mask = level.spriteMask;
   uint32_t widthWords =  1;
   int32_t shift = 0;
   
@@ -200,8 +200,8 @@ gfx_renderSprite16NoShift(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t d
 {
   USE(w);
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
-  frame_buffer_t mask = spriteMask;
+  frame_buffer_t source = level.spriteBitplanes;
+  frame_buffer_t mask = level.spriteMask;
   const uint32_t widthWords =  1;
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
@@ -237,7 +237,7 @@ INLINE void
 gfx_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
+  frame_buffer_t source = level.spriteBitplanes;
   uint32_t widthWords =  ((w+15)>>4);
   int32_t shift = (dx&0xf);
   

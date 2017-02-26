@@ -69,8 +69,8 @@ cloud_renderPartialTileMask(frame_buffer_t dest, int16_t x, int16_t y, uint16_t 
     return;
   }
 
-  frame_buffer_t tile = spriteFrameBuffer + tileOffset;
-  frame_buffer_t mask = spriteMask + tileOffset;
+  frame_buffer_t tile = level.spriteBitplanes + tileOffset;
+  frame_buffer_t mask = level.spriteMask + tileOffset;
 
   dest += gfx_dyOffsetsLUT[y] + (x>>3);
 
@@ -170,7 +170,7 @@ static inline void
 cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t h)
 {
   volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
+  frame_buffer_t source = level.spriteBitplanes;
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);
@@ -214,7 +214,7 @@ static inline void
 _cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
 {
   volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = spriteFrameBuffer;
+  frame_buffer_t source = level.spriteBitplanes;
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
   source += gfx_dyOffsetsLUT[sy] + (sx>>3);

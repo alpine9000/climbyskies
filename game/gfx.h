@@ -6,8 +6,6 @@
 #define gfx_retroFontWidth 5  
 #define gfx_retroFontHeight 8
 
-extern frame_buffer_t spriteFrameBuffer;
-extern frame_buffer_t spriteMask;
 extern const unsigned char font[];
 
 extern uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];

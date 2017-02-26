@@ -24,6 +24,7 @@ int16_t game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
+uint16_t game_level;
 
 static void
 game_switchFrameBuffers(void);
@@ -298,6 +299,7 @@ game_newGame(menu_command_t command)
 {
   game_score = 0;
   game_lives = 3;
+  game_level = 0;
 
   game_newLevel(command);
 }
@@ -341,6 +343,8 @@ game_newLevel(menu_command_t command)
   item_init(); // this must be initialised before tile
   enemy_init(); // this must be initialised before tile
 
+  level_load(game_level);
+
   tile_init();
   tile_renderScreen();
 
@@ -362,7 +366,7 @@ game_newLevel(menu_command_t command)
   game_render();
 
   hw_waitVerticalBlank();
-  palette_fadeIn();
+  palette_fadeIn(level.fadeIn);
 }
 
 static inline void
@@ -529,10 +533,14 @@ game_render(void)
   player_saveBackground(game_offScreenBuffer);
   //#endif
 
-  cloud_saveBackground(game_offScreenBuffer);
+  if (level.clouds) {
+    cloud_saveBackground(game_offScreenBuffer);
+  }
   
   SPEED_COLOR(0x500);
-  cloud_render(game_offScreenBuffer);
+  if (level.clouds) {
+    cloud_render(game_offScreenBuffer);
+  }
   SPEED_COLOR(0x202);
   item_render(game_offScreenBuffer);  
   SPEED_COLOR(0x050);
@@ -568,12 +576,34 @@ game_setLevelComplete(void)
 static void
 game_nextLevel(void)
 {
+  game_level++;
+  if (game_level >= LEVEL_NUM_LEVELS) {
+    game_level = 0;
+  }
   palette_black();
   game_newLevel(MENU_COMMAND_PLAY);
 #ifdef PLAYER_RECORDING
   player_setRecord(PLAYER_RECORD_IDLE);
   game_refreshScoreboard();
 #endif
+}
+
+static void
+game_startPlayback(void)
+{
+  palette_black();
+  game_newLevel(MENU_COMMAND_REPLAY);
+  game_refreshScoreboard();
+}
+
+static void
+game_startRecord(void)
+{
+  palette_black();
+  game_newLevel(MENU_COMMAND_REPLAY);
+  game_refreshScoreboard();
+  player_setRecord(PLAYER_RECORD_RECORD);
+  game_refreshScoreboard();
 }
 
 int16_t
@@ -601,14 +631,10 @@ game_processKeyboard(void)
     game_paused = !game_paused;
     break;
   case 'R':
-    palette_black();
-    game_newGame(MENU_COMMAND_RECORD);
-    game_refreshScoreboard();
+    game_startRecord();
     break;
   case 'P':
-    palette_black();
-    game_newGame(MENU_COMMAND_REPLAY);
-    game_refreshScoreboard();
+    game_startPlayback();
     break;
   case 'S':
     player_setRecord(PLAYER_RECORD_IDLE);
@@ -667,7 +693,9 @@ game_loop()
 
 
     if (game_shake == 0) {
-      cloud_update();
+      if (level.clouds) {
+	cloud_update();
+      }
     } else if (game_scrollCount == 0/* && game_shake > 0*/) {
       game_shake--;
       if (game_shake > 1) {
@@ -704,12 +732,14 @@ game_loop()
 #endif
     }
 
-#ifdef PLAYER_HARDWARE_SPRITE
-    player_hSpriteRender();
-#endif
     
     sound_schedule();
     hw_waitVerticalBlank();
+#ifdef PLAYER_HARDWARE_SPRITE
+    // this was before hw_waitVerticalBlank but caused glitches when things went too fast
+    player_hSpriteRender();
+#endif
+
     sound_vbl();
 
 #ifdef PLAYER_HARDWARE_SPRITE
@@ -750,7 +780,9 @@ game_loop()
     player_restoreBackground();
     //#endif
     SPEED_COLOR(0x00f);
-    cloud_restoreBackground();
+    if (level.clouds) {
+      cloud_restoreBackground();
+    }
     SPEED_COLOR(0x000);
 
     game_render();
