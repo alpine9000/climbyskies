@@ -426,11 +426,7 @@ sprite_ctor(void)
   for (int16_t i = 0; i < 64; i++) {
     sprite_6byteWideLUT[i] = i * (6*SCREEN_BIT_DEPTH);
   }
-#ifdef PLAYER_HSPRITE_CPU  
-  for (int16_t i = 0; i < 8; i++) {
-    custom->sprpt[i] = sprite_nullhsprite;
-  }
-#else
+
   int16_t index = 1;
   for (int16_t i = 0; i < 8; i++) {
     copper.sprpt[index] = ((uint32_t)sprite_nullhsprite & 0xffff);
@@ -438,8 +434,6 @@ sprite_ctor(void)
     copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;
     index += 2;
   }
-#endif
-
 #endif
 }
 

@@ -32,7 +32,7 @@
 #define ANIM_RIGHT_FALL_RIGHT  9
 
 static
-sprite_animation_t animations[] = {
+sprite_animation_t player_animations[] = {
   [ANIM_LEFT_JUMP] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_LEFT, 
@@ -139,6 +139,7 @@ player_getRecord(void)
   return player_record.state;
 }
 
+
 void
 player_setRecord(player_record_state_t state)
 {
@@ -148,15 +149,15 @@ player_setRecord(player_record_state_t state)
   player_record.lastJoystickPos = 0xffffffff;
   player_record.joystickPos = 0;
 }
-
 #endif
+
 
 static void 
 player_setAnim(int16_t anim)
 {
   if (player.animId != anim) {
     player.animId = anim;
-    player.anim = &animations[player.animId];
+    player.anim = &player_animations[player.animId];
     player.sprite.imageIndex = player.anim->animation.start;
     player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
     player.frameCounter = 0;   
@@ -184,9 +185,7 @@ player_init(menu_command_t command)
     player_setRecord(PLAYER_RECORD_IDLE);
     break;
   }
-
 #endif
-
 
 #ifdef PLAYER_HARDWARE_SPRITE
   for (int16_t i = 0, index = 1; i < 8; i++) {
@@ -196,7 +195,6 @@ player_init(menu_command_t command)
     index += 2;
   }
 #endif
-
 
   player.freeFall = 0;
   player.velocity.x = 0;
@@ -240,6 +238,7 @@ player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
   player_collisionStatus[pointIndex].x = x;
   player_collisionStatus[pointIndex].y = y;
 }
+
 
 static int
 player_tileCollision(int16_t x, int16_t y)
@@ -328,8 +327,6 @@ player_processJoystick(void)
     notUpCount = 0;
     break;
   }
-
-
   return;
 }
 
@@ -338,9 +335,8 @@ static int
 player_moveX(void)
 {
   int16_t newX = player.sprite.x+player.velocity.x;
-
-  
   int16_t collision = player_tileCollision(newX, player.sprite.y);
+
   if (collision) {
     if (player.velocity.x < 0) {
       int16_t maxX = 0;
@@ -379,6 +375,7 @@ player_moveX(void)
   player.sprite.x = newX;
   return collision;
 }
+
 
 static int16_t
 player_moveY(void)
@@ -544,8 +541,7 @@ player_updateAlive(void)
     }
   }
 
-
-  lastY = player.sprite.y ;
+  lastY = player.sprite.y;
 
   if (player.velocity.y != 0 || player.velocity.x != 0) {
     if (player.frameCounter == player.anim->animation.speed) {
@@ -562,7 +558,6 @@ player_updateAlive(void)
       player.frameCounter++;
     }
   }
-
 
   if (player.velocity.y == 0 && collision) {
     if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND && game_scrollCount == 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
@@ -600,12 +595,7 @@ static void
 player_updateFreeFall(void)
 {
   if (player.freeFall) {
-    //    if (player.freeFall == 1) {
-      player.velocity.y = PHYSICS_VELOCITY_KILL;
-      //      player.freeFall++;
-      //    }
-
-    //if ((game_cameraY % 16) == 0 && game_scrollCount == 0) {
+    player.velocity.y = PHYSICS_VELOCITY_KILL;
     player.freeFall = 0;
     if (player.anim->facing == FACING_LEFT) {
       player_setAnim(ANIM_LEFT_FALL);
@@ -613,7 +603,6 @@ player_updateFreeFall(void)
       player_setAnim(ANIM_RIGHT_FALL);
     }
     player.velocity.x = 0;
-      //}
   } 
 
   player.velocity.y += PHYSICS_VELOCITY_G;
@@ -658,6 +647,7 @@ player_calculateCollisionBox(void)
   player.sprite.collisionBox.y2 = player.sprite.y + (PLAYER_HEIGHT - PLAYER_FUZZY_WIDTH);
 }
 #endif
+
 
 void
 player_update(void)
@@ -778,23 +768,11 @@ player_render(frame_buffer_t fb)
 
 }
 
+
 #ifdef PLAYER_HARDWARE_SPRITE
 void
 player_updateCopper(void)
 {
-#if PLAYER_HSPRITE_CPU
-  int16_t i = 0;
-  if (player.hspriteCompatible && player.flashCounter == 0 || (player.flashCounter != 50 && player.flashCounter & 0x4)) {
-    custom->sprpt[i++] = player.hsprite->hsprite00;
-    custom->sprpt[i++] = player.hsprite->hsprite01;
-    custom->sprpt[i++] = player.hsprite->hsprite10;
-    custom->sprpt[i++] = player.hsprite->hsprite11;
-  }
-
-  for (; i < 8; i++) {
-    custom->sprpt[i] = sprite_nullhsprite;
-  }
-#else
   int16_t i, index = 1;
   if (
 #ifdef PLAYER_BLIT_SPRITE_OVERDRAW
@@ -828,8 +806,5 @@ player.hspriteCompatible &&
     copper.sprpt[index] = (uint32_t)sprite_nullhsprite >> 16;
     index += 2;
   }
-
-
-#endif
 }
 #endif

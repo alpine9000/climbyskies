@@ -25,8 +25,8 @@ typedef struct {
 
 uint16_t menu_selected = 0;
 
-#define MENU_COPPER_WAIT_TOP(x) { 0x9fd1 + (0x800*(x*2)), 0xfffe}
-#define MENU_COPPER_WAIT_BOTTOM(x) { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_WAIT_TOP(x)     { 0x9fd1 + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_WAIT_BOTTOM(x)  { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
 #define MENU_COPPER_LINE(c1, c2, x) [x] = {	\
     .wait1 = MENU_COPPER_WAIT_TOP(x),\
    .color1 = { COLOR07, c1},\
@@ -51,7 +51,6 @@ static  __section(data_c)  menu_copper_t menu_copper  = {
     BPL5PTL,0x0000,
     BPL5PTH,0x0000,
   },
-
   .lines = {
     MENU_COPPER_LINE(MENU_TOP_COLOR_SELECTED, MENU_BOTTOM_COLOR_SELECTED, 0),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 1),
@@ -60,18 +59,65 @@ static  __section(data_c)  menu_copper_t menu_copper  = {
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 4),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 5),
   },
-
   .end = {0xFFFF, 0xFFFE}
-
 };
+
+typedef struct {
+  char* text;
+  menu_command_t command;
+  int16_t done;
+  void (*callback)(void);
+} menu_item_t;
+
+static void menu_music_toggle(void);
+
+menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
+  {
+    .text = "PLAY NOW!",
+    .command = MENU_COMMAND_PLAY,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "RECORD GAME",
+    .command = MENU_COMMAND_RECORD,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "PLAY RECORDING",
+    .command = MENU_COMMAND_REPLAY,
+    .done = 1,
+    .callback = 0
+  },
+  {
+    .text = "MUSIC - ON ",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = menu_music_toggle
+  },
+  {
+    .text = "HI SCORES",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = 0
+  },
+  {
+    .text = "CREDITS",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = 0
+  }
+};
+
 
 static void
 menu_vbl(void)
 {
-  //  sound_schedule();
   hw_waitVerticalBlank();
   sound_vbl();
 }
+
 
 static void 
 menu_pokeCopperList(frame_buffer_t frameBuffer)
@@ -118,68 +164,6 @@ menu_processKeyboard(void)
   default:
     return -1;
   }
-
-  return -1;
-}
-
-typedef struct {
-  char* text;
-  menu_command_t command;
-  int16_t done;
-  void (*callback)(void);
-} menu_item_t;
-
-void menu_music_toggle(void);
-
-menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
-  {
-    .text = "PLAY NOW!",
-    .command = MENU_COMMAND_PLAY,
-    .done = 1,
-    .callback = 0
-  },
-  {
-    .text = "RECORD GAME",
-    .command = MENU_COMMAND_RECORD,
-    .done = 1,
-    .callback = 0
-  },
-  {
-    .text = "PLAY RECORDING",
-    .command = MENU_COMMAND_REPLAY,
-    .done = 1,
-    .callback = 0
-  },
-  {
-    .text = "MUSIC - ON ",
-    .command = MENU_COMMAND_PLAY,
-    .done = 0,
-    .callback = menu_music_toggle
-  },
-  {
-    .text = "HI SCORES",
-    .command = MENU_COMMAND_PLAY,
-    .done = 0,
-    .callback = 0
-  },
-  {
-    .text = "CREDITS",
-    .command = MENU_COMMAND_PLAY,
-    .done = 0,
-    .callback = 0
-  }
-};
-
-
-static int
-_strlen(char* s) 
-{
-  int count = 0;
-  while (*s++ != 0) {
-    count++;
-  }
-
-  return count;
 }
 
 
@@ -190,7 +174,7 @@ menu_redraw(uint16_t i)
   fb += 2*SCREEN_WIDTH_BYTES;
 
   int16_t y = 130 + (menu_selected*16);
-  uint16_t len = _strlen(menu_items[i].text);
+  uint16_t len = strlen(menu_items[i].text);
 
   menu_vbl();
 
@@ -200,8 +184,9 @@ menu_redraw(uint16_t i)
   text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
 
   fb -= SCREEN_WIDTH_BYTES;
-  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
+  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(strlen(menu_items[i].text)<<2), y);
 }
+
 
 static void
 menu_render(void)
@@ -210,40 +195,19 @@ menu_render(void)
   fb += 2*SCREEN_WIDTH_BYTES;
   int y = 130;
 
-#if 0
-  menu_vbl();
   for (int i = 0; i < MENU_NUM_ITEMS; i++) {
-    uint16_t len = _strlen(menu_items[i].text);
-    //    gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3), 9, 1);
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
-    y+= 16;
-  }
-  
-  y = 130;
-
-  fb -= SCREEN_WIDTH_BYTES;
-  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
-    y+= 16;
-  }
-#else
-
-  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
-    uint16_t len = _strlen(menu_items[i].text);
+    uint16_t len = strlen(menu_items[i].text);
     text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
     text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
     fb -= SCREEN_WIDTH_BYTES;
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(_strlen(menu_items[i].text)<<2), y);
+    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(strlen(menu_items[i].text)<<2), y);
     fb += SCREEN_WIDTH_BYTES;
     y+= 16;
   }
-  
-#endif
 }
 
 
-void
+static void
 menu_music_toggle(void)
 {
   if (music_toggle_music()) {
@@ -254,6 +218,7 @@ menu_music_toggle(void)
 
   menu_redraw(menu_selected);
 }
+
 
 static void
 menu_up(void)
@@ -387,7 +352,6 @@ menu_loop(void)
   menu_vbl();
   custom->dmacon = DMAF_RASTER;
   palette_black();
-
 
   return command;
 }

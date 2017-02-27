@@ -1,10 +1,9 @@
-
-
 inline void
 cloud_initSpriteRender(void)
 {
   cloud_spriteRenderSetup = 0;
 }
+
 
 static inline 
 void
@@ -23,6 +22,7 @@ cloud_setupRenderPartialTile(void)
   _custom->bltamod = FRAME_BUFFER_WIDTH_BYTES-2;
   _custom->bltdmod = FRAME_BUFFER_WIDTH_BYTES-2;
 }
+
 
 static inline 
 void
@@ -59,7 +59,7 @@ cloud_renderPartialTile(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, f
   _custom->bltsize = gfx_heightLUT[h] | 1;
 }
 
-#ifdef CLOUD_TILE_MASKS
+
 static inline void
 cloud_renderPartialTileMask(frame_buffer_t dest, int16_t x, int16_t y, uint16_t h, uint16_t tileOffset)
 {
@@ -84,7 +84,6 @@ cloud_renderPartialTileMask(frame_buffer_t dest, int16_t x, int16_t y, uint16_t 
   _custom->bltsize = gfx_heightLUT[h] | 1;
 }
 
-#endif
 
 static inline void
 cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
@@ -114,7 +113,7 @@ cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
   }
 }
 
-#ifdef CLOUD_TILE_MASKS
+
 static inline void
 cloud_renderTileMask(frame_buffer_t fb, int16_t x, int16_t y, uint16_t tileOffset)
 {
@@ -142,7 +141,7 @@ cloud_renderTileMask(frame_buffer_t fb, int16_t x, int16_t y, uint16_t tileOffse
     }
   }
 }
-#endif
+
 
 static inline void
 cloud_setupRenderSpriteNoMask(void)
@@ -206,26 +205,7 @@ cloud_renderSpriteNoMask(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx
   _custom->bltsize = cloud_sizeLUT[h];
 
 #endif
-
 }
-
-#if 0
-static inline void
-_cloud_renderSpriteNoMaskDefaultHeight(frame_buffer_t dest, int16_t sx, int16_t sy, int16_t dx, int16_t dy)
-{
-  volatile struct Custom* _custom = CUSTOM;
-  frame_buffer_t source = level.spriteBitplanes;
-  
-  dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
-  source += gfx_dyOffsetsLUT[sy] + (sx>>3);
-
-  hw_waitBlitter();
-
-  _custom->bltapt = (uint8_t*)source;
-  _custom->bltdpt = (uint8_t*)dest;
-  _custom->bltsize = ((CLOUD_HEIGHT*SCREEN_BIT_DEPTH)<<6) | (CLOUD_WIDTH/16);
-}
-#endif
 
 
 static inline void

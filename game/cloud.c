@@ -1,6 +1,5 @@
 #include "game.h"
 
-
 #define CLOUD_NUM_CLOUDS 3
 
 typedef struct {
@@ -18,8 +17,7 @@ typedef struct {
 static uint16_t cloud_sizeLUT[65];
 uint16_t cloud_spriteRenderSetup;
 
-static
-int16_t cloudX[] = {
+static int16_t cloudX[] = {
   0, 
   64, 
   SCREEN_WIDTH-CLOUD_WIDTH,
@@ -67,6 +65,7 @@ static cloud_t _clouds[CLOUD_NUM_CLOUDS] = {
 
 #include "cloud_inlines.h"
 
+
 void
 cloud_init(void)
 {
@@ -97,25 +96,12 @@ cloud_init(void)
 	cloud->sprite.save = &cloud->saves[0];
       }
 #endif
-
-
 }
 
 
 void
 cloud_saveBackground(frame_buffer_t fb)
 {
-#if 0 // Slower
-  volatile struct Custom* _custom = CUSTOM;
-  // Risky?
-   hw_waitBlitter();
-
-  _custom->bltcon0 = (SRCA|DEST|0xf0);
-  _custom->bltcon1 = 0;
-  //_custom->bltafwm = 0xffff;
-  _custom->bltalwm = 0xffff;
-#endif
-
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
     cloud_save(fb, &cloud->sprite);
@@ -156,7 +142,6 @@ cloud_restore(sprite_save_t* save)
 void
 cloud_restoreBackground(void)
 {
-#if 1
   volatile struct Custom* _custom = CUSTOM;
   hw_waitBlitter();
 
@@ -164,7 +149,6 @@ cloud_restoreBackground(void)
   _custom->bltcon1 = 0;
   //_custom->bltafwm = 0xffff;
   _custom->bltalwm = 0xffff;
-#endif
 
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {  
     cloud_t* cloud = &clouds[i];
@@ -182,11 +166,7 @@ cloud_render(frame_buffer_t fb)
     cloud_spriteRender(fb, &cloud->sprite);
   }
 
-#ifdef CLOUD_TILE_MASKS
-    int16_t mask = -1;
-#else
-    cloud_setupRenderPartialTile();
-#endif
+  int16_t mask = -1;
   
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
@@ -194,30 +174,24 @@ cloud_render(frame_buffer_t fb)
     int16_t px = (cloud->sprite.x>>4); // (cloud->sprite.x/TILE_WIDTH);
 
     for (int16_t x = 0; x < 3; x++) {
-    //if (px+x < MAP_TILE_WIDTH) { // todo: is this needed now ?
-	for (int16_t y = 0; y < 3; y++) {	  
-	  uint16_t tile = level.tileAddresses[py+y][px+x];
-	  if (tile != TILE_SKY) {
-#ifdef CLOUD_TILE_MASKS
-	    if (tile > TILE_MASKED_BLIT_RANGE) {
-	      if (mask != 1) {
-		cloud_setupRenderPartialTileMask();
-		mask = 1;
-	      }
-	      cloud_renderTileMask(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, tile);
-	    } else {
-	      if (mask != 0) {
-		cloud_setupRenderPartialTile();
-		mask = 0;
-	      }
-	      cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, level.spriteBitplanes+tile);
+      for (int16_t y = 0; y < 3; y++) {	  
+	uint16_t tile = level.tileAddresses[py+y][px+x];
+	if (tile != TILE_SKY) {
+	  if (tile > TILE_MASKED_BLIT_RANGE) {
+	    if (mask != 1) {
+	      cloud_setupRenderPartialTileMask();
+	      mask = 1;
 	    }
-#else
-	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, spriteFrameBuffer+tile);
-#endif
+	    cloud_renderTileMask(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, tile);
+	  } else {
+	    if (mask != 0) {
+	      cloud_setupRenderPartialTile();
+	      mask = 0;
+	    }
+	    cloud_renderTile(fb, (px+x)<<4/* *TILE_WIDTH */, (py+y)<<4 /* *TILE_HEIGHT */, level.spriteBitplanes+tile);
 	  }
 	}
-    //}
+      }
     }
   }
 }

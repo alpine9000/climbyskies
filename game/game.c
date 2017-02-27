@@ -71,12 +71,7 @@ static void (*game_tileRender)(uint16_t hscroll);
 
 static int16_t tileY;
 
-#ifdef PLAYER_HSPRITE_CPU
-				 //static 
-#endif
-
  __section(data_c)  copper_t copper  = {
-#ifndef PLAYER_HSPRITE_CPU
   .sprpt = {
     SPR0PTL,0x0000,
     SPR0PTH,0x0000,
@@ -95,7 +90,6 @@ static int16_t tileY;
     SPR7PTL,0x0000,
     SPR7PTH,0x0000    
   },
-#endif
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -689,7 +683,6 @@ game_loop()
   game_init(menuCommand);
 
   for (;;) {
-
 #ifdef DEBUG
     if (game_paused && game_singleStep != 1) {
       goto skip;
@@ -706,7 +699,6 @@ game_loop()
     SPEED_COLOR(0x2f2);
     item_update(&player.sprite);
 
-
     if (game_shake == 0) {
       if (level.clouds) {
 	cloud_update();
@@ -722,7 +714,6 @@ game_loop()
       }
     } 
 
-
     if (game_turtle > 1) {
       custom->color[16] = 0xf00;
       game_turtle--;
@@ -730,7 +721,6 @@ game_loop()
       custom->color[16] = 0x09e;
       game_turtle--;
     }
-
 
     if (hw_getRasterLine() < 220) {
       // if (operationCount == 10) {
@@ -761,17 +751,11 @@ game_loop()
     player_updateCopper();
 #endif
     
-
-    //    if (hw_verticalBlankCount == 0x120) {
-      //      game_paused = 1;
-    //    }
-
     if (game_lastVerticalBlankCount == 0) {
 
     } else if (hw_verticalBlankCount-game_lastVerticalBlankCount > 1) {
       game_missedFrameCount++;
       game_turtle = 5;
-      //      game_paused = 1;
     }
       
     game_lastVerticalBlankCount = hw_verticalBlankCount;
@@ -846,6 +830,7 @@ void *__memset(__REG("a0", void *dst), __REG("d0", int32_t c), __REG("d1", uint3
 }
 #endif
 
+
 void* memcpy(void* destination, void* source, size_t num)
 {
   size_t i;
@@ -855,4 +840,16 @@ void* memcpy(void* destination, void* source, size_t num)
     d[i] = s[i];
   }
   return destination;
+}
+
+
+int
+strlen(char* s) 
+{
+  int count = 0;
+  while (*s++ != 0) {
+    count++;
+  }
+
+  return count;
 }
