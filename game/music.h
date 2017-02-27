@@ -12,5 +12,6 @@ void
 music_play(__REG("d0", int32_t moduleIndex));
 uint16_t
 music_toggle_music(void);
-
+uint16_t
+music_enabled(void);
 #endif

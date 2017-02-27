@@ -189,13 +189,31 @@ menu_redraw(uint16_t i)
 
 
 static void
+menu_update_music_menu(void)
+{
+  for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
+    if (menu_items[i].callback == menu_music_toggle) {
+      if (music_enabled()) {
+	menu_items[i].text = "MUSIC - ON ";
+      } else {
+	menu_items[i].text = "MUSIC - OFF";
+      }
+      return;
+    }
+  }
+}
+
+
+static void
 menu_render(void)
 {
+  menu_update_music_menu();
+
   frame_buffer_t fb = game_onScreenBuffer;
   fb += 2*SCREEN_WIDTH_BYTES;
-  int y = 130;
+  uint16_t y = 130;
 
-  for (int i = 0; i < MENU_NUM_ITEMS; i++) {
+  for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
     uint16_t len = strlen(menu_items[i].text);
     text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
     text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
@@ -206,16 +224,11 @@ menu_render(void)
   }
 }
 
-
 static void
 menu_music_toggle(void)
 {
-  if (music_toggle_music()) {
-    menu_items[menu_selected].text = "MUSIC - ON ";
-  } else {
-    menu_items[menu_selected].text = "MUSIC - OFF";
-  }
-
+  music_toggle_music();
+  menu_update_music_menu();
   menu_redraw(menu_selected);
 }
 
@@ -260,7 +273,7 @@ __EXTERNAL menu_command_t
 menu_loop(void)
 {
   menu_command_t command;
-  int done;
+  uint16_t done;
   volatile uint16_t scratch;
 
   menu_vbl();
@@ -300,7 +313,7 @@ menu_loop(void)
   
   custom->color[5] = 0x08d;  
 
-  for (int i = 0; i != MENU_NUM_ITEMS; i++) {
+  for (uint16_t i = 0; i != MENU_NUM_ITEMS; i++) {
     menu_copper.lines[i].color1[1] = 0x08d;
     menu_copper.lines[i].color2[1] = 0x08d;
   }
@@ -310,7 +323,7 @@ menu_loop(void)
   menu_vbl();
   custom->color[5] = 0x544;
   
-  for (int i = 0; i != MENU_NUM_ITEMS; i++) {
+  for (uint16_t i = 0; i != MENU_NUM_ITEMS; i++) {
     if (i == menu_selected) {
       menu_copper.lines[i].color1[1] = MENU_TOP_COLOR_SELECTED;
       menu_copper.lines[i].color2[1] = MENU_BOTTOM_COLOR_SELECTED;

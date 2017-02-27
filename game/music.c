@@ -31,3 +31,9 @@ music_toggle_music(void)
 
   return P61_Target;
 }
+
+uint16_t
+music_enabled(void)
+{
+  return P61_Target;
+}

@@ -642,6 +642,9 @@ game_processKeyboard(void)
   case 'N':
     game_playLevel(game_level+1);
     break;
+  case 'M':
+    music_toggle_music();
+    break;
   case 'Q':
     return 1;
     break;
