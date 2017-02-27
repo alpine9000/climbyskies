@@ -92,15 +92,34 @@ menu_pokeCopperList(frame_buffer_t frameBuffer)
 static int16_t
 menu_processKeyboard(void)
 {
-  switch (keyboard_getKey() ) {
+  uint32_t code = keyboard_getKey();
+  
+  switch (code) {
+  case 'P':
+    return MENU_COMMAND_REPLAY;
+    break;
+  case 'R':
+    return MENU_COMMAND_RECORD;
+    break;
+  case '1':
+    return MENU_COMMAND_LEVEL;
+    break;
+  case '2':
+    return MENU_COMMAND_LEVEL+1;
+    break;
+  case '3':
+    return MENU_COMMAND_LEVEL+2;
+    break;
 #if TRACKLOADER==0
   case 'Q':
-    return 1;
+    return MENU_COMMAND_EXIT;
     break;
 #endif
+  default:
+    return -1;
   }
 
-  return 0;
+  return -1;
 }
 
 typedef struct {
@@ -275,6 +294,8 @@ menu_down(void)
 __EXTERNAL menu_command_t
 menu_loop(void)
 {
+  menu_command_t command;
+  int done;
   volatile uint16_t scratch;
 
   menu_vbl();
@@ -334,8 +355,9 @@ menu_loop(void)
     }
   }
 
-  menu_command_t command = MENU_COMMAND_PLAY;
-  int done = 0;
+
+  command = MENU_COMMAND_PLAY;
+  done = 0;
   
   while (!done) {
     hw_readJoystick();
@@ -354,8 +376,9 @@ menu_loop(void)
     } else if (JOYSTICK_UP()) {
       menu_up();
     }
-    if (menu_processKeyboard()) {
-      command = MENU_COMMAND_EXIT;
+    int16_t kbCommand;
+    if ((kbCommand = menu_processKeyboard()) != -1) {
+      command = kbCommand;
       done = 1;
     }
     menu_vbl();

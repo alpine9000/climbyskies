@@ -1,17 +1,22 @@
 #include "game.h"
 
-extern uint32_t keyboard_code;
+extern uint16_t keyboard_code;
 extern char keyboard_keymap[];
 
-static char keyboard_lastKey = 0;
+static uint16_t keyboard_lastCode = 0;
 
-char keyboard_getKey(void)
+char 
+keyboard_getKey(void)
 {
-  char c = keyboard_keymap[keyboard_code>>16];
-  if (c != keyboard_lastKey) {
-    keyboard_lastKey = c;
-    return c;
+  char c = 0;
+
+  if (keyboard_code != keyboard_lastCode) {
+    if (keyboard_code <= 0x47) {
+      c = keyboard_keymap[keyboard_code];
+    }
   }
-  keyboard_lastKey = c;
-  return 0;
+
+  keyboard_lastCode = keyboard_code;
+
+  return c;
 }

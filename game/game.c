@@ -31,7 +31,7 @@ game_switchFrameBuffers(void);
 static void
 game_newGame(menu_command_t command);
 static void
-game_newLevel(menu_command_t command);
+game_loadLevel(menu_command_t command);
 static void
 game_render(void);
 static 
@@ -301,11 +301,16 @@ game_newGame(menu_command_t command)
   game_lives = 3;
   game_level = 0;
 
-  game_newLevel(command);
+  if (command >= MENU_COMMAND_LEVEL) {
+    game_level = command - MENU_COMMAND_LEVEL;
+    command = MENU_COMMAND_PLAY;
+  }
+
+  game_loadLevel(command);
 }
 
 static void
-game_newLevel(menu_command_t command)
+game_loadLevel(menu_command_t command)
 {  
 
   custom->bltafwm = 0xffff;
@@ -574,14 +579,14 @@ game_setLevelComplete(void)
 }
 
 static void
-game_nextLevel(void)
+game_playLevel(uint16_t levelIndex)
 {
-  game_level++;
+  game_level = levelIndex;
   if (game_level >= LEVEL_NUM_LEVELS) {
     game_level = 0;
   }
   palette_black();
-  game_newLevel(MENU_COMMAND_PLAY);
+  game_loadLevel(MENU_COMMAND_PLAY);
 #ifdef PLAYER_RECORDING
   player_setRecord(PLAYER_RECORD_IDLE);
   game_refreshScoreboard();
@@ -592,7 +597,7 @@ static void
 game_startPlayback(void)
 {
   palette_black();
-  game_newLevel(MENU_COMMAND_REPLAY);
+  game_loadLevel(MENU_COMMAND_REPLAY);
   game_refreshScoreboard();
 }
 
@@ -600,7 +605,7 @@ static void
 game_startRecord(void)
 {
   palette_black();
-  game_newLevel(MENU_COMMAND_REPLAY);
+  game_loadLevel(MENU_COMMAND_REPLAY);
   game_refreshScoreboard();
   player_setRecord(PLAYER_RECORD_RECORD);
   game_refreshScoreboard();
@@ -641,10 +646,19 @@ game_processKeyboard(void)
     game_refreshScoreboard();
     break;
   case 'N':
-    game_nextLevel();
+    game_playLevel(game_level+1);
     break;
   case 'Q':
     return 1;
+    break;
+  case '1':
+    game_playLevel(0);
+    break;
+  case '2':
+    game_playLevel(1);
+    break;
+  case '3':
+    game_playLevel(2);
     break;
   }
 #endif
@@ -665,6 +679,7 @@ game_loop()
 
   menu_command_t menuCommand;
  menu:
+  game_level = 0;
   if ((menuCommand = menu_loop()) == MENU_COMMAND_EXIT) {
 #if TRACKLOADER==0
     goto done;
@@ -794,7 +809,7 @@ game_loop()
     if (!joystickDown && JOYSTICK_BUTTON_DOWN) {    
       joystickDown = 1;
       if (game_levelComplete && game_levelScore == 0) {
-	game_nextLevel();
+	game_playLevel(game_level + 1);
       }
     }
 

@@ -60,7 +60,7 @@ kbint:
 	move.w  d0,_keyboard_code
 	bra	.diff
 .same
-	move.w  #1,_keyboard_code
+	move.w  #0,_keyboard_code
 .diff
 	;; clr.w	$100
 
