@@ -24,14 +24,14 @@ all: out out/gcc.lib
 out:
 	mkdir out
 
-out/gcc.lib: $(ALL_OBJS)
+out/gcc.lib: out $(ALL_OBJS)
 	$(LD) $(ALL_OBJS) -r -o out/gcc.lib
 
-out/%.o: %.s
+out/%.o: %.s out
 	$(VASM) $(VASM_ARGS)  $< -o $@ 
 
 
-out/%.o: %.c
+out/%.o: %.c out
 	-@$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
 	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d

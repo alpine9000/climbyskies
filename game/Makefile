@@ -1,3 +1,4 @@
+KEEP_ASM=0
 USE_GCC=1
 USE_BIG=1
 SFX=1
@@ -80,7 +81,7 @@ all: adf
 
 include ../shared/externals.mk
 
-adf: libgcc/out/gcc.lib version bin out $(ALL_TOOLS) $(ADF)
+adf: out libgcc/out/gcc.lib version bin $(ALL_TOOLS) $(ADF)
 
 .PHONY: version
 version:
@@ -93,7 +94,7 @@ gdrive: all
 test: all
 	cp $(ADF) ~/Projects/amiga/test.adf
 
-libgcc/out/gcc.lib:
+libgcc/out/gcc.lib: out
 	make -C libgcc
 
 go: test
@@ -117,30 +118,31 @@ $(ADF): out/bootblock.bin
 	$(MAKEADF) out/bootblock.bin > $(ADF)
 	@ls -lh out/bootblock.bin
 
-wb: version libgcc/out/gcc.lib bin/$(GAME_NAME)
+wb: out version libgcc/out/gcc.lib $(ALL_TOOLS) bin/$(GAME_NAME)
 
 out/adf/menu.o: level.c out/menu_fade_in.h
 out/adf/level.o: level.c $(LEVEL_FILES)
+out/workbench/menu.o: level.c out/menu_fade_in.h
 out/workbench/level.o: level.c $(LEVEL_FILES)
 
 #http://opengameart.org/content/jump-landing-sound
-out/jump.raw: assets/jump.wav
+out/jump.raw: assets/jump.wav out
 	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/10-8bit-coin-sounds
-out/coin1.raw: assets/coin1.wav
+out/coin1.raw: assets/coin1.wav out
 	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/bubbles-pop
-out/pop.raw: assets/pop.wav
+out/pop.raw: assets/pop.wav out
 	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://freesound.org/people/CGEffex/sounds/98341/
-out/kill.raw: assets/kill.wav
+out/kill.raw: assets/kill.wav out
 	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/512-sound-effects-8-bit-style
-out/falling.raw: assets/falling.wav
+out/falling.raw: assets/falling.wav out
 	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun1_0-asprite.h \
@@ -176,22 +178,22 @@ out/sprite_%.h: assets/sprite_%.png palettes/palette_%.pal
 
 out/bootblock.bin: out/bootblock.o
 
-out/menu.bin: assets/menu.png menu.pal
+out/menu.bin: out assets/menu.png menu.pal
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/menu.png --output=out/menu --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=menu.pal
 
-out/scoreboard.bin: assets/scoreboard.png palettes/default.pal
+out/scoreboard.bin: assets/scoreboard.png palettes/default.pal out
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
 
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@
 
-out/font%.bin: assets/font%.png palettes/default.pal
+out/font%.bin: assets/font%.png palettes/default.pal out
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --output-bitplanes --output-grey-palette-asm --output-palette-asm --output-palette --output out/font$* --colors=2 --use-palette=palettes/default.pal --full-color-palette-file --output-mask --transparent-color=0,0,0 --output-png
 
 
 out/sprite_player%-asprite.h: out/sprite_player%.png palettes/default.pal
-	cat palettes/default.pal | tail -16 > out/asprite.pal
-	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite.pal --output-asprite --output-png
+	cat palettes/default.pal | tail -16 > out/asprite_$*.pal
+	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite_$*.pal --output-asprite --output-png
 
 .SECONDARY:
 out/sprite_playerLeftRun0_%.png: assets/sprite_1.png
@@ -253,13 +255,15 @@ out/workbench/main.o: $(MODULE) $(EXTRA) $(ASSETS)
 	$(VASM)  -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > $*.d
 
-out/adf/%.o: %.s
+out/adf/%.o: %.s out
 	$(VASM) $(VASM_ARGS)  -DTRACKLOADER=1 $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/adf/$*.d
 
-out/adf/%.o: out/%.c
+out/adf/%.o: out/%.c out
 ifeq ($(USE_GCC), 1)
+ifeq ($(KEEP_ASM),1)
 	-@$(CC) -S $(CFLAGS_ASM_OUTPUT) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+endif
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
 else
 	$(CC) -S $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE)  $< -o out/adf/$*.s 
@@ -267,10 +271,10 @@ else
 endif
 
 
-out/workbench/%.o: out/%.c
+out/workbench/%.o: out/%.c out
 	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 
-out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS) out/background_1-map.c
+out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS)
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
 ifeq ($(USE_GCC), 1)
@@ -281,10 +285,12 @@ ifeq ($(USE_GCC), 1)
 	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
 endif
+ifeq ($(KEEP_ASM), 1)
 	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
+endif
 	-@rm big.c
 
-out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS) out/background_1-map.c
+out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS)
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
 ifeq ($(USE_GCC), 1)
@@ -297,9 +303,11 @@ ifeq ($(USE_GCC), 1)
 endif
 	-@rm big.c
 
-out/adf/%.o: %.c
+out/adf/%.o: %.c out
 ifeq ($(USE_GCC), 1)
+ifeq ($(KEEP_ASM),1)
 	$(CC) -S $(CFLAGS_ASM_OUTPUT) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
+endif
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
 	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d
 	@mv -f out/adf/$*.d $*.d.tmp
@@ -315,7 +323,7 @@ else
 	$(CC) $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) -c $< -o $@
 endif
 
-out/workbench/%.o: %.c
+out/workbench/%.o: %.c out
 ifeq ($(USE_GCC), 1)
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.o
 	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.d
@@ -333,7 +341,7 @@ else
 	$(CC) $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) -c $< -o $@
 endif
 
-out/workbench/%.o: %.s
+out/workbench/%.o: %.s out
 	$(VASM)  -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make  -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > out/workbench/$*.d
 
