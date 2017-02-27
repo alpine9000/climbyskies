@@ -846,7 +846,6 @@ void *__memset(__REG("a0", void *dst), __REG("d0", int32_t c), __REG("d1", uint3
 }
 #endif
 
-#if defined(__GNUC__) && !defined(GCC_CHECK)
 void* memcpy(void* destination, void* source, size_t num)
 {
   size_t i;
@@ -857,4 +856,3 @@ void* memcpy(void* destination, void* source, size_t num)
   }
   return destination;
 }
-#endif

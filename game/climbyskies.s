@@ -1,7 +1,5 @@
 	include "includes.i"
-	if USE_GCC=1
 	xdef _memset
-	endif
 	xdef _custom
 	xdef _menuFrameBuffer
 	xdef _scoreBoardFrameBuffer
@@ -35,7 +33,6 @@ QuitGame:
 	jmp	LongJump
 	endif
 
-	if USE_GCC=1
 	if 0
 	cnop    0,4	
 __memset:	
@@ -75,7 +72,6 @@ l385	equ	0
 	rts
 	endif
 	
-	endif ; USE_GCC
 
 	align 4
 	include "os.i"

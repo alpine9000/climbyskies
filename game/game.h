@@ -79,23 +79,11 @@ typedef ULONG size_t;
 #define __EXTERNAL __attribute__((externally_visible))
 
 extern void* memcpy(void* destination, void* source, size_t num);
-
-#if defined(__GNUC__)
 extern void* memset(void *dst, int c, size_t n);
-#if defined(GCC_CHECK)
-#define __section(x)
-#define __REG(reg, arg) arg
-#else
 #undef __chip
 #define __section(x) __attribute__ ((section (#x))) 
 #define __REG(reg, arg) register arg asm(reg)
-#endif
 #define USE(x) do { x = x; } while(0);
-#else
-#define USE(x)
-#define __REG(reg, arg) __reg(reg) arg
-#define __attribute__(x)
-#endif
 
 typedef volatile uint8_t* frame_buffer_t;
 typedef volatile struct Custom* custom_t;
