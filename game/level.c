@@ -20,12 +20,20 @@ level_t* level_levels[LEVEL_NUM_LEVELS] = {
   &level_level1,
 };
 
+static uint16_t level_current = 0xFFFF;
+
 void
 level_load(uint16_t index)
 {
+  if (index == level_current) {
+    return;
+  }
+
   if (index >= LEVEL_NUM_LEVELS) {
     game_paused = 1;
   }
 
   disk_loadData(&level, level_levels[index], sizeof(level_t));
+
+  level_current = index;
 }
