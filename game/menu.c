@@ -151,7 +151,7 @@ menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
     .callback = 0
   },
   {
-    .text = "MUSIC - ON",
+    .text = "MUSIC - ON ",
     .command = MENU_COMMAND_PLAY,
     .done = 0,
     .callback = menu_music_toggle
