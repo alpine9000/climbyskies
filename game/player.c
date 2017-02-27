@@ -468,7 +468,7 @@ player_updateAlive(void)
     player.velocity.y =0;
     player.state = PLAYER_STATE_HEADCONTACT;
 
-    int16_t x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)>>1))>>5)<<1;
+    int16_t x = ((player.sprite.x+((PLAYER_WIDTH)>>1))>>5)<<1;
     int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))>>4;
     //int16_t x = ((player.sprite.x+((PLAYER_WIDTH-PLAYER_FUZZY_WIDTH)/2))/(TILE_WIDTH*2))*2;
     //int16_t y = (PLAYER_OFFSET_Y+(player.sprite.y-1))/TILE_HEIGHT;
