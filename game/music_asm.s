@@ -1,4 +1,3 @@
-
 	xdef _P61_Init
 	section .text
 _P61_Init:

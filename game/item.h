@@ -4,7 +4,6 @@
 #define ITEM_HEIGHT 11
 #define ITEM_WIDTH 16
 
-
 typedef enum {
   ITEM_ANIM_COIN = 0,
   ITEM_ANIM_LIGHTNING, // Ability to kill enemies

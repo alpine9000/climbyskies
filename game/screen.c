@@ -1,6 +1,5 @@
 #include "game.h"
 
-
 void 
 screen_pokeCopperList(frame_buffer_t frameBuffer, uint16_t volatile* copperPtr)
 {

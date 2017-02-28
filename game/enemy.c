@@ -6,6 +6,7 @@
 #define ENEMY_DROP_THRESHOLD  64
 #define ENEMY_MAX_BLIT_WIDTH  48
 #define ENEMY_MAX_HEIGHT      37
+#define ENEMY_COLLISION_FUZZY 6
 
 typedef enum {
   ENEMY_ALIVE,
@@ -96,14 +97,6 @@ typedef struct {
   enemy_anim_t anim;
 } enemy_config_t;
 
-#if 0
-static int16_t enemy_y[ENEMY_MAX_Y] = {
-  0,
-  97,
-  193
-};
-#endif
-
 static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
   [ENEMY_ANIM_LEFT_SKATE] = {
     .x = SCREEN_WIDTH,
@@ -157,6 +150,7 @@ enemy_getFree(void)
   return entry;
 }
 
+
 static void
 enemy_addFree(enemy_t* ptr)
 {
@@ -172,6 +166,7 @@ enemy_addFree(enemy_t* ptr)
     enemy_freeList = ptr;
   }
 }
+
 
 static void
 enemy_addEnemy(enemy_t* ptr)
@@ -190,7 +185,7 @@ enemy_addEnemy(enemy_t* ptr)
 }
 
 
-static  void
+static void
 enemy_remove(enemy_t* ptr)
 {
   if (ptr->prev == 0) {
@@ -206,8 +201,8 @@ enemy_remove(enemy_t* ptr)
   }
 }
 
-static
- void
+
+static void
 enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, uint16_t* tilePtr)
 {
   if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
@@ -234,15 +229,6 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   ptr->saves[1].blit[0].size = 0;
   ptr->saves[0].blit[1].size = 0;
   ptr->sprite.x = x;
-  /*  if (anim == ENEMY_ANIM_LEFT_RUN || anim == ENEMY_ANIM_LEFT_SKATE) {
-    ptr->velocity.x = -1;
-  } else {
-    ptr->velocity.x = 1;
-  }
-
-  ptr->velocity.x = 0;*/
-
-
   ptr->velocity.x = dx;
   ptr->velocity.y = 0;
   ptr->anim = &enemy_animations[anim];
@@ -256,52 +242,12 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
 }
 
 
-#if 0
-static void
-enemy_addNew(void)
-{
-  enemy_config_t* config = &enemy_configs[enemy_configIndex];
-
-  do {
-    int16_t y = enemy_yStarts[game_cameraY+enemy_y[enemy_yIndex]]-config->height;
-    if (!config->onGround) {    
-      y -= 25;
-    }
-    
-    enemy_yIndex++;
-    if (enemy_yIndex >= ENEMY_MAX_Y) {
-      enemy_yIndex = 0;
-    }
-
-    enemy_t* ptr = enemy_activeList;
-    int16_t lineBusy = 0;
-    while (ptr != 0) {
-      if (ptr->sprite.y+ptr->height == y+config->height) {
-	lineBusy = 1;
-      }
-      ptr = ptr->next;
-    }
-    if (!lineBusy) {
-      enemy_add(config->x, y, config->height, config->onGround, config->anim);
-      break;
-    }
-  } while(1);
-
-  enemy_configIndex++;
-  if (enemy_configIndex >= ENEMY_MAX_CONFIGS) {
-    enemy_configIndex = 0;
-  }
-
-}
-#endif
-
 void
 enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 {
   enemy_config_t* config = &enemy_configs[id];
   enemy_add(x, y-config->height+config->y, config->dx, config->height, config->onGround, config->anim, tilePtr);
 }
-
 
 
 void
@@ -370,12 +316,11 @@ enemy_render(frame_buffer_t fb)
   }
 }
 
+
 static inline int16_t
 enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
-#define ENEMY_COLLISION_FUZZY 6
-  
-#ifndef PLAYER_COLLISION_BOX
+ #ifndef PLAYER_COLLISION_BOX
   int16_t x1 = p->x + ENEMY_COLLISION_FUZZY; // player
   int16_t w1 = PLAYER_WIDTH-(ENEMY_COLLISION_FUZZY*2); // player
   int16_t x2 = enemy->sprite.x + ENEMY_COLLISION_FUZZY; // enemy
@@ -393,7 +338,6 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
   }
   return 0;
 #else
-
   int16_t ex1 = enemy->sprite.x + ENEMY_COLLISION_FUZZY; // enemy
   int16_t ex2 = ex1 + enemy->width - (ENEMY_COLLISION_FUZZY*2); // enemy
   int16_t ey1 = enemy->sprite.y + ENEMY_COLLISION_FUZZY; // enemy
@@ -508,7 +452,6 @@ enemy_update(sprite_t* p)
 	game_collisions && 
 	ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(p, ptr)) {
       player_freeFall();
-      //game_paused = 1;
     }
   
     enemy_t* save = ptr;
@@ -522,10 +465,4 @@ enemy_update(sprite_t* p)
       removedCount++;
     }
   }
-
-#if 0
-  while (removedCount--) {
-    enemy_addNew();
-  }
-#endif
 }

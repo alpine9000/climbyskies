@@ -182,6 +182,7 @@ item_save(frame_buffer_t fb, sprite_t* a)
   }
 }
 
+
 void
 item_saveBackground(frame_buffer_t fb)
 {
@@ -227,7 +228,6 @@ item_render(frame_buffer_t fb)
 static inline int16_t
 item_aabb(sprite_t* p, item_t* item)
 {
-
 #ifndef PLAYER_COLLISION_BOX
   if ((p->x+(ITEM_COLLISION_FUZZY)) < (item->sprite.x+(ITEM_COLLISION_FUZZY)) + (ITEM_WIDTH-ITEM_COLLISION_FUZZY) &&
       (p->x+(ITEM_COLLISION_FUZZY)) + PLAYER_WIDTH-(ITEM_COLLISION_FUZZY) > (item->sprite.x+(ITEM_COLLISION_FUZZY)) &&
@@ -244,7 +244,6 @@ item_aabb(sprite_t* p, item_t* item)
     return 1;
   }
   return 0;
-
 #endif
 }
 

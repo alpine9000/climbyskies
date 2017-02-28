@@ -8,6 +8,7 @@ tile_processMapObjectUp(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
   }
 }
 
+
 INLINE void
 tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 {
@@ -17,6 +18,7 @@ tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
     enemy_addMapObject(id & 0xff, x, y+TILE_HEIGHT, tilePtr);
   }
 }
+
 
 INLINE void
 tile_renderNextTile(uint16_t hscroll)
@@ -34,7 +36,6 @@ tile_renderNextTile(uint16_t hscroll)
 
   if (*tile_itemPtr != 0) {
     if (tile_itemPtr > &level.item_spriteIds[0][0]) {
-      //      item_addCoin(tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
       tile_processMapObjectDown(*tile_itemPtr, tile_tileX, ((game_cameraY>>4)<<4)-16, tile_itemPtr);
     }
   }  
@@ -77,9 +78,7 @@ tile_renderNextTileDown(uint16_t hscroll)
   uint16_t* ptr = tile_itemPtr+OFFSET;
 
   if (*(ptr) != 0) {
-    if (ptr < &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {
-      //      item_addCoin(tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
-      //      tile_processMapObjectUp(*(ptr), tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
+    if (ptr < &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {    
       tile_processMapObjectUp(*(ptr), tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
     }
   }  

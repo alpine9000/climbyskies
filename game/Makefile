@@ -1,4 +1,4 @@
-KEEP_ASM=0
+KEEP_ASM=1
 USE_BIG=1
 SFX=1
 PLACEHOLDER_MUSIC=0
@@ -47,7 +47,7 @@ endif
 
 C_OPT=-O3 $(WHOLE_PROGRAM)
 C_OPT_ASM_OUTPUT=-O3
-BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
+BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=64 -Wstack-usage=128 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 CFLAGS=$(C_OPT) $(BASE_CFLAGS)
 CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT) $(BASE_CFLAGS)

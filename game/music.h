@@ -5,7 +5,7 @@
 
 extern uint16_t P61_Target;
 extern uint16_t P61_Master;
-//extern void music_play(int32_t moduleIndex);
+
 void 
 music_setVolume(__REG("d0", int32_t volume));
 void 

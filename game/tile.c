@@ -34,6 +34,7 @@ tile_getFree(void)
   return entry;
 }
 
+
 static void
 tile_addFree(tile_redraw_t* ptr)
 {
@@ -48,6 +49,7 @@ tile_addFree(tile_redraw_t* ptr)
     invalidFreeList = ptr;
   }
 }
+
 
 static void
 tile_addInvalid(tile_redraw_t* ptr)
@@ -126,7 +128,6 @@ tile_renderScreen(void)
       gfx_renderTileOffScreen(game_onScreenBuffer, x, y, level.spriteBitplanes+offset);
       uint16_t item = *tile_itemPtr;
       if (item != 0) {
-	//	item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
 	tile_processMapObjectDown(item, x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
       }
       tile_tilePtr--;
@@ -140,7 +141,6 @@ tile_renderScreen(void)
     gfx_renderTileOffScreen(game_onScreenBuffer, x, y, level.spriteBitplanes+offset);
     gfx_renderTileOffScreen(game_offScreenBuffer, x, y, level.spriteBitplanes+offset);
     if (*tile_itemPtr != 0) {
-      //item_addCoin(x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
       tile_processMapObjectDown(*tile_itemPtr, x, WORLD_HEIGHT-SCREEN_HEIGHT+y, tile_itemPtr);
     }
     tile_tilePtr--;

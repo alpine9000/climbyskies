@@ -2,13 +2,13 @@
 
 #define FONTMAP_WIDTH_BYTES 32
 #define FONTMAP_BIT_DEPTH   1
+#define SCOREBOARD_TEXT_Y   4
 
 extern char* fontAtlas[128];
 
 INLINE void
 text_drawCharScoreBoard(char c, int16_t x)
 {
-#define SCOREBOARD_TEXT_Y 4
   char* src = fontAtlas[(int)c];
   char* dest = (char*)game_scoreBoardFrameBuffer+(x>>3)+(FRAME_BUFFER_WIDTH_BYTES*(SCREEN_BIT_DEPTH*SCOREBOARD_TEXT_Y))+(FRAME_BUFFER_WIDTH_BYTES*3);
   *dest = *src;
@@ -20,6 +20,7 @@ text_drawCharScoreBoard(char c, int16_t x)
   *(dest+(6*FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH)) = *(src+(6*FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH));
   *(dest+(7*FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH)) = *(src+(7*FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH));
 }
+
 
 INLINE void
 _text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y)
@@ -35,6 +36,7 @@ _text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y)
     src += FONTMAP_WIDTH_BYTES*FONTMAP_BIT_DEPTH;
   }  
 }
+
 
 INLINE void
 __text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y, int16_t sy, int16_t ny)
@@ -53,23 +55,19 @@ __text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y, int16
   }  
 }
 
+
 INLINE void
 text_drawChar8(frame_buffer_t fb, char c, int16_t x, int16_t y)
 {
-  //  int16_t by = 0;
   int16_t h = 8;
   y = y-game_screenScrollY;
   if (y >= 0) {
-    //    (*render)(fb, image->x, by, sprite->x, y, image->w, h);
     __text_drawChar8(fb, c, x, y, 0, 8);
   } else {
     if (y > -h) {
       __text_drawChar8(fb, c, x, 0, -y, 8+y);
       __text_drawChar8(fb, c, x, FRAME_BUFFER_HEIGHT+y, 0, -y);
-      //      (*render)(fb, image->x, by-y, sprite->x, 0, image->w, h+y);    
-      //      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
     } else {
-      //      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
       __text_drawChar8(fb, c, x, FRAME_BUFFER_HEIGHT+y, 0, 8);
     }
   }
@@ -87,6 +85,7 @@ text_drawText8(frame_buffer_t frameBuffer, char* string, int32_t x, int32_t y)
   } while (*ptr != 0);
 }
 
+
 INLINE void
 text_drawScoreBoard(char* string, int32_t x)
 {
@@ -97,5 +96,3 @@ text_drawScoreBoard(char* string, int32_t x)
     x += 8;
   } while (*ptr != 0);
 }
-
-

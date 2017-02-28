@@ -42,8 +42,7 @@ _hw_waitVerticalBlank:
 	cmp.l	#(286+16)<<8,d0	; wait for the scan line to pass (A4000 is fast!)
 	beq.b	.loop2
 	movem.l (sp)+,d0
-	rts	
-
+	rts
 
 _hw_getRasterLine:
 	move.l	$dff004,d0
@@ -84,21 +83,20 @@ WaitScanLines:	 macro
 	
 	
 _hw_waitScanLines:
-		movem.l	d0-d2/a0,-(sp)
-	        lea     $dff006,a0
-	.nTimes:
-	        move.w  (a0),d0
-	        lsr.w   #8,d0
-	.loop:
-	        move.w  (a0),d1
-	        lsr.w   #8,d1
-	        cmp.w   d0,d1
-	        beq     .loop
-	        dbra    d2,.nTimes
-	.done:
-		movem.l	(sp)+,d0-d2/a0
-	rts
-	
+	movem.l	d0-d2/a0,-(sp)
+	lea     $dff006,a0
+.nTimes:
+        move.w  (a0),d0
+        lsr.w   #8,d0
+.loop:
+        move.w  (a0),d1
+        lsr.w   #8,d1
+        cmp.w   d0,d1
+        beq     .loop
+        dbra    d2,.nTimes
+.done:
+	movem.l	(sp)+,d0-d2/a0
+	rts	
 	
 _hw_readJoystick:
 	;; updates the joystick variables to contina the state of the buttons in bits 8 and 9,
