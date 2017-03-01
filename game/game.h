@@ -5,6 +5,7 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
+//#define DEBUG_SCROLL 1
 
 #define DEBUG                         1
 #define INLINE_EVERYTHING             1
@@ -25,7 +26,7 @@
 #define STATIC_INLINE static
 #endif
 
-#define abs(a) (a >= 0 ? a : -a)  
+#define abs(a) ((a) >= 0 ? (a) : -(a))  
 
 #define MAP_TILE_WIDTH      16
 #define MAP_TILE_HEIGHT     202
@@ -59,6 +60,7 @@
 #define PHYSICS_VELOCITY_RUN      2
 #define PHYSICS_VELOCITY_JUMP     -16
 #define PHYSICS_VELOCITY_KILL     -10
+#define PHYSICS_VELOCITY_JETPACK  -4
 
 
 typedef UBYTE uint8_t;
@@ -131,7 +133,7 @@ extern copper_t copper;
 void 
 game_loop(void);
 void
-game_setBackgroundScroll(int16_t s);
+game_setBackgroundScroll(int16_t s, int16_t targetCameraY);
 void
 game_shakeScreen(void);
 void

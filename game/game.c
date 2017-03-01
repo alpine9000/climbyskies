@@ -55,6 +55,7 @@ static uint16_t game_rasterLinesIndex = 0;
 static uint16_t game_maxRasterLine = 0;
 static uint16_t game_average = 0;
 #endif
+static int16_t game_targetCameraY;
 static int16_t game_shake;
 static int16_t game_scoreBoardMode;
 static uint32_t game_lastScore;
@@ -192,6 +193,16 @@ debug_showScore(uint16_t refresh)
     game_levelScore--;
   }
 
+
+#ifdef DEBUG_SCROLL
+  if (game_scoreBoardMode == 10) {
+    text_drawScoreBoard(text_intToHex((uint32_t)tile_tilePtr, 8), 0);
+
+    text_drawScoreBoard(text_intToAscii((uint32_t)tile_tilePtr, 8), 8*10);
+    return;
+  }
+#endif
+
   if (game_scoreBoardMode == 0) {
     if (game_levelScore != game_lastLevelScore) {
       static char *buffer = "xxxxxxxxxx";
@@ -319,13 +330,21 @@ game_loadLevel(menu_command_t command)
   game_lastVerticalBlankCount = 0;
   game_singleStep = 0;
   game_paused = 0;
+#ifdef DEBUG_SCROLL
+  game_collisions = 0;
+#else
   game_collisions = 1;
+#endif
   game_screenScrollY = 0;
   game_scrollCount = 0;
   game_shake = 0;
-  game_setBackgroundScroll(SCROLL_PIXELS);
+  game_setBackgroundScroll(SCROLL_PIXELS, WORLD_HEIGHT-SCREEN_HEIGHT);
   game_levelScore = 9999<<2;
+#ifdef DEBUG_SCROLL
+  game_scoreBoardMode = 10;
+#else
   game_scoreBoardMode = 0;
+#endif
   game_levelComplete = 0;
   game_lastScore = 1;
   game_lastLevelScore = 0;
@@ -398,26 +417,21 @@ game_switchFrameBuffers(void)
 void 
 game_shakeScreen(void)
 {
-  game_shake = 6;
-  game_scrollCount = 0;  
-  game_setBackgroundScroll(-2);
+  game_shake = 5;
 }
 
 static void
 game_setCamera(int16_t offset)
 {
+  int16_t cameraSave = game_cameraY;
   game_cameraY -= offset;
 
-  if (game_cameraY <= 0 && game_scrollCount == 0) {
-    game_cameraY = 0;
-    game_scroll = 0;
-    game_scrollCount = 0;
-    return;
-  } else if (game_cameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
+  if (game_cameraY <= 0) {
+    // this should not be possible
+  } else if (game_cameraY >= WORLD_HEIGHT-SCREEN_HEIGHT) {
     game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
-    game_scroll = 0;
-    game_scrollCount = 0;
-    return;
+    game_targetCameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+    game_scroll = cameraSave-game_cameraY;
   }
  
 #if 1
@@ -435,19 +449,22 @@ game_setCamera(int16_t offset)
 static void
 game_scrollBackground(void)
 {
+  int16_t screenScrollSave = game_screenScrollY;
   game_setCamera(game_scroll);
-
-  int16_t tileIndex = game_screenScrollY % TILE_HEIGHT;
   int16_t count = abs(game_scroll);
 
   gfx_setupRenderTileOffScreen();
 
-  for (int16_t s = 0;  s < count && tileIndex+s < SCREEN_WIDTH/TILE_HEIGHT; s++) {
-    (*game_tileRender)(tileY);
-  }
+  for (int s = 0, sy = screenScrollSave;  s < (count); s++) {
+    if (game_scroll > 0) {
+      sy++;
+      tileY = (((sy-1) >> 4) << 4);
+    } else {
+      sy--;
+      tileY = (((sy+1) >> 4) << 4);
+    }
 
-  if (tileIndex == 0) {	 
-    tileY = game_screenScrollY;
+    (*game_tileRender)(tileY);
   }
 }
 
@@ -550,9 +567,23 @@ game_render(void)
 
 
 void
-game_setBackgroundScroll(int16_t s)
+game_setBackgroundScroll(int16_t s, int16_t targetCameraY)
 {
+  game_scrollCount = 1;
   game_scroll = s;
+  game_targetCameraY = targetCameraY;
+
+  if (game_targetCameraY < 0) {
+    game_targetCameraY = 0;
+  } else if (game_targetCameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
+    game_targetCameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
+  }
+
+  if (game_targetCameraY == game_cameraY) {
+    game_scrollCount = 0;
+    game_scroll = 0;
+  }
+
   if (game_scroll >= 0) {
     game_tileRender = tile_renderNextTile;
   } else {
@@ -708,12 +739,14 @@ game_loop()
       }
     } else if (game_scrollCount == 0/* && game_shake > 0*/) {
       game_shake--;
-      if (game_shake > 1) {
-	game_setBackgroundScroll(game_scroll);
+      if (game_shake > 0) {
+
+	if (game_cameraY == WORLD_HEIGHT-SCREEN_HEIGHT) {
+	  game_setBackgroundScroll(-2, game_cameraY - 12);
+	} else {
+	  game_setBackgroundScroll(2, game_cameraY + 12);
+	}
 	game_scroll = -game_scroll;
-	game_scrollCount = 6;
-      } else {
-	game_setBackgroundScroll(-game_scroll);
       }
     } 
 
@@ -767,10 +800,16 @@ game_loop()
     SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
 
-    if (game_scrollCount > 0 && game_scroll != 0) {
+    if (game_cameraY != game_targetCameraY) {
       game_scrollBackground();
-      game_scrollCount--;
+      if (game_cameraY == game_targetCameraY) {
+	game_scrollCount = 0;
+	game_scroll = 0;
+      }
     }
+
+
+       
 
 
     SPEED_COLOR(0x0f0);

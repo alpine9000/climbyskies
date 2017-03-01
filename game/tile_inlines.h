@@ -54,19 +54,10 @@ tile_renderNextTile(uint16_t hscroll)
 INLINE void
 tile_renderNextTileDown(uint16_t hscroll)
 {
-  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(3*TILE_HEIGHT));
 
   if (y < 0) {
     y = FRAME_BUFFER_HEIGHT+y;
-  }
-
-  tile_itemPtr = tile_itemPtr+1;
-  tile_tilePtr = tile_tilePtr+1;
-  tile_tileX += TILE_WIDTH;
-
-
-  if (tile_tileX > SCREEN_WIDTH-TILE_WIDTH) {
-    tile_tileX = 0;
   }
 
 #define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
@@ -82,4 +73,15 @@ tile_renderNextTileDown(uint16_t hscroll)
       tile_processMapObjectUp(*(ptr), tile_tileX, (((game_cameraY+8)>>4)<<4)+SCREEN_HEIGHT+itemOffset, ptr);
     }
   }  
+
+
+  tile_itemPtr = tile_itemPtr+1;
+  tile_tilePtr = tile_tilePtr+1;
+  tile_tileX += TILE_WIDTH;
+
+
+  if (tile_tileX > SCREEN_WIDTH-TILE_WIDTH) {
+    tile_tileX = 0;
+  }
+
 }
