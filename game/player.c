@@ -644,7 +644,7 @@ player_updateAlive(void)
       }
     } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
       // scroll when jumping off
-      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((4*16)-(SCROLL_PIXELS*2)));
+      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
 
     }
   }
