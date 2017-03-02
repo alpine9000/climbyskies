@@ -668,6 +668,8 @@ void
 player_freeFall(void)
 {  
   if (player.freeFall < 1 && player.flashCounter == 0 && player.state != PLAYER_STATE_FREEFALL) {
+    player.jetpackFuel = 0;
+    player.jetpackMode = 0;
     player.freeFall = 1;
     player.state = PLAYER_STATE_FREEFALL;
     sound_queueSound(SOUND_FALLING);
