@@ -290,7 +290,7 @@ menu_loop(void)
   /* set up playfield */
   
   custom->diwstrt = (RASTER_Y_START<<8)|RASTER_X_START;
-  custom->diwstop = ((RASTER_Y_STOP-256)<<8)|(RASTER_X_STOP-256);
+  custom->diwstop = ((MENU_RASTER_Y_STOP-256)<<8)|(RASTER_X_STOP-256);
 
   custom->ddfstrt = (RASTER_X_START/2-SCREEN_RES);
   custom->ddfstop = (RASTER_X_START/2-SCREEN_RES)+(8*((SCREEN_WIDTH/16)-1));
@@ -309,7 +309,14 @@ menu_loop(void)
   menu_vbl();
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
-  palette_fadeIn(menuFadeIn);
+
+#ifdef DEBUG_SCROLL
+  if (0) {
+#endif
+    palette_fadeIn(menuFadeIn);
+#ifdef DEBUG_SCROLL
+  }
+#endif
   
   custom->color[5] = 0x08d;  
 
@@ -333,9 +340,13 @@ menu_loop(void)
     }
   }
 
-
   command = MENU_COMMAND_PLAY;
+#ifdef DEBUG_SCROLL
+  done = 1;
+#else
   done = 0;
+#endif
+
   
   while (!done) {
     hw_readJoystick();

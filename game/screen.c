@@ -23,7 +23,7 @@ screen_setup(uint16_t volatile* copperPtr)
   /* set up playfield */
   
   custom->diwstrt = (RASTER_Y_START<<8)|RASTER_X_START;
-  custom->diwstop = ((RASTER_Y_STOP-256+SCOREBOARD_HEIGHT)<<8)|(RASTER_X_STOP-256);
+  custom->diwstop = ((RASTER_Y_STOP-256)<<8)|(RASTER_X_STOP-256);
 
   custom->ddfstrt = (RASTER_X_START/2-SCREEN_RES);
   custom->ddfstop = (RASTER_X_START/2-SCREEN_RES)+(8*((SCREEN_WIDTH/16)-1));

@@ -676,6 +676,9 @@ game_processKeyboard(void)
   case 'M':
     music_toggle_music();
     break;
+  case 'J':
+    player.jetpackFuel += 200;
+    break;
   case 'Q':
     return 1;
     break;

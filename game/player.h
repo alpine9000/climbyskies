@@ -57,7 +57,8 @@ typedef struct {
 #ifdef PLAYER_BLIT_SPRITE_OVERDRAW
   uint16_t hspriteCompatible;
 #endif
-  uint16_t jetpack;
+  int16_t jetpackMode;
+  uint16_t jetpackFuel;
 } player_t;
 
 extern player_t player;
