@@ -4,13 +4,9 @@ P61mode	=2	;Try other modes ONLY IF there are no Fxx commands >= 20.
 
 ;;    ---  options common to all P61modes  ---
 
-      if PLACEHOLDER_MUSIC=1
-prova_usecode equ $9400
-usecode=prova_usecode ;climbyskies_ingame
-      else
-climbyskies_ingame_usecode equ $9D59
+climbyskies_ingame_usecode equ $9D59|$8559
 usecode=climbyskies_ingame_usecode 
-      endif
+
 
 		;CHANGE! to the USE hexcode from P61con for a big 
 		;CPU-time gain! (See module usecodes at end of source)

@@ -526,7 +526,7 @@ P61_motuuli:
 
 _P61_Master:
 P61_Master:
-	dc.w 64
+	dc.w 0
 P61_Tempo:
 	dc.w 1
 P61_Play:

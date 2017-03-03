@@ -25,8 +25,10 @@ typedef struct {
 
 uint16_t menu_selected = 0;
 
-#define MENU_COPPER_WAIT_TOP(x)     { 0x9fd1 + (0x800*(x*2)), 0xfffe}
-#define MENU_COPPER_WAIT_BOTTOM(x)  { 0x9fd1 + 0x400 + (0x800*(x*2)), 0xfffe}
+#define MENU_TEXT_START (0x9fd1+((RASTER_Y_START-0x1d)*0x100))
+
+#define MENU_COPPER_WAIT_TOP(x)     { MENU_TEXT_START + (0x800*(x*2)), 0xfffe}
+#define MENU_COPPER_WAIT_BOTTOM(x)  { MENU_TEXT_START + 0x400 + (0x800*(x*2)), 0xfffe}
 #define MENU_COPPER_LINE(c1, c2, x) [x] = {	\
     .wait1 = MENU_COPPER_WAIT_TOP(x),\
    .color1 = { COLOR07, c1},\
@@ -276,16 +278,18 @@ menu_loop(void)
   uint16_t done;
   volatile uint16_t scratch;
 
+  message_screenOn("Loading...");
+  disk_loadData((void*)game_onScreenBuffer, (void*)menuFrameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
+  message_screenOff();
+
   menu_vbl();
   custom->dmacon = DMAF_RASTER|DMAF_SPRITE;
 
   palette_black();
 
-  disk_loadData((void*)game_onScreenBuffer, (void*)menuFrameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
-
   uint16_t volatile* copperPtr = (uint16_t*)&menu_copper;
 
-  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR);
+  custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_MASTER);
 
   /* set up playfield */
   

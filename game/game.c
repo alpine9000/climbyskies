@@ -670,6 +670,9 @@ game_processKeyboard(void)
     player_setRecord(PLAYER_RECORD_IDLE);
     game_refreshScoreboard();
     break;
+  case 'Z':
+    music_next();
+    break;
   case 'N':
     game_playLevel(game_level+1);
     break;
@@ -705,8 +708,13 @@ game_loop()
 
   game_ctor();
 
+  message_screenOn("Welcome to Climby Skies!");
+
   music_play(0);   
+
   hw_interruptsInit(); // Don't enable interrupts until music is set up
+
+  music_toggle_music();
 
   menu_command_t menuCommand;
  menu:

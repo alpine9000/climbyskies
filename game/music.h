@@ -9,7 +9,9 @@ extern uint16_t P61_Master;
 void 
 music_setVolume(__REG("d0", int32_t volume));
 void 
-music_play(__REG("d0", int32_t moduleIndex));
+music_play(uint16_t moduleIndex);
+void
+music_next(void);
 uint16_t
 music_toggle_music(void);
 uint16_t

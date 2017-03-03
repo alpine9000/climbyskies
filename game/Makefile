@@ -10,14 +10,17 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s blitmtext.s blittext.s music_asm.s keyboard_asm.s
+
+MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
+MODULE_HEADERS=$(addprefix out/, $(MODULES:.bin=.h))
 
 LEVEL_FILES=out/sprite_1.h out/background_1-map.c out/fade_in_1.h\
 	    out/sprite_2.h out/background_2-map.c out/fade_in_2.h\
 	    out/sprite_3.h out/background_3-map.c out/fade_in_3.h
 
-MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby* | awk '{print $$5}' | head -1)
+MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby*.bin | awk '{print $$5}' | head -1)
 
 IMAGES=font8x8.png menu.png scoreboard.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
@@ -161,11 +164,17 @@ out/background_%-map.c: assets/background_%.tmx
 	@rm item_$*-map.c
 	@rm background_$*-sprites.c
 
-out/sprite_%.h: assets/sprite_%.png palettes/palette_%.pal
+out/sprite_%.h: assets/sprite_%.png palettes/palette_%.pal out
 	../tools/croppa/out/croppa --width=320 --height=336 --input=assets/sprite_$*.png --output=out/sprite_$*-resized.png
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=out/sprite_$*-resized.png --output=out/sprite_$* --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palettes/palette_$*.pal --output-mask --transparent-color=000,144,224
 	cat out/sprite_$*.bin | ../tools/external/bin2c/bin2c > out/sprite_$*.h
 	cat out/sprite_$*-mask.bin | ../tools/external/bin2c/bin2c > out/sprite_$*-mask.h
+
+out/%.h: assets/%.bin
+	cat assets/$*.bin | ../tools/external/bin2c/bin2c > out/$*.h
+
+out/adf/music.o: music.c $(MODULE_HEADERS)
+out/workbench/music.o: music.c $(MODULE_HEADERS)
 
 out/bootblock.bin: out/bootblock.o
 
@@ -187,49 +196,49 @@ out/sprite_player%-asprite.h: out/sprite_player%.png palettes/default.pal
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite_$*.pal --output-asprite --output-png
 
 .SECONDARY:
-out/sprite_playerLeftRun0_%.png: assets/sprite_1.png
+out/sprite_playerLeftRun0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
 .SECONDARY:
-out/sprite_playerLeftRun1_%.png: assets/sprite_1.png
+out/sprite_playerLeftRun1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
 .SECONDARY:
-out/sprite_playerRightRun0_%.png: assets/sprite_1.png
+out/sprite_playerRightRun0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
 .SECONDARY:
-out/sprite_playerRightRun1_%.png: assets/sprite_1.png
+out/sprite_playerRightRun1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
 .SECONDARY:
-out/sprite_playerRightJump0_%.png: assets/sprite_1.png
+out/sprite_playerRightJump0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerRightJump1_%.png: assets/sprite_1.png
+out/sprite_playerRightJump1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerLeftJump0_%.png: assets/sprite_1.png
+out/sprite_playerLeftJump0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerLeftJump1_%.png: assets/sprite_1.png
+out/sprite_playerLeftJump1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 
 .SECONDARY:
-out/sprite_playerRightStand0_%.png: assets/sprite_1.png
+out/sprite_playerRightStand0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
 .SECONDARY:
-out/sprite_playerRightStand1_%.png: assets/sprite_1.png
+out/sprite_playerRightStand1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
 .SECONDARY:
-out/sprite_playerLeftStand0_%.png: assets/sprite_1.png
+out/sprite_playerLeftStand0_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
 .SECONDARY:
-out/sprite_playerLeftStand1_%.png: assets/sprite_1.png
+out/sprite_playerLeftStand1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
 
 
 
-out/fade_in_%.h: ./palettes/palette_%.pal
+out/fade_in_%.h: ./palettes/palette_%.pal out
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=palettes/palette_$*.pal --output=fadeIn_$* > $@
 
-out/menu_fade_in.h: ./out/menu.pal
+out/menu_fade_in.h: ./out/menu.pal out
 	../tools/fade/out/fade --steps=64 --colors=32 --from-black --to=out/menu.pal --output=menuFadeIn > $@
 
 
@@ -238,7 +247,7 @@ out/menu_fade_in.h: ./out/menu.pal
 out/bootblock.o: $(BOOTBLOCK_ASM) $(PROGRAM_BIN)
 	$(VASM) $(VASM_ARGS)  -DUSERSTACK_ADDRESS="\$$$(USERSTACK_ADDRESS)" -DBASE_ADDRESS="\$$$(BASE_ADDRESS)"  $< -o $@ -I$(AMIGA_INCLUDE)
 
-out/adf/main.o: $(MODULE) $(EXTRA) $(ASSETS) $(IMAGEDATA)
+out/adf/main.o: $(MODULE) $(EXTRA) $(ASSETS) $(IMAGEDATA) out
 	$(VASM)  -DTRACKLOADER=1  $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE)
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ -I$(AMIGA_INCLUDE) > $*.d
 
