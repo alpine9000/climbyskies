@@ -66,6 +66,8 @@ WAITBLIT	MACRO
 
 StartupFromOS:
 	movem.l	d0-a6,-(a7)
+
+	bsr     SaveSystemClock
 	move.l	$4.w,a6
 	lea	GFXname(pc),a1
 	moveq	#0,d0
@@ -137,6 +139,7 @@ END:	lea	$dff000,a6
 	move.w	DMA(pc),$96(a6)			; Restore DMAcon
 	move.w	ADK(pc),$9E(a6)			; Restore ADKcon
 
+
 	move.l	GFXbase(pc),a6
 	move.l	OldView(pc),a1			; restore old viewport
 	bsr.b	DoView
@@ -144,6 +147,9 @@ END:	lea	$dff000,a6
 	move.l	a6,a1
 	move.l	$4.w,a6
 	jsr	-414(a6)			; Closelibrary()
+
+	bsr	RestoreSystemClock
+
 	movem.l	(a7)+,d0-a6
 	moveq	#0,d0
 	rts
@@ -191,6 +197,92 @@ NewVBI:
 	move.w	d0,(a6)			; twice to avoid a4k hw bug
 	movem.l	(a7)+,d0-a6
 	rte
+
+
+SaveSystemClock:
+	movem.l	d0-a6,-(sp)
+	move.l  $4.w,a6            ;Execbase
+	lea     timer_request_struc(pc),a1 ;Timer-request-structure
+	moveq   #0,d0              ;Unit 0 (UNIT_MICROHZ) & Null for entrys in struc
+	move.b  d0,8(a1)           ;LN_Type: Entry type = Null
+	move.b  d0,9(a1)           ;LN_Pri: Priority of the structure = Null
+	moveq   #0,d1              ;No Flags for device
+	move.l  d0,$a(a1)          ;LN_Name: No name for the structure
+	lea     timer_device_name(pc),a0 ;Pointer to name of Timer-Device
+	move.l  d0,$e(a1)          ;MN_ReplyPort: No Reply-Port
+	jsr     -444(a6)           ;OpenDevice()
+	tst.l   d0
+	bne   	.notimer
+	lea     timer_request_struc(pc),a1
+	move.w  #$a,$1c(a1)        ;IO_Command = TR_GETSYSTIME
+	jsr     -456(a6)           ;DoIO()
+	jsr     -120(a6)           ;Disable()
+	;Take over the machine...
+	move.l  #$bfe001,a4        ;CIA-A base adress
+	moveq   #0,d0
+	move.b  $a00(a4),d0        ;TOD-clock bits 23-16
+	swap    d0                 ;Shift bits to the right position
+	move.b  $900(a4),d0        ;TOD-clock bits 15-8
+	lsl.w   #8,d0              ;Shift bits to the right position
+	move.b  $800(a4),d0        ;TOD-clock bits 7-0
+	move.l  d0,TOD_time_save   ;Save time before demo/intro starts
+.notimer:
+	movem.l	(sp)+,d0-a6
+	rts
+
+
+RestoreSystemClock:
+	movem.l	d0-a6,-(sp)
+	move.l  #$bfe001,a4        ;CIA-A base adress
+	move.l  TOD_time_save(pc),d0 ;Time before starting demo/intro
+	moveq   #0,d1
+	move.b  $a00(a4),d1        ;TOD-clock Bits 23-16
+	swap    d1
+	move.b  $900(a4),d1        ;TOD-clock Bits 15-8
+	lsl.w   #8,d1
+	move.b  $800(a4),d1        ;TOD-clock Bits 7-0
+	cmp.l   d0,d1              ;TOD overflow?
+	bge.s   .no_TOD_overflow   ;No -> skip
+	move.l  #$ffffff,d2        ;Max TOD value
+	sub.l   d0,d2              ;Difference until overflow
+	add.l   d2,d1              ;+ value after overflow
+	bra.s   .TOD_okay
+	CNOP 0,4                   ;Longword alignment for 68020+
+.no_TOD_overflow:
+	sub.l   d0,d1              ;Get normal difference without overflow
+.TOD_okay:
+	move.l  d1,TOD_time_save   ;Save period of demo/intro
+	;Restore system...
+	move.l  $4.w,a6            ;Execbase
+	jsr     -126(a6)           ;Enable()
+	moveq	#0,d1
+	move.l  TOD_time_save(pc),d0 ;Period of demo/intro
+	move.b  $212(a6),d1        ;Get VBlankFrequency
+	lea     timer_request_struc(pc),a1
+	divu.w  d1,d0              ;Calculate seconds
+	move.w  #$b,$1c(a1)        ;IO_command = TR_SETSYSTIME
+	move.l  d0,d1              ;Save seconds in d1
+	ext.l   d0                 ;Word to longword
+	add.l   d0,$20(a1)         ;TV_SECS: Set Unix-Time seconds
+	swap    d1                 ;Remainder of division
+	mulu.w  #10000,d1          ;*10000 = µs
+	add.l   d1,$24(a1)         ;TV_MICRO: Set Unix-Time microseconds
+	jsr     -456(a6)           ;DoIO()
+	movem.l	(sp)+,d0-a6
+	rts
+
+
+	cnop 0,4
+TOD_time_save:
+	dc.l 0
+
+timer_request_struc:
+	ds.b 40
+
+timer_device_name:
+	dc.b "timer.device",0
+	even
+
 
 *******************************************
 *** DATA AREA		FAST		***
