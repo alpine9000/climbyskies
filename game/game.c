@@ -145,9 +145,7 @@ void
 game_ctor(void)
 {
   extern frame_buffer_t scoreBoardFrameBuffer;
-  game_scoreBoardFrameBuffer = scoreBoardFrameBuffer;//&_scoreBoardBuffer;
-  //  game_scoreBoardFrameBuffer = (frame_buffer_t)&_scoreBoardBuffer;
-
+  game_scoreBoardFrameBuffer = scoreBoardFrameBuffer;
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
 }
@@ -169,11 +167,8 @@ game_init(menu_command_t command)
   hw_waitVerticalBlank();
   palette_black();
 
-
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
-
-  //gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
   
   game_newGame(command);
 }
@@ -396,18 +391,25 @@ game_switchFrameBuffers(void)
     copper.wait1[0] = (copperLine<<8)|1;
     copper.wait2[0] = (copperLine<<8)|1;
     copper.wait3[0] = 0xffdf;
+    screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+    screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
+    screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
   } else if (copperLine >= 256) {
     copper.wait1[0] = 0xffdf;
     if (game_screenScrollY >= 256) {
-      copper.wait2[0] = (RASTER_Y_START-1)<<8|1;
+      copper.wait2[0] = (RASTER_Y_START)<<8|1;
+      copper.wait3[0] = 0xffdf;
+      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+      screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl2);
     } else {
       copper.wait2[0] = ((copperLine-256)<<8)|1;
+      copper.wait3[0] = (RASTER_Y_START)<<8|1;
+      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+      screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
+      screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
     }
-    copper.wait3[0] = (RASTER_Y_START)<<8|1;
   }
 
-  screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
-  screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
 
   frame_buffer_t save = game_onScreenBuffer;
   game_onScreenBuffer = game_offScreenBuffer;
