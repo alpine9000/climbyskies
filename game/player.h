@@ -38,7 +38,9 @@ typedef enum {
   PLAYER_STATE_DEFAULT,
   PLAYER_STATE_FREEFALL,
   PLAYER_STATE_ONGROUND,
-  PLAYER_STATE_HEADCONTACT
+  PLAYER_STATE_HEADCONTACT,
+  PLAYER_STATE_JETPACK_THRUST,
+  PLAYER_STATE_JETPACK_FALL
 } player_state_t;
   
 typedef struct {
@@ -57,8 +59,8 @@ typedef struct {
 #ifdef PLAYER_BLIT_SPRITE_OVERDRAW
   uint16_t hspriteCompatible;
 #endif
-  int16_t jetpackMode;
   uint16_t jetpackFuel;
+  uint16_t jetpackFallVelocity;
 } player_t;
 
 extern player_t player;

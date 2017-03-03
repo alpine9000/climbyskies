@@ -103,6 +103,9 @@ _player_record:
 	section data_c
 	align 4
 	if SFX==1
+	xdef _sound_jetpack
+_sound_jetpack:	
+	incbin "out/jetpack.raw"
 	xdef _sound_land
 _sound_land:	
 	incbin "out/jump.raw"

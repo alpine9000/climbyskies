@@ -229,7 +229,6 @@ player_init(menu_command_t command)
   player.hspriteCompatible = 1;
 #endif
 
-  player.jetpackMode = 0;
   player.jetpackFuel = 0;
 }
 
@@ -256,7 +255,7 @@ player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
 static int
 player_tileCollision(int16_t x, int16_t y)
 {
-  if (player.jetpackMode) {
+  if (player.state == PLAYER_STATE_JETPACK_THRUST) {
     return 0;
   }
   player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
@@ -303,8 +302,10 @@ player_processJoystick(void)
   player_record.frame++;
 #endif
 
-  if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN) {
-    player.jetpackMode = 1;
+  if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN && player.state != PLAYER_STATE_JETPACK_THRUST) {
+    player.state = PLAYER_STATE_JETPACK_THRUST;
+    player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
+    sound_loopSound(SOUND_JETPACK);
   }
     
 #ifdef DEBUG_SCROLL
@@ -325,15 +326,19 @@ player_processJoystick(void)
     }
     break;
   case JOYSTICK_POS_RIGHT:
+#ifdef DEBUG_SCROLL
+    game_setBackgroundScroll(1, game_cameraY-1);
+#else
     player.velocity.x = PHYSICS_VELOCITY_RUN;
     if (player.state == PLAYER_STATE_ONGROUND) {
       notUpCount++;
     }
+#endif
     break;
   case JOYSTICK_POS_DOWN:
 #ifdef DEBUG_SCROLL
     if (game_scrollCount == 0) {
-      //game_setBackgroundScroll(-8, game_cameraY+(8*6));
+      //game_setBackgroundScroll(-8, game_cameraY+(8));
       game_setBackgroundScroll(-1, game_cameraY+1);
     }
     break;
@@ -341,27 +346,28 @@ player_processJoystick(void)
     break;
   case JOYSTICK_POS_UP:
 #ifndef DEBUG_SCROLL 
-    if (!player.jetpackMode && notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
     notUpCount = 0;
 #else
     if (game_scrollCount == 0) {
-      //game_setBackgroundScroll(4, game_cameraY-(6*8));
-      game_setBackgroundScroll(1, game_cameraY-1);
+      //      game_setBackgroundScroll(4, game_cameraY-(1));
+      //game_setBackgroundScroll(1, game_cameraY-1);
+      game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((6*16)));
     }
 #endif
     break;
   case JOYSTICK_POS_UPRIGHT:
     player.velocity.x =  PHYSICS_VELOCITY_RUN;
-    if (!player.jetpackMode && notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if ( notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
     notUpCount = 0;
     break;
   case JOYSTICK_POS_UPLEFT:
     player.velocity.x = -PHYSICS_VELOCITY_RUN;
-    if (!player.jetpackMode && notUpCount > NOT_UP_THRESHOLD &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
+    if (notUpCount > NOT_UP_THRESHOLD &&  player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     }
     notUpCount = 0;
@@ -451,6 +457,10 @@ player_moveY(void)
     }
   }
 
+  if (newY < 0) {
+    newY = 0;
+  }
+
   if (collision) {
     player.velocity.y = 0;
   } else {
@@ -492,32 +502,45 @@ player_respawn(void)
 static int
 player_updateAlive(void)
 {
-  if (player.jetpackMode && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
-    player.jetpackMode = 0;
-    int16_t c = player_tileCollision(player.sprite.x+player.velocity.x, player.sprite.y + PHYSICS_VELOCITY_G);
-    player.jetpackMode = c;
+  if ((player.state == PLAYER_STATE_JETPACK_THRUST) && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
+    player.state = PLAYER_STATE_DEFAULT;
+    int16_t c = player_tileCollision(player.sprite.x+player.velocity.x, player.sprite.y + player.jetpackFallVelocity);
+    player.state = c ? PLAYER_STATE_JETPACK_THRUST : PLAYER_STATE_JETPACK_FALL;
+    sound_endLoop();
     if (c) {
-      player.velocity.y += PHYSICS_VELOCITY_G;
+      player.velocity.y += player.jetpackFallVelocity;
+      player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
     } else {
-      //      game_paused = 1;
-      //player.velocity.y = PHYSICS_VELOCITY_JETPACKMODE;
+      player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
     }
-  } else if (player.jetpackMode) {
+  } else if (player.state == PLAYER_STATE_JETPACK_THRUST) {
     player.velocity.y = PHYSICS_VELOCITY_JETPACK;
     if (player.jetpackFuel > 0) {
       player.jetpackFuel--;
     }
   }
 
-  if (!player.jetpackMode) {
-    player.velocity.y += PHYSICS_VELOCITY_G;
+
+  if (player.state != PLAYER_STATE_JETPACK_THRUST) {
+    if (player.state == PLAYER_STATE_JETPACK_FALL) {
+      player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
+      player.velocity.y += player.jetpackFallVelocity;
+    } else {
+      player.velocity.y += PHYSICS_VELOCITY_G;
+    }
   } 
 
   velocity_t intendedVelocity = player.velocity;
   int16_t collision = 0;
 
-  if (player.velocity.y > PHYSICS_TERMINAL_VELOCITY) {
-    player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
+  if (player.state == PLAYER_STATE_JETPACK_FALL) {
+    if (player.velocity.y > PHYSICS_TERMINAL_JETPACK_V) {
+      player.velocity.y = PHYSICS_TERMINAL_JETPACK_V;
+    }
+  } else {
+    if (player.velocity.y > PHYSICS_TERMINAL_VELOCITY) {
+      player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
+    }
   }
       
   if (player.velocity.x != 0) {
@@ -558,7 +581,9 @@ player_updateAlive(void)
     }
 
   } else {   
-    player.state = PLAYER_STATE_DEFAULT;
+    if (player.state != PLAYER_STATE_JETPACK_THRUST && player.state != PLAYER_STATE_JETPACK_FALL) {
+      player.state = PLAYER_STATE_DEFAULT;
+    }
   }
 
   static volatile int16_t lastY = -1;
@@ -627,15 +652,12 @@ player_updateAlive(void)
 #ifdef DEBUG_SCROLL
   if (0) {
 #endif
-  if (1 && player.jetpackMode) {
+  if (1 && player.state == PLAYER_STATE_JETPACK_THRUST) {
     if (game_cameraY > 0 && game_scrollCount == 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-      //game_scrollCount = 1;//((6*16)/(SCROLL_PIXELS));
-      //game_setBackgroundScroll((SCROLL_PIXELS), game_cameraY - (6*16));
-	game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
+      game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
     } else if (game_scrollCount == 0 && ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-      //      game_scrollCount = ((6*16)/SCROLL_PIXELS)/2;
-      //game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + (6*16));
-      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
+      //game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
+      //      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
     }
   } else {
     if (player.velocity.y == 0 && collision) {
@@ -647,8 +669,12 @@ player_updateAlive(void)
 	//game_setBackgroundScroll(-SCROLL_PIXELS*2,  game_cameraY + (6*16));
       }
     } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-      // scroll when jumping off
-      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
+      if (player.state == PLAYER_STATE_JETPACK_FALL) {
+	game_setBackgroundScroll(-SCROLL_PIXELS, game_cameraY + ((2*16)));
+      } else {
+	// scroll when jumping off      
+	game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
+      }
 
     }
   }
@@ -669,9 +695,9 @@ player_freeFall(void)
 {  
   if (player.freeFall < 1 && player.flashCounter == 0 && player.state != PLAYER_STATE_FREEFALL) {
     player.jetpackFuel = 0;
-    player.jetpackMode = 0;
     player.freeFall = 1;
     player.state = PLAYER_STATE_FREEFALL;
+    sound_endLoop();
     sound_queueSound(SOUND_FALLING);
   }
 }

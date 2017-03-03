@@ -24,7 +24,7 @@ MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby*.bin | awk '{print $$5}' | head -1
 
 IMAGES=font8x8.png menu.png scoreboard.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw
+ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw out/jetpack.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -119,6 +119,10 @@ out/adf/level.o: level.c $(LEVEL_FILES)
 out/workbench/menu.o: level.c out/menu_fade_in.h
 out/workbench/level.o: level.c $(LEVEL_FILES)
 
+#(c) Enable Software
+out/jetpack.raw: assets/jetpack.wav out
+	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+
 #http://opengameart.org/content/jump-landing-sound
 out/jump.raw: assets/jump.wav out
 	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
@@ -155,7 +159,7 @@ HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun
 out/adf/sprite.o: $(HSPRITE_HEADERS)
 out/workbench/sprite.o: $(HSPRITE_HEADERS)
 
-out/background_%-map.c: assets/background_%.tmx
+out/background_%-map.c: assets/background_%.tmx out
 	../tools/mapgen/out/mapgen --c --depth=5 --input=$<
 	@mv background_$*-map.c out
 	@mv item_$*-sprites.c out

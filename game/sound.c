@@ -1,7 +1,7 @@
 #include "game.h"
 
 #if SFX==1
-extern UWORD sound_land, sound_coin, sound_pop, sound_kill, sound_falling;
+extern UWORD sound_land, sound_coin, sound_pop, sound_kill, sound_falling, sound_jetpack;
 
 static void 
 sound_playLand(void);
@@ -13,6 +13,8 @@ static void
 sound_playKill(void);
 static void
 sound_playFalling(void);
+static void
+sound_playJetpack(void);
 
 typedef struct {
   int16_t count;
@@ -51,11 +53,16 @@ static sound_config_t sound_queue[] = {
     .delay = 0,
     .play = &sound_playHeadSmash
   },
+  [SOUND_JETPACK] = {
+    .count = 0,
+    .delay = 1,
+    .play = &sound_playJetpack
+  }
   
 };
 
 static int16_t sound_next = -1;
-
+static int16_t sound_loop = -1;
 
 static void 
 sound_playLand(void)
@@ -127,6 +134,22 @@ sound_playFalling(void)
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
 
+static void 
+sound_playJetpack(void)
+{
+  volatile struct AudChannel *aud = &custom->aud[3];
+
+  custom->dmacon = DMAF_AUD3;
+  sound_vbl();
+  hw_waitScanLines(4);    
+
+  aud->ac_ptr = &sound_jetpack;
+  aud->ac_per = 221;
+  aud->ac_vol = 64;
+  aud->ac_len = 9975/2;
+  custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
+}
+
 
 void
 sound_vbl(void)
@@ -134,10 +157,12 @@ sound_vbl(void)
   static UWORD empty[2] = {0,0};
   
   for (int16_t i = 3; i < 4; i++) {
-    volatile struct AudChannel *aud = &custom->aud[i];    
-    aud->ac_len = 2;
-    //    aud->ac_per = 1;
-    aud->ac_ptr = &empty[0];
+    if (sound_loop == -1) {
+      volatile struct AudChannel *aud = &custom->aud[i];    
+      aud->ac_len = 2;
+      //    aud->ac_per = 1;
+      aud->ac_ptr = &empty[0];
+    }
   }
 }
 
@@ -153,9 +178,8 @@ sound_schedule(void)
   }
 }
 
-
-void
-sound_queueSound(sound_t sound)
+static void
+sound_doQueue(sound_t sound) 
 {
   if ((int16_t)sound >= sound_next) {
     if (sound_queue[sound].delay == 0) {
@@ -171,4 +195,30 @@ sound_queueSound(sound_t sound)
   }
 }
 
+
+void
+sound_queueSound(sound_t sound)
+{
+  if (sound_loop == -1) {
+    sound_doQueue(sound);
+  }
+}
+
+void
+sound_loopSound(sound_t sound)
+{
+  sound_loop = sound;
+  sound_doQueue(sound);
+}
+
+void
+sound_endLoop(void)
+{
+  if (sound_loop != -1) {
+    sound_loop = -1;
+    custom->dmacon = DMAF_AUD3;
+    sound_vbl();
+    hw_waitScanLines(4);  
+  }
+}
 #endif

@@ -128,6 +128,7 @@ typedef enum  {
   SPRITE_COIN_12 = 41,
   SPRITE_COIN_13 = 42,
   SPRITE_COIN_14 = 43,
+  SPRITE_JETPACK = 44,
 } sprite_id_t;
 
 

@@ -9,7 +9,7 @@ typedef enum {
 } item_state_t;
 
 typedef struct {
-  uint8_t fb[(ITEM_WIDTH/8)*SCREEN_BIT_DEPTH*ITEM_HEIGHT];
+  uint8_t fb[(ITEM_WIDTH/8)*SCREEN_BIT_DEPTH*ITEM_MAX_HEIGHT];
 } item_sprite_save_t;
 
 typedef struct item {
@@ -32,6 +32,14 @@ static sprite_animation_t item_animations[] = {
     .start = SPRITE_COIN_1,
     .stop = SPRITE_COIN_14,
     .speed = 8
+    },
+    .facing = FACING_RIGHT
+  },
+  [ITEM_ANIM_JETPACK] = {
+    .animation = {
+    .start = SPRITE_JETPACK,
+    .stop = SPRITE_JETPACK,
+    .speed = 0
     },
     .facing = FACING_RIGHT
   },
@@ -266,11 +274,21 @@ item_update(sprite_t* p)
     }
 
     if (/*(ptr->frameCounter == 0) &&*/ ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
-      sound_queueSound(SOUND_PICKUP);
+      switch (ptr->animId) {
+      case ITEM_ANIM_COIN:
+	game_score += 100;
+	sound_queueSound(SOUND_PICKUP);
+	break;
+      case ITEM_ANIM_JETPACK:
+	sound_queueSound(SOUND_PICKUP);
+	player.jetpackFuel += 500;
+      default:
+	break;
+      }
       ptr->state = ITEM_DEAD;
       *ptr->tilePtr = 0;
       ptr->deadRenderCount = 0;
-      game_score += 100;
+
     }
 
 

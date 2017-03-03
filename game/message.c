@@ -86,7 +86,8 @@ message_screenOn(char* message)
 
   hw_waitVerticalBlank();
   custom->color[1] = 0xfff;
-  
+#else
+  USE(message);
 #endif
 
   message_on = 1;

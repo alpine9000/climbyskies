@@ -7,6 +7,7 @@ typedef enum {
   SOUND_PICKUP,
   SOUND_KILL,
   SOUND_FALLING,
+  SOUND_JETPACK,
   SOUND_MENU
 } sound_t;
 
@@ -17,6 +18,10 @@ void
 sound_queueSound(sound_t sound);
 void
 sound_schedule(void);
+void
+sound_loopSound(sound_t sound);
+void
+sound_endLoop(void);
 #else
 #define sound_vbl()
 #define sound_queueSound(x)

@@ -47,7 +47,7 @@
 #define SCREEN_BIT_DEPTH    5
 #define SCREEN_RES	    8 // 8=lo resolution, 4=hi resolution
 #define RASTER_X_START	    (0x81+((320-SCREEN_WIDTH)/2)) /* hard coded coordinates from hardware manual */
-#define RASTER_Y_START	    0x25 //0x1d= max vertical overscan 
+#define RASTER_Y_START	    0x25 //0x1d = max vertical overscan 
 #define RASTER_X_STOP	    RASTER_X_START+SCREEN_WIDTH
 #define RASTER_Y_STOP	    RASTER_Y_START+SCREEN_HEIGHT+SCOREBOARD_HEIGHT
 #define MENU_RASTER_Y_STOP RASTER_Y_START+SCREEN_HEIGHT
@@ -62,6 +62,7 @@
 #define PHYSICS_VELOCITY_JUMP     -16
 #define PHYSICS_VELOCITY_KILL     -10
 #define PHYSICS_VELOCITY_JETPACK  -4
+#define PHYSICS_TERMINAL_JETPACK_V (SCROLL_PIXELS)
 
 
 typedef UBYTE uint8_t;

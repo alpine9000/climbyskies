@@ -395,9 +395,12 @@ image_t sprite_imageAtlas[] = {
     .w = ITEM_WIDTH,
     .h = ITEM_HEIGHT
   },
-
-
-
+  [SPRITE_JETPACK] = {
+    .x = 96,
+    .y = 18,
+    .w = ITEM_WIDTH,
+    .h = ITEM_HEIGHT
+  }
 };
 
 

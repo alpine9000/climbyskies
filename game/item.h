@@ -1,11 +1,13 @@
 #ifndef ITEM_H
 #define ITEM_H
 
-#define ITEM_HEIGHT 11
-#define ITEM_WIDTH 16
+#define ITEM_MAX_HEIGHT 11
+#define ITEM_HEIGHT     11
+#define ITEM_WIDTH      16
 
 typedef enum {
   ITEM_ANIM_COIN = 0,
+  ITEM_ANIM_JETPACK,
   ITEM_ANIM_LIGHTNING, // Ability to kill enemies
   ITEM_ANIM_HEART, // Extra life
   ITEM_ANIM_HEADSMASH, // Smash non smashable platforms
