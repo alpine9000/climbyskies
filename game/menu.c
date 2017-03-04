@@ -113,14 +113,6 @@ menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
 };
 
 
-static void
-menu_vbl(void)
-{
-  hw_waitVerticalBlank();
-  sound_vbl();
-}
-
-
 static void 
 menu_pokeCopperList(frame_buffer_t frameBuffer)
 {
@@ -178,7 +170,7 @@ menu_redraw(uint16_t i)
   int16_t y = 130 + (menu_selected*16);
   uint16_t len = strlen(menu_items[i].text);
 
-  menu_vbl();
+  hw_waitVerticalBlank();
 
   gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3), 9, 1);
 
@@ -239,8 +231,8 @@ static void
 menu_up(void)
 {
   if (menu_selected > 0) {
-    sound_queueSound(SOUND_MENU);
-    menu_vbl();
+    sound_playSound(SOUND_MENU);
+    hw_waitVerticalBlank();
     menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
     menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR;
     menu_selected--;
@@ -256,8 +248,8 @@ static void
 menu_down(void)
 {
   if (menu_selected < MENU_NUM_ITEMS-1) {
-    sound_queueSound(SOUND_MENU);    
-    menu_vbl();
+    sound_playSound(SOUND_MENU);    
+    hw_waitVerticalBlank();
     menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
     menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR;
     menu_selected++;
@@ -278,11 +270,12 @@ menu_loop(void)
   uint16_t done;
   volatile uint16_t scratch;
 
+  sound_init();
   message_screenOn("Loading...");
   disk_loadData((void*)game_onScreenBuffer, (void*)menuFrameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
   message_screenOff();
 
-  menu_vbl();
+  hw_waitVerticalBlank();
   custom->dmacon = DMAF_RASTER|DMAF_SPRITE;
 
   palette_black();
@@ -310,7 +303,7 @@ menu_loop(void)
 
   menu_pokeCopperList(game_onScreenBuffer);
 
-  menu_vbl();
+  hw_waitVerticalBlank();
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
 
@@ -331,7 +324,7 @@ menu_loop(void)
 
   menu_render();
 
-  menu_vbl();
+  hw_waitVerticalBlank();
   custom->color[5] = 0x544;
   
   for (uint16_t i = 0; i != MENU_NUM_ITEMS; i++) {
@@ -374,10 +367,10 @@ menu_loop(void)
       command = kbCommand;
       done = 1;
     }
-    menu_vbl();
+    hw_waitVerticalBlank();
   }
 
-  menu_vbl();
+  hw_waitVerticalBlank();
   custom->dmacon = DMAF_RASTER;
   palette_black();
 

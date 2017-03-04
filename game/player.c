@@ -384,13 +384,14 @@ player_tileCollision(int16_t x, int16_t y)
 {
   switch (player.state) {
   case PLAYER_STATE_JETPACK_THRUST:
+  case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
     return 0;
     break;
   case PLAYER_STATE_JETPACK_FALL:
     player_pointCollision(2, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
     player_pointCollision(3, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));;
     return TILE_COLLISION(player_collisionStatus[2].tile) || 
-      TILE_COLLISION(player_collisionStatus[2].tile);
+      TILE_COLLISION(player_collisionStatus[3].tile);
     break;
   default:
     player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
@@ -449,8 +450,8 @@ player_processJoystick(void)
 
   if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN && player.state != PLAYER_STATE_JETPACK_THRUST) {
     player.state = PLAYER_STATE_JETPACK_THRUST;
-    player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
-    sound_loopSound(SOUND_JETPACK);
+    //    player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
+    sound_queueSound(SOUND_JETPACK);
   }
     
 #ifdef DEBUG_SCROLL
@@ -646,16 +647,21 @@ player_respawn(void)
 static int
 player_updateAlive(void)
 {
-  if ((player.state == PLAYER_STATE_JETPACK_THRUST) && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
+  
+  if (player.state == PLAYER_STATE_JETPACK_THRUST && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
+    player.state = PLAYER_STATE_JETPACK_FALL_IN_COLLISION;
+  }
+  
+  if ((player.state == PLAYER_STATE_JETPACK_FALL_IN_COLLISION) && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
     player.state = PLAYER_STATE_DEFAULT;
     int16_t c = player_tileCollision(player.sprite.x+player.velocity.x, player.sprite.y + player.jetpackFallVelocity);
-    player.state = c ? PLAYER_STATE_JETPACK_THRUST : PLAYER_STATE_JETPACK_FALL;
+    player.state = c ? PLAYER_STATE_JETPACK_FALL_IN_COLLISION : PLAYER_STATE_JETPACK_FALL;
     sound_endLoop();
     if (c) {
       player.velocity.y += player.jetpackFallVelocity;
-      player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
+      //player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
     } else {
-      player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
+      //player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
     }
   } else if (player.state == PLAYER_STATE_JETPACK_THRUST) {
     player.velocity.y = PHYSICS_VELOCITY_JETPACK;
@@ -664,11 +670,10 @@ player_updateAlive(void)
     }
   }
 
-
   if (player.state != PLAYER_STATE_JETPACK_THRUST) {
-    if (player.state == PLAYER_STATE_JETPACK_FALL) {
-      player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
+    if (player.state == PLAYER_STATE_JETPACK_FALL || player.state == PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
       player.velocity.y += player.jetpackFallVelocity;
+      player.jetpackFallVelocity = player.jetpackFallVelocity ? 0 : PHYSICS_VELOCITY_G;
     } else {
       player.velocity.y += PHYSICS_VELOCITY_G;
     }
@@ -677,7 +682,7 @@ player_updateAlive(void)
   velocity_t intendedVelocity = player.velocity;
   int16_t collision = 0;
 
-  if (player.state == PLAYER_STATE_JETPACK_FALL) {
+  if (player.state == PLAYER_STATE_JETPACK_FALL || player.state == PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
     if (player.velocity.y > PHYSICS_TERMINAL_JETPACK_V) {
       player.velocity.y = PHYSICS_TERMINAL_JETPACK_V;
     }
@@ -725,7 +730,7 @@ player_updateAlive(void)
     }
 
   } else {   
-    if (player.state != PLAYER_STATE_JETPACK_THRUST && player.state != PLAYER_STATE_JETPACK_FALL) {
+    if (player.state != PLAYER_STATE_JETPACK_THRUST && player.state != PLAYER_STATE_JETPACK_FALL && player.state != PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
       player.state = PLAYER_STATE_DEFAULT;
     }
   }
@@ -798,14 +803,12 @@ player_updateAlive(void)
 #endif
     switch (player.state) {
     case PLAYER_STATE_JETPACK_THRUST:
+    case PLAYER_STATE_JETPACK_FALL:
+    case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
+
       if (game_cameraY > 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
 	game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
-      } else {
-	game_scroll = 0;
-      }
-      break;
-    case PLAYER_STATE_JETPACK_FALL:
-      if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
+      } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
 	game_setBackgroundScroll(-SCROLL_PIXELS, game_cameraY + ((2*16)));
       } else {
 	game_scroll = 0;

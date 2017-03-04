@@ -351,6 +351,7 @@ game_loadLevel(menu_command_t command)
 
   game_switchFrameBuffers();
 
+  sound_init();
   item_init(); // this must be initialised before tile
   enemy_init(); // this must be initialised before tile
 

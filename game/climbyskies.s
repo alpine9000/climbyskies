@@ -115,6 +115,9 @@ _sound_falling:
 	xdef _sound_coin
 _sound_coin:	
 	incbin "out/coin1.raw"
+	xdef _sound_jetpack_coin
+_sound_jetpack_coin:	
+	incbin "out/jetpack_coin.raw"	
 	xdef _sound_pop
 _sound_pop:	
 	incbin "out/pop.raw"

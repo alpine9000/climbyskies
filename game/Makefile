@@ -24,7 +24,7 @@ MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby*.bin | awk '{print $$5}' | head -1
 
 IMAGES=font8x8.png menu.png scoreboard.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
-ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw out/jetpack.raw
+ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw out/jetpack.raw out/jetpack_coin.raw
 
 LINKER_OPTIONS=-T link.script.x
 VASM_ARGS=-Fhunk -quiet -esc -DPLACEHOLDER_MUSIC=$(PLACEHOLDER_MUSIC) -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
@@ -48,7 +48,8 @@ ifeq ($(USE_BIG), 1)
 WHOLE_PROGRAM=-fwhole-program
 endif
 
-C_OPT=-O3 $(WHOLE_PROGRAM)
+C_OPT=-O3
+BIG_FLAGS=$(WHOLE_PROGRAM)
 C_OPT_ASM_OUTPUT=-O3
 BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=64 -Wstack-usage=128 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
@@ -129,6 +130,9 @@ out/jump.raw: assets/jump.wav out
 
 #http://opengameart.org/content/10-8bit-coin-sounds
 out/coin1.raw: assets/coin1.wav out
+	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+
+out/jetpack_coin.raw: assets/jetpack_coin.wav out
 	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/bubbles-pop
@@ -370,7 +374,7 @@ out/workbench/%.o: out/%.c out
 
 out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS)
 	cat $(C_SRCS) > big.c
-	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
+	$(CC) -c $(CFLAGS) $(BIG_FLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
 	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
@@ -378,7 +382,7 @@ out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS)
 	sed -e 's/^ *//' -e 's/$$/:/' >> $*.d
 	@rm -f $*.d.tmp
 ifeq ($(KEEP_ASM), 1)
-	-@$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
+	-@$(CC) -c $(CFLAGS) $(BIG_FLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -S -o out/adf/big.s
 endif
 	-@rm big.c
 
