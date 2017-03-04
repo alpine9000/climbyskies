@@ -7,7 +7,9 @@ typedef enum {
   SOUND_PICKUP,
   SOUND_KILL,
   SOUND_FALLING,
+#ifdef GAME_JETPACK
   SOUND_JETPACK,
+#endif
   SOUND_MENU
 } sound_t;
 

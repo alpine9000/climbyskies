@@ -35,6 +35,7 @@ static sprite_animation_t item_animations[] = {
     },
     .facing = FACING_RIGHT
   },
+#ifdef GAME_JETPACK
   [ITEM_ANIM_JETPACK] = {
     .animation = {
     .start = SPRITE_JETPACK,
@@ -43,6 +44,7 @@ static sprite_animation_t item_animations[] = {
     },
     .facing = FACING_RIGHT
   },
+#endif
 };
 
 int16_t item_count;
@@ -115,6 +117,11 @@ item_remove(item_t* ptr)
 void
 item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr)
 {
+#ifndef GAME_JETPACK
+  if (anim == ITEM_ANIM_JETPACK) {
+    return;
+  }
+#endif
   if (item_count < ITEM_MAX_ITEMS) {
     item_t* ptr = item_getFree();
     ptr->tilePtr = tilePtr;
@@ -279,9 +286,12 @@ item_update(sprite_t* p)
 	game_score += 100;
 	sound_queueSound(SOUND_PICKUP);
 	break;
+#ifdef GAME_JETPACK
       case ITEM_ANIM_JETPACK:
 	sound_queueSound(SOUND_PICKUP);
 	player.jetpackFuel += 100;
+	break;
+#endif
       default:
 	break;
       }

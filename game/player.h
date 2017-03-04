@@ -42,9 +42,11 @@ typedef enum {
   PLAYER_STATE_FREEFALL,
   PLAYER_STATE_ONGROUND,
   PLAYER_STATE_HEADCONTACT,
+#ifdef GAME_JETPACK
   PLAYER_STATE_JETPACK_THRUST,
   PLAYER_STATE_JETPACK_FALL_IN_COLLISION,
   PLAYER_STATE_JETPACK_FALL
+#endif
 } player_state_t;
   
 typedef struct {
@@ -63,8 +65,10 @@ typedef struct {
 #ifdef PLAYER_BLIT_SPRITE_OVERDRAW
   uint16_t hspriteCompatible;
 #endif
+#ifdef GAME_JETPACK
   uint16_t jetpackFuel;
   uint16_t jetpackFallVelocity;
+#endif
 } player_t;
 
 extern player_t player;

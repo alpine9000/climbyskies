@@ -51,71 +51,40 @@
 #include "out/sprite_playerRightStand1_0-aprite.h"
 
 
+#ifdef GAME_JETPACK
 #include "out/sprite_playerJetpackLeftRun0_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun1_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun0_1-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun1_1-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun0_2-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun1_2-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun0_3-aprite.h"
-
 #include "out/sprite_playerJetpackLeftRun1_3-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun0_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun1_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun0_1-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun1_1-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun0_2-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun1_2-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun0_3-aprite.h"
-
 #include "out/sprite_playerJetpackRightRun1_3-aprite.h"
-
 #include "out/sprite_playerJetpackLeftJump0_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftJump1_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightJump0_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightJump1_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftStand0_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftStand1_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightStand0_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightStand1_0-aprite.h"
-
-
 #include "out/sprite_playerJetpackRightThrust0_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightThrust1_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftThrust0_0-aprite.h"
-
 #include "out/sprite_playerJetpackLeftThrust1_0-aprite.h"
-
 #include "out/sprite_playerJetpackRightThrust0_1-aprite.h"
-
 #include "out/sprite_playerJetpackRightThrust1_1-aprite.h"
-
 #include "out/sprite_playerJetpackLeftThrust0_1-aprite.h"
-
 #include "out/sprite_playerJetpackLeftThrust1_1-aprite.h"
-
+#endif
 
 sprite_hsprite_t sprite_hspriteAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = {
@@ -193,10 +162,7 @@ sprite_hsprite_t sprite_hspriteAtlas[] = {
     .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite0,
     .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite1,
   },
-
-
-
-
+#ifdef GAME_JETPACK
   [SPRITE_CLIMBER_JETPACK_RUN_LEFT_1] = {
     .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_0_sprite0,
     .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_0_sprite1,
@@ -297,6 +263,7 @@ sprite_hsprite_t sprite_hspriteAtlas[] = {
     .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_1_sprite0,
     .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_1_sprite1,
   },
+#endif
 };
 #endif
 
@@ -565,12 +532,14 @@ image_t sprite_imageAtlas[] = {
     .w = ITEM_WIDTH,
     .h = ITEM_HEIGHT
   },
+#ifdef GAME_JETPACK
   [SPRITE_JETPACK] = {
     .x = 96,
     .y = 18,
     .w = ITEM_WIDTH,
     .h = ITEM_HEIGHT
   }
+#endif
 };
 
 

@@ -20,7 +20,9 @@
 #define PLAYER_JUMP_HEIGHT          118 //112
 //#define PLAYER_SCROLL_THRESHOLD     (96+48+PLAYER_HEIGHT)
 #define PLAYER_SCROLL_THRESHOLD     (96+48)
+#ifdef GAME_JETPACK
 #define PLAYER_SCROLL_JETPACK_THRESHOLD     (96+48+PLAYER_HEIGHT-32)
+#endif
 
 
 typedef enum {
@@ -35,7 +37,7 @@ typedef enum {
   PLAYER_ANIM_LEFT_FALL_LEFT,
   PLAYER_ANIM_RIGHT_FALL,
   PLAYER_ANIM_RIGHT_FALL_RIGHT,
-
+#ifdef GAME_JETPACK
   PLAYER_JETPACK_ANIM_LEFT_JUMP,
   PLAYER_JETPACK_ANIM_LEFT_STAND,
   PLAYER_JETPACK_ANIM_LEFT_RUN,
@@ -48,6 +50,7 @@ typedef enum {
   PLAYER_JETPACK_ANIM_RIGHT_FALL_RIGHT,
   PLAYER_JETPACK_ANIM_RIGHT_THRUST,
   PLAYER_JETPACK_ANIM_LEFT_THRUST,
+#endif
 } player_anim_id_t;
 
 static
@@ -134,7 +137,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-
+#ifdef GAME_JETPACK
   [PLAYER_JETPACK_ANIM_LEFT_JUMP] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
@@ -183,7 +186,6 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-
   [PLAYER_JETPACK_ANIM_LEFT_STAND] = { 
     .animation = {
       .start = SPRITE_CLIMBER_JETPACK_STAND_LEFT, 
@@ -201,7 +203,6 @@ sprite_animation_t player_animations[] = {
     .facing = FACING_LEFT
   },
   [PLAYER_JETPACK_ANIM_RIGHT_STAND] = {
-
     .animation = {
       .start = SPRITE_CLIMBER_JETPACK_STAND_RIGHT, 
       .stop = SPRITE_CLIMBER_JETPACK_STAND_RIGHT,
@@ -217,8 +218,6 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-
-
   [PLAYER_JETPACK_ANIM_RIGHT_THRUST] = {
     .animation = {
       .start = SPRITE_CLIMBER_JETPACK_THRUST_RIGHT_1,
@@ -235,6 +234,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   }
+#endif
 };
 
 
@@ -283,6 +283,7 @@ player_setRecord(player_record_state_t state)
 static void 
 player_setAnim(int16_t anim)
 {
+#ifdef GAME_JETPACK
   if (player.jetpackFuel > 0 && anim < PLAYER_JETPACK_ANIM_LEFT_JUMP) {
     anim += PLAYER_JETPACK_ANIM_LEFT_JUMP - PLAYER_ANIM_LEFT_JUMP;
   }
@@ -290,6 +291,7 @@ player_setAnim(int16_t anim)
   if (player.state == PLAYER_STATE_JETPACK_THRUST) {
     anim = player_animations[anim].facing == FACING_LEFT ? PLAYER_JETPACK_ANIM_LEFT_THRUST :PLAYER_JETPACK_ANIM_RIGHT_THRUST;
   }
+#endif
 
   if (player.animId != anim) {
     player.animId = anim;
@@ -356,7 +358,9 @@ player_init(menu_command_t command)
   player.hspriteCompatible = 1;
 #endif
 
+#ifdef GAME_JETPACK
   player.jetpackFuel = 0;
+#endif
 }
 
 
@@ -383,6 +387,7 @@ static int
 player_tileCollision(int16_t x, int16_t y)
 {
   switch (player.state) {
+#ifdef GAME_JETPACK
   case PLAYER_STATE_JETPACK_THRUST:
   case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
     return 0;
@@ -393,6 +398,7 @@ player_tileCollision(int16_t x, int16_t y)
     return TILE_COLLISION(player_collisionStatus[2].tile) || 
       TILE_COLLISION(player_collisionStatus[3].tile);
     break;
+#endif
   default:
     player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
     player_pointCollision(1, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
@@ -448,11 +454,13 @@ player_processJoystick(void)
   static uint16_t notUpCount = NOT_UP_THRESHOLD;
 
 
+#ifdef GAME_JETPACK
   if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN && player.state != PLAYER_STATE_JETPACK_THRUST) {
     player.state = PLAYER_STATE_JETPACK_THRUST;
     //    player.jetpackFallVelocity = PHYSICS_VELOCITY_G;
     sound_queueSound(SOUND_JETPACK);
   }
+#endif
     
 #ifdef DEBUG_SCROLL
   static int last  = -1;
@@ -648,6 +656,7 @@ static int
 player_updateAlive(void)
 {
   
+#ifdef GAME_JETPACK
   if (player.state == PLAYER_STATE_JETPACK_THRUST && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
     player.state = PLAYER_STATE_JETPACK_FALL_IN_COLLISION;
   }
@@ -669,7 +678,9 @@ player_updateAlive(void)
       player.jetpackFuel--;
     }
   }
+#endif
 
+#ifdef GAME_JETPACK
   if (player.state != PLAYER_STATE_JETPACK_THRUST) {
     if (player.state == PLAYER_STATE_JETPACK_FALL || player.state == PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
       player.velocity.y += player.jetpackFallVelocity;
@@ -678,10 +689,14 @@ player_updateAlive(void)
       player.velocity.y += PHYSICS_VELOCITY_G;
     }
   } 
+#else
+  player.velocity.y += PHYSICS_VELOCITY_G;
+#endif
 
   velocity_t intendedVelocity = player.velocity;
   int16_t collision = 0;
 
+#ifdef GAME_JETPACK
   if (player.state == PLAYER_STATE_JETPACK_FALL || player.state == PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
     if (player.velocity.y > PHYSICS_TERMINAL_JETPACK_V) {
       player.velocity.y = PHYSICS_TERMINAL_JETPACK_V;
@@ -691,6 +706,11 @@ player_updateAlive(void)
       player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
     }
   }
+#else
+    if (player.velocity.y > PHYSICS_TERMINAL_VELOCITY) {
+      player.velocity.y = PHYSICS_TERMINAL_VELOCITY;
+    }
+#endif
       
   if (player.velocity.x != 0) {
     collision = player_moveX();
@@ -729,10 +749,14 @@ player_updateAlive(void)
       sound_queueSound(kill ? SOUND_KILL : SOUND_HEADSMASH);
     }
 
-  } else {   
+  } else { 
+#ifdef GAME_JETPACK  
     if (player.state != PLAYER_STATE_JETPACK_THRUST && player.state != PLAYER_STATE_JETPACK_FALL && player.state != PLAYER_STATE_JETPACK_FALL_IN_COLLISION) {
       player.state = PLAYER_STATE_DEFAULT;
     }
+#else
+    player.state = PLAYER_STATE_DEFAULT;
+#endif
   }
 
   static volatile int16_t lastY = -1;
@@ -802,6 +826,7 @@ player_updateAlive(void)
   if (0) {
 #endif
     switch (player.state) {
+#ifdef GAME_JETPACK  
     case PLAYER_STATE_JETPACK_THRUST:
     case PLAYER_STATE_JETPACK_FALL:
     case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
@@ -814,6 +839,7 @@ player_updateAlive(void)
 	game_scroll = 0;
       }
       break;
+#endif
     default:
       if (player.velocity.y == 0 && collision) {
 	if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND &&  (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
@@ -842,7 +868,9 @@ void
 player_freeFall(void)
 {  
   if (player.freeFall < 1 && player.flashCounter == 0 && player.state != PLAYER_STATE_FREEFALL) {
+#ifdef GAME_JETPACK  
     player.jetpackFuel = 0;
+#endif
     player.freeFall = 1;
     player.state = PLAYER_STATE_FREEFALL;
     sound_endLoop();

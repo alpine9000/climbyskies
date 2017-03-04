@@ -4,7 +4,10 @@
 #define SOUND_LATCH_SCANLINES 5
 
 #if SFX==1
-extern UWORD sound_land, sound_coin, sound_pop, sound_kill, sound_falling, sound_jetpack, sound_jetpack_coin;
+extern UWORD sound_land, sound_coin, sound_pop, sound_kill, sound_falling;
+#ifdef GAME_JETPACK
+extern UWORD  sound_jetpack, sound_jetpack_coin;
+#endif
 
 static void 
 sound_playLand(void);
@@ -16,8 +19,10 @@ static void
 sound_playKill(void);
 static void
 sound_playFalling(void);
+#ifdef GAME_JETPACK
 static void
 sound_playJetpack(void);
+#endif
 
 typedef struct {
   int16_t count;
@@ -70,6 +75,7 @@ static sound_config_t sound_queue[] = {
     .loop = 0,
     .play = &sound_playHeadSmash
   },
+#ifdef GAME_JETPACK
   [SOUND_JETPACK] = {
     .count = 0,
     .delay = 1,
@@ -77,7 +83,7 @@ static sound_config_t sound_queue[] = {
     .loop = 1,
     .play = &sound_playJetpack
   }
-  
+#endif
 };
 
 static int16_t sound_next = -1;
@@ -126,7 +132,11 @@ sound_playPickup(void)
 {
   volatile struct AudChannel *aud = &custom->aud[3];
 
+#ifdef GAME_JETPACK
   aud->ac_ptr = sound_loop == SOUND_JETPACK ? &sound_jetpack_coin : &sound_coin;
+#else
+  aud->ac_ptr =&sound_coin;
+#endif
   aud->ac_per = 321;
   aud->ac_vol = 64;
   aud->ac_len = 3919/2;
@@ -145,6 +155,7 @@ sound_playFalling(void)
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
 
+#ifdef GAME_JETPACK
 static void 
 sound_playJetpack(void)
 {
@@ -156,7 +167,7 @@ sound_playJetpack(void)
   aud->ac_len = 3919/2;//9975/2;
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
-
+#endif
 
 static void
 sound_resetSound(void)

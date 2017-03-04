@@ -10,6 +10,7 @@
 #define DEBUG                         1
 #define INLINE_EVERYTHING             1
 //#define SHOW_SPEED                    1
+#define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
 #define PLAYER_RECORDING              1
 #define PLAYER_HARDWARE_SPRITE        1
@@ -61,9 +62,10 @@
 #define PHYSICS_VELOCITY_RUN      2
 #define PHYSICS_VELOCITY_JUMP     -16
 #define PHYSICS_VELOCITY_KILL     -10
+#ifdef GAME_JETPACK
 #define PHYSICS_VELOCITY_JETPACK  -4
 #define PHYSICS_TERMINAL_JETPACK_V (SCROLL_PIXELS)
-
+#endif
 
 typedef UBYTE uint8_t;
 typedef SHORT int16_t;
