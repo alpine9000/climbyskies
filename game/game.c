@@ -17,7 +17,6 @@ frame_buffer_t game_scoreBoardFrameBuffer;
 
 int16_t game_cameraY;
 int16_t game_screenScrollY;
-int16_t game_scrollCount;
 int16_t game_scroll;
 int16_t game_collisions;
 int16_t game_numEnemies;
@@ -331,7 +330,6 @@ game_loadLevel(menu_command_t command)
   game_collisions = 1;
 #endif
   game_screenScrollY = 0;
-  game_scrollCount = 0;
   game_shake = 0;
   game_setBackgroundScroll(SCROLL_PIXELS, WORLD_HEIGHT-SCREEN_HEIGHT);
   game_levelScore = 9999<<2;
@@ -571,7 +569,6 @@ game_render(void)
 void
 game_setBackgroundScroll(int16_t s, int16_t targetCameraY)
 {
-  game_scrollCount = 1;
   game_scroll = s;
   game_targetCameraY = targetCameraY;
 
@@ -582,7 +579,6 @@ game_setBackgroundScroll(int16_t s, int16_t targetCameraY)
   }
 
   if (game_targetCameraY == game_cameraY) {
-    game_scrollCount = 0;
     game_scroll = 0;
   }
 
@@ -682,7 +678,7 @@ game_processKeyboard(void)
     music_toggle_music();
     break;
   case 'J':
-    player.jetpackFuel += 200;
+    player.jetpackFuel += 100000;
     break;
   case 'Q':
     return 1;
@@ -750,7 +746,7 @@ game_loop()
       if (level.clouds) {
 	cloud_update();
       }
-    } else if (game_scrollCount == 0/* && game_shake > 0*/) {
+    } else if (game_scroll == 0) {
       game_shake--;
       if (game_shake > 0) {
 
@@ -816,7 +812,6 @@ game_loop()
     if (game_cameraY != game_targetCameraY) {
       game_scrollBackground();
       if (game_cameraY == game_targetCameraY) {
-	game_scrollCount = 0;
 	game_scroll = 0;
       }
     }

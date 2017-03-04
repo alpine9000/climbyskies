@@ -51,6 +51,72 @@
 #include "out/sprite_playerRightStand1_0-aprite.h"
 
 
+#include "out/sprite_playerJetpackLeftRun0_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun1_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun0_1-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun1_1-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun0_2-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun1_2-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun0_3-aprite.h"
+
+#include "out/sprite_playerJetpackLeftRun1_3-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun0_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun1_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun0_1-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun1_1-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun0_2-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun1_2-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun0_3-aprite.h"
+
+#include "out/sprite_playerJetpackRightRun1_3-aprite.h"
+
+#include "out/sprite_playerJetpackLeftJump0_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftJump1_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightJump0_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightJump1_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftStand0_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftStand1_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightStand0_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightStand1_0-aprite.h"
+
+
+#include "out/sprite_playerJetpackRightThrust0_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightThrust1_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftThrust0_0-aprite.h"
+
+#include "out/sprite_playerJetpackLeftThrust1_0-aprite.h"
+
+#include "out/sprite_playerJetpackRightThrust0_1-aprite.h"
+
+#include "out/sprite_playerJetpackRightThrust1_1-aprite.h"
+
+#include "out/sprite_playerJetpackLeftThrust0_1-aprite.h"
+
+#include "out/sprite_playerJetpackLeftThrust1_1-aprite.h"
+
+
 sprite_hsprite_t sprite_hspriteAtlas[] = {
   [SPRITE_CLIMBER_RUN_LEFT_1] = {
     .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerLeftRun0_0_sprite0,
@@ -126,6 +192,110 @@ sprite_hsprite_t sprite_hspriteAtlas[] = {
     .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerRightStand0_0_sprite1,
     .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite0,
     .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerRightStand1_0_sprite1,
+  },
+
+
+
+
+  [SPRITE_CLIMBER_JETPACK_RUN_LEFT_1] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_LEFT_2] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_1_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_LEFT_3] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_2_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_2_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_2_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_2_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_LEFT_4] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_3_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun0_3_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_3_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftRun1_3_sprite1,
+  },
+
+  [SPRITE_CLIMBER_JETPACK_RUN_RIGHT_1] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_RIGHT_2] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_1_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_RIGHT_3] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_2_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_2_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_2_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_2_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_RUN_RIGHT_4] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_3_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun0_3_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_3_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightRun1_3_sprite1,
+  },
+
+  [SPRITE_CLIMBER_JETPACK_JUMP_LEFT] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftJump0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftJump0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftJump1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftJump1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_JUMP_RIGHT] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightJump0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightJump0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightJump1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightJump1_0_sprite1,
+  },
+
+  [SPRITE_CLIMBER_JETPACK_STAND_LEFT] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftStand0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftStand0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftStand1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftStand1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_STAND_RIGHT] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightStand0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightStand0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightStand1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightStand1_0_sprite1,
+  },
+
+  [SPRITE_CLIMBER_JETPACK_THRUST_LEFT_1] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_THRUST_LEFT_2] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackLeftThrust1_1_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_THRUST_RIGHT_1] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust0_0_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust0_0_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_0_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_0_sprite1,
+  },
+  [SPRITE_CLIMBER_JETPACK_THRUST_RIGHT_2] = {
+    .hsprite00 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust0_1_sprite0,
+    .hsprite01 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust0_1_sprite1,
+    .hsprite10 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_1_sprite0,
+    .hsprite11 = (sprite_hsprite_control_t*)&sprite_playerJetpackRightThrust1_1_sprite1,
   },
 };
 #endif

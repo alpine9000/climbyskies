@@ -205,7 +205,7 @@ cloud_update(void)
   }
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    if (game_scrollCount > 0) {
+    if (game_scroll) {
       cloud->sprite.y-=(game_scroll>>2 /* /4 */);
     }
     

@@ -281,7 +281,7 @@ item_update(sprite_t* p)
 	break;
       case ITEM_ANIM_JETPACK:
 	sound_queueSound(SOUND_PICKUP);
-	player.jetpackFuel += 500;
+	player.jetpackFuel += 100;
       default:
 	break;
       }
@@ -299,7 +299,7 @@ item_update(sprite_t* p)
 
     if (save->state == ITEM_DEAD && (save->deadRenderCount++ > 2)) {
       remove = 1;
-    } else  if (game_scrollCount == 0) {
+    } else  if (game_scroll == 0) {
       if ((save->sprite.y-game_cameraY) > (SCREEN_HEIGHT+ITEM_HEIGHT+1)) {
 	remove = 1;
       } else if ((save->sprite.y-game_cameraY) < -(ITEM_HEIGHT+1)) {

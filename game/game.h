@@ -95,7 +95,6 @@ typedef volatile struct Custom* custom_t;
 extern custom_t custom; 
 extern int16_t game_cameraY;
 extern int16_t game_screenScrollY;
-extern int16_t game_scrollCount;
 extern int16_t game_scroll;
 extern int16_t game_collisions;
 extern uint32_t game_frameCount;

@@ -12,8 +12,9 @@
 #define PLAYER_MAX_RECORD 1024
 
 typedef struct {
-  uint32_t joystickPos;
-  uint32_t frame;
+  uint8_t joystickPos;
+  uint8_t joystickButton;
+  uint16_t frame;
 } player_record_item_t;
 
 typedef enum {
@@ -27,8 +28,10 @@ typedef struct {
   player_record_state_t state;
   uint32_t index;
   uint32_t lastJoystickPos;
-  uint32_t joystickPos;
-  uint32_t frame;
+  uint32_t lastJoystickButton;
+  uint8_t joystickPos;
+  uint8_t joystickButton;
+  uint16_t frame;
   player_record_item_t buffer[PLAYER_MAX_RECORD];
 } player_record_t;
 

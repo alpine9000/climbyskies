@@ -23,20 +23,36 @@
 #define PLAYER_SCROLL_JETPACK_THRESHOLD     (96+48+PLAYER_HEIGHT-32)
 
 
-#define ANIM_LEFT_JUMP         0
-#define ANIM_LEFT_STAND        1
-#define ANIM_LEFT_RUN          2
-#define ANIM_RIGHT_JUMP        3
-#define ANIM_RIGHT_STAND       4
-#define ANIM_RIGHT_RUN         5
-#define ANIM_LEFT_FALL         6
-#define ANIM_LEFT_FALL_LEFT    7
-#define ANIM_RIGHT_FALL        8
-#define ANIM_RIGHT_FALL_RIGHT  9
+typedef enum {
+
+  PLAYER_ANIM_LEFT_JUMP,
+  PLAYER_ANIM_LEFT_STAND,
+  PLAYER_ANIM_LEFT_RUN,
+  PLAYER_ANIM_RIGHT_JUMP,
+  PLAYER_ANIM_RIGHT_STAND,
+  PLAYER_ANIM_RIGHT_RUN,
+  PLAYER_ANIM_LEFT_FALL,
+  PLAYER_ANIM_LEFT_FALL_LEFT,
+  PLAYER_ANIM_RIGHT_FALL,
+  PLAYER_ANIM_RIGHT_FALL_RIGHT,
+
+  PLAYER_JETPACK_ANIM_LEFT_JUMP,
+  PLAYER_JETPACK_ANIM_LEFT_STAND,
+  PLAYER_JETPACK_ANIM_LEFT_RUN,
+  PLAYER_JETPACK_ANIM_RIGHT_JUMP,
+  PLAYER_JETPACK_ANIM_RIGHT_STAND,
+  PLAYER_JETPACK_ANIM_RIGHT_RUN,
+  PLAYER_JETPACK_ANIM_LEFT_FALL,
+  PLAYER_JETPACK_ANIM_LEFT_FALL_LEFT,
+  PLAYER_JETPACK_ANIM_RIGHT_FALL,
+  PLAYER_JETPACK_ANIM_RIGHT_FALL_RIGHT,
+  PLAYER_JETPACK_ANIM_RIGHT_THRUST,
+  PLAYER_JETPACK_ANIM_LEFT_THRUST,
+} player_anim_id_t;
 
 static
 sprite_animation_t player_animations[] = {
-  [ANIM_LEFT_JUMP] = {
+  [PLAYER_ANIM_LEFT_JUMP] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_LEFT, 
       .stop = SPRITE_CLIMBER_JUMP_LEFT, 
@@ -44,7 +60,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-  [ANIM_RIGHT_JUMP] = {
+  [PLAYER_ANIM_RIGHT_JUMP] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_RIGHT, 
       .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
@@ -52,7 +68,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-  [ANIM_LEFT_FALL] = {
+  [PLAYER_ANIM_LEFT_FALL] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_LEFT, 
       .stop = SPRITE_CLIMBER_JUMP_LEFT, 
@@ -60,7 +76,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-  [ANIM_RIGHT_FALL] = {
+  [PLAYER_ANIM_RIGHT_FALL] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_RIGHT, 
       .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
@@ -68,7 +84,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT 
   },
-  [ANIM_RIGHT_FALL_RIGHT] = {
+  [PLAYER_ANIM_RIGHT_FALL_RIGHT] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_RIGHT, 
       .stop = SPRITE_CLIMBER_JUMP_RIGHT, 
@@ -76,7 +92,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-  [ANIM_LEFT_FALL_LEFT] = {
+  [PLAYER_ANIM_LEFT_FALL_LEFT] = {
     .animation = { 
       .start = SPRITE_CLIMBER_JUMP_LEFT, 
       .stop = SPRITE_CLIMBER_JUMP_LEFT, 
@@ -85,7 +101,7 @@ sprite_animation_t player_animations[] = {
     .facing = FACING_LEFT
   },
 
-  [ANIM_LEFT_STAND] = { 
+  [PLAYER_ANIM_LEFT_STAND] = { 
     .animation = {
       .start = SPRITE_CLIMBER_STAND_LEFT, 
       .stop = SPRITE_CLIMBER_STAND_LEFT, 
@@ -93,7 +109,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-  [ANIM_LEFT_RUN] = {
+  [PLAYER_ANIM_LEFT_RUN] = {
     .animation = {
       .start = SPRITE_CLIMBER_RUN_LEFT_1, 
       .stop = SPRITE_CLIMBER_RUN_LEFT_4,
@@ -101,7 +117,7 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-  [ANIM_RIGHT_STAND] = {
+  [PLAYER_ANIM_RIGHT_STAND] = {
 
     .animation = {
       .start = SPRITE_CLIMBER_STAND_RIGHT, 
@@ -110,13 +126,114 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_RIGHT
   },
-  [ANIM_RIGHT_RUN] = {
+  [PLAYER_ANIM_RIGHT_RUN] = {
     .animation = {
       .start = SPRITE_CLIMBER_RUN_RIGHT_1,
       .stop = SPRITE_CLIMBER_RUN_RIGHT_4,
       .speed = 4 
     },
     .facing = FACING_RIGHT
+  },
+
+  [PLAYER_JETPACK_ANIM_LEFT_JUMP] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .speed = 1
+    },
+    .facing = FACING_LEFT
+  },
+  [PLAYER_JETPACK_ANIM_RIGHT_JUMP] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .speed = 1
+    },
+    .facing = FACING_RIGHT
+  },
+  [PLAYER_JETPACK_ANIM_LEFT_FALL] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .speed = 1
+    },
+    .facing = FACING_LEFT
+  },
+  [PLAYER_JETPACK_ANIM_RIGHT_FALL] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .speed = 1
+    },
+    .facing = FACING_RIGHT 
+  },
+  [PLAYER_JETPACK_ANIM_RIGHT_FALL_RIGHT] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_RIGHT, 
+      .speed = 1
+    },
+    .facing = FACING_RIGHT
+  },
+  [PLAYER_JETPACK_ANIM_LEFT_FALL_LEFT] = {
+    .animation = { 
+      .start = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .stop = SPRITE_CLIMBER_JETPACK_JUMP_LEFT, 
+      .speed = 1
+    },
+    .facing = FACING_LEFT
+  },
+
+  [PLAYER_JETPACK_ANIM_LEFT_STAND] = { 
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_STAND_LEFT, 
+      .stop = SPRITE_CLIMBER_JETPACK_STAND_LEFT, 
+      .speed = 1 
+    },
+    .facing = FACING_LEFT
+  },
+  [PLAYER_JETPACK_ANIM_LEFT_RUN] = {
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_RUN_LEFT_1, 
+      .stop = SPRITE_CLIMBER_JETPACK_RUN_LEFT_4,
+      .speed = 4
+    },
+    .facing = FACING_LEFT
+  },
+  [PLAYER_JETPACK_ANIM_RIGHT_STAND] = {
+
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_STAND_RIGHT, 
+      .stop = SPRITE_CLIMBER_JETPACK_STAND_RIGHT,
+      .speed = 1
+    },
+    .facing = FACING_RIGHT
+  },
+  [PLAYER_JETPACK_ANIM_RIGHT_RUN] = {
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_RUN_RIGHT_1,
+      .stop = SPRITE_CLIMBER_JETPACK_RUN_RIGHT_4,
+      .speed = 4 
+    },
+    .facing = FACING_RIGHT
+  },
+
+
+  [PLAYER_JETPACK_ANIM_RIGHT_THRUST] = {
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_THRUST_RIGHT_1,
+      .stop = SPRITE_CLIMBER_JETPACK_THRUST_RIGHT_2,
+      .speed = 1
+    },
+    .facing = FACING_RIGHT
+  },
+  [PLAYER_JETPACK_ANIM_LEFT_THRUST] = {
+    .animation = {
+      .start = SPRITE_CLIMBER_JETPACK_THRUST_LEFT_1,
+      .stop = SPRITE_CLIMBER_JETPACK_THRUST_LEFT_2,
+      .speed = 1
+    },
+    .facing = FACING_LEFT
   }
 };
 
@@ -155,8 +272,10 @@ player_setRecord(player_record_state_t state)
   player_record.frame = 0;
   player_record.state = state;
   player_record.index = 0;
-  player_record.lastJoystickPos = 0xffffffff;
+  player_record.lastJoystickPos = 0xff;
+  player_record.lastJoystickButton = 0xff;
   player_record.joystickPos = 0;
+  player_record.joystickButton = 0;
 }
 #endif
 
@@ -164,6 +283,14 @@ player_setRecord(player_record_state_t state)
 static void 
 player_setAnim(int16_t anim)
 {
+  if (player.jetpackFuel > 0 && anim < PLAYER_JETPACK_ANIM_LEFT_JUMP) {
+    anim += PLAYER_JETPACK_ANIM_LEFT_JUMP - PLAYER_ANIM_LEFT_JUMP;
+  }
+
+  if (player.state == PLAYER_STATE_JETPACK_THRUST) {
+    anim = player_animations[anim].facing == FACING_LEFT ? PLAYER_JETPACK_ANIM_LEFT_THRUST :PLAYER_JETPACK_ANIM_RIGHT_THRUST;
+  }
+
   if (player.animId != anim) {
     player.animId = anim;
     player.anim = &player_animations[player.animId];
@@ -216,7 +343,7 @@ player_init(menu_command_t command)
   player.sprite.image = &sprite_imageAtlas[player.sprite.imageIndex];
   player.animId = -1;
 
-  player_setAnim(ANIM_LEFT_STAND);
+  player_setAnim(PLAYER_ANIM_LEFT_STAND);
 
   player.saves[0].blit[0].size = 0;
   player.saves[0].blit[1].size = 0;
@@ -255,25 +382,63 @@ player_pointCollision(int16_t pointIndex, int16_t x, int16_t y)
 static int
 player_tileCollision(int16_t x, int16_t y)
 {
-  if (player.state == PLAYER_STATE_JETPACK_THRUST) {
+  switch (player.state) {
+  case PLAYER_STATE_JETPACK_THRUST:
     return 0;
-  }
-  player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
-  player_pointCollision(1, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
-  player_pointCollision(2, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  player_pointCollision(3, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
-  player_pointCollision(4, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
-  player_pointCollision(5, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
-
-  for (int16_t i = 0; i < 6; i++) {
-    if (TILE_COLLISION(player_collisionStatus[i].tile)) {
-      return 1;
+    break;
+  case PLAYER_STATE_JETPACK_FALL:
+    player_pointCollision(2, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+    player_pointCollision(3, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));;
+    return TILE_COLLISION(player_collisionStatus[2].tile) || 
+      TILE_COLLISION(player_collisionStatus[2].tile);
+    break;
+  default:
+    player_pointCollision(0, x+PLAYER_FUZZY_WIDTH, (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
+    player_pointCollision(1, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), (PLAYER_FUZZY_TOP+PLAYER_OFFSET_Y)+y);
+    player_pointCollision(2, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+    player_pointCollision(3, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+(y+PLAYER_HEIGHT-PLAYER_FUZZY_BOTTOM));
+    player_pointCollision(4, x+PLAYER_WIDTH-(PLAYER_FUZZY_WIDTH), PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+    player_pointCollision(5, x+PLAYER_FUZZY_WIDTH, PLAYER_OFFSET_Y+y+(PLAYER_HEIGHT/2)-PLAYER_FUZZY_BOTTOM);
+    
+    for (int16_t i = 0; i < 6; i++) {
+      if (TILE_COLLISION(player_collisionStatus[i].tile)) {
+	return 1;
+      }
     }
   }
-  
+
   return 0;
 }
 
+static void
+player_processRecording(void)
+{
+#ifdef PLAYER_RECORDING
+  if (player_record.state == PLAYER_RECORD_RECORD && (player_record.lastJoystickPos != hw_joystickPos || player_record.lastJoystickButton != hw_joystickButton)) {
+    if (player_record.index < PLAYER_MAX_RECORD) {
+      player_record.buffer[player_record.index].joystickPos = hw_joystickPos;
+      player_record.buffer[player_record.index].joystickButton = hw_joystickButton;
+      player_record.buffer[player_record.index].frame = player_record.frame;
+      player_record.lastJoystickPos = hw_joystickPos;
+      player_record.lastJoystickButton = hw_joystickButton;
+      player_record.index++;
+    }
+  } else if (player_record.state == PLAYER_RECORD_PLAYBACK) {
+    if (player_record.index < PLAYER_MAX_RECORD) {
+      if (player_record.buffer[player_record.index].frame == player_record.frame) {
+	player_record.joystickPos = player_record.buffer[player_record.index].joystickPos;
+	player_record.joystickButton = player_record.buffer[player_record.index].joystickButton;
+	player_record.index++;
+      }
+      hw_joystickPos = player_record.joystickPos;
+      hw_joystickButton = player_record.joystickButton;
+    }
+
+  }
+
+  player_record.frame++;
+#endif
+}
 
 static void
 player_processJoystick(void)
@@ -281,26 +446,6 @@ player_processJoystick(void)
 #define NOT_UP_THRESHOLD 1
   static uint16_t notUpCount = NOT_UP_THRESHOLD;
 
-#ifdef PLAYER_RECORDING
-  if (player_record.state == PLAYER_RECORD_RECORD && player_record.lastJoystickPos != hw_joystickPos) {
-    if (player_record.index < PLAYER_MAX_RECORD) {
-      player_record.buffer[player_record.index].joystickPos = hw_joystickPos;
-      player_record.buffer[player_record.index].frame = player_record.frame;
-      player_record.lastJoystickPos = hw_joystickPos;
-      player_record.index++;
-    }
-  } else if (player_record.state == PLAYER_RECORD_PLAYBACK) {
-    if (player_record.index < PLAYER_MAX_RECORD) {
-      if (player_record.buffer[player_record.index].frame == player_record.frame) {
-	player_record.joystickPos = player_record.buffer[player_record.index].joystickPos;
-	player_record.index++;
-      }
-      hw_joystickPos = player_record.joystickPos;
-    }
-  }
-
-  player_record.frame++;
-#endif
 
   if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN && player.state != PLAYER_STATE_JETPACK_THRUST) {
     player.state = PLAYER_STATE_JETPACK_THRUST;
@@ -337,7 +482,7 @@ player_processJoystick(void)
     break;
   case JOYSTICK_POS_DOWN:
 #ifdef DEBUG_SCROLL
-    if (game_scrollCount == 0) {
+    if (game_scroll == 0) {
       //game_setBackgroundScroll(-8, game_cameraY+(8));
       game_setBackgroundScroll(-1, game_cameraY+1);
     }
@@ -351,7 +496,7 @@ player_processJoystick(void)
     } 
     notUpCount = 0;
 #else
-    if (game_scrollCount == 0) {
+    if (game_scroll == 0) {
       //      game_setBackgroundScroll(4, game_cameraY-(1));
       //game_setBackgroundScroll(1, game_cameraY-1);
       game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((6*16)));
@@ -467,7 +612,6 @@ player_moveY(void)
     player.velocity.y = newY - player.sprite.y;
   }
 
-
 #ifndef PLAYER_BLIT_SPRITE_OVERDRAW
   if (newY+PLAYER_HEIGHT - game_cameraY < SCREEN_HEIGHT+SPRITE_MAX_HSPRITE_OVERDRAW) {
     player.sprite.y = newY;
@@ -491,9 +635,9 @@ player_respawn(void)
   player.velocity.x = 0;
   player.velocity.y = PHYSICS_VELOCITY_G;
   if (player.anim->facing == FACING_LEFT) {
-    player_setAnim(ANIM_LEFT_STAND);
+    player_setAnim(PLAYER_ANIM_LEFT_STAND);
   } else {
-    player_setAnim(ANIM_RIGHT_STAND);
+    player_setAnim(PLAYER_ANIM_RIGHT_STAND);
   }      
   player.flashCounter = 50;
 }
@@ -595,38 +739,38 @@ player_updateAlive(void)
     }
     
     if (player.velocity.x < 0) {
-      player_setAnim(ANIM_LEFT_RUN);
+      player_setAnim(PLAYER_ANIM_LEFT_RUN);
     } else if (player.velocity.x > 0) {
-      player_setAnim(ANIM_RIGHT_RUN);
+      player_setAnim(PLAYER_ANIM_RIGHT_RUN);
     } else {
       if (player.anim->facing == FACING_LEFT) {
-	player_setAnim(ANIM_LEFT_STAND);
+	player_setAnim(PLAYER_ANIM_LEFT_STAND);
       } else {
-	player_setAnim(ANIM_RIGHT_STAND);
+	player_setAnim(PLAYER_ANIM_RIGHT_STAND);
       }
     }
   } else if (player.velocity.y > 0) {
     if (player.velocity.x < 0) {
-	player_setAnim(ANIM_LEFT_JUMP);
+	player_setAnim(PLAYER_ANIM_LEFT_JUMP);
     } else if (player.velocity.x > 0) {
-    	player_setAnim(ANIM_RIGHT_JUMP);
+    	player_setAnim(PLAYER_ANIM_RIGHT_JUMP);
     } else {  
       if (player.anim->facing == FACING_LEFT) {
-	player_setAnim(ANIM_LEFT_JUMP);
+	player_setAnim(PLAYER_ANIM_LEFT_JUMP);
       } else {
-	player_setAnim(ANIM_RIGHT_JUMP);
+	player_setAnim(PLAYER_ANIM_RIGHT_JUMP);
       }
     }
   } else if (player.velocity.y < 0) {
     if (player.velocity.x < 0) {
-	player_setAnim(ANIM_LEFT_FALL);
+	player_setAnim(PLAYER_ANIM_LEFT_FALL);
     } else if (player.velocity.x > 0) {
-    	player_setAnim(ANIM_RIGHT_FALL);
+    	player_setAnim(PLAYER_ANIM_RIGHT_FALL);
     } else {  
       if (player.anim->facing == FACING_LEFT) {
-	player_setAnim(ANIM_LEFT_FALL);
+	player_setAnim(PLAYER_ANIM_LEFT_FALL);
       } else {
-	player_setAnim(ANIM_RIGHT_FALL);
+	player_setAnim(PLAYER_ANIM_RIGHT_FALL);
       }
     }
   }
@@ -652,32 +796,33 @@ player_updateAlive(void)
 #ifdef DEBUG_SCROLL
   if (0) {
 #endif
-  if (1 && player.state == PLAYER_STATE_JETPACK_THRUST) {
-    if (game_cameraY > 0 && game_scrollCount == 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-      game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
-    } else if (game_scrollCount == 0 && ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-      //game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
-      //      game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
-    }
-  } else {
-    if (player.velocity.y == 0 && collision) {
-      if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND &&  (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-	// scroll when landing on platform
+    switch (player.state) {
+    case PLAYER_STATE_JETPACK_THRUST:
+      if (game_cameraY > 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
 	game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
-      } else if (((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-	// not sure what this was for ?
-	//game_setBackgroundScroll(-SCROLL_PIXELS*2,  game_cameraY + (6*16));
+      } else {
+	game_scroll = 0;
       }
-    } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-      if (player.state == PLAYER_STATE_JETPACK_FALL) {
+      break;
+    case PLAYER_STATE_JETPACK_FALL:
+      if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
 	game_setBackgroundScroll(-SCROLL_PIXELS, game_cameraY + ((2*16)));
       } else {
-	// scroll when jumping off      
-	game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));
+	game_scroll = 0;
       }
-
+      break;
+    default:
+      if (player.velocity.y == 0 && collision) {
+	if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND &&  (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
+	  // scroll when landing on platform
+	  game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
+	} 
+      } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
+	// scroll when jumping off      
+	game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));       
+      }
+      break;
     }
-  }
 #ifdef DEBUG_SCROLL
   }
 #endif
@@ -710,9 +855,9 @@ player_updateFreeFall(void)
     player.velocity.y = PHYSICS_VELOCITY_KILL;
     player.freeFall = 0;
     if (player.anim->facing == FACING_LEFT) {
-      player_setAnim(ANIM_LEFT_FALL);
+      player_setAnim(PLAYER_ANIM_LEFT_FALL);
     } else {
-      player_setAnim(ANIM_RIGHT_FALL);
+      player_setAnim(PLAYER_ANIM_RIGHT_FALL);
     }
     player.velocity.x = 0;
   } 
@@ -765,8 +910,9 @@ player_update(void)
   if (player.state == PLAYER_STATE_FREEFALL) {
     player_updateFreeFall();
   } else {
+    player_processRecording();
     player_updateAlive();
-    player_processJoystick();
+    player_processJoystick(); // todo work out why this is after updateAlive()
   }
 
 #ifdef PLAYER_COLLISION_BOX

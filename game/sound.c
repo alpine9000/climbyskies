@@ -144,7 +144,7 @@ sound_playJetpack(void)
   hw_waitScanLines(4);    
 
   aud->ac_ptr = &sound_jetpack;
-  aud->ac_per = 221;
+  aud->ac_per = 321;
   aud->ac_vol = 64;
   aud->ac_len = 9975/2;
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;

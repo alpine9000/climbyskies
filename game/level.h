@@ -26,10 +26,10 @@
 #define LEVEL_NUM_LEVELS 3
 
 typedef struct {
-  uint8_t spriteBitplanes[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
-  uint8_t spriteMask[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
   uint16_t tileAddresses[202][16];
   uint16_t item_spriteIds[202][16];
+  uint8_t spriteBitplanes[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
+  uint8_t spriteMask[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*SPRITE_MAP_HEIGHT];
   uint16_t fadeIn[PALETTE_FADE_IN_SIZE];
   uint16_t clouds;
   uint16_t moduleIndex;

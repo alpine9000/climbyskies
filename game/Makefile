@@ -154,7 +154,23 @@ HSPRITE_HEADERS=  out/sprite_playerLeftRun0_0-asprite.h out/sprite_playerLeftRun
 	          out/sprite_playerLeftJump0_0-asprite.h out/sprite_playerLeftJump1_0-asprite.h \
 		  out/sprite_playerRightJump0_0-asprite.h out/sprite_playerRightJump1_0-asprite.h \
 	          out/sprite_playerLeftStand0_0-asprite.h out/sprite_playerLeftStand1_0-asprite.h \
-		  out/sprite_playerRightStand0_0-asprite.h out/sprite_playerRightStand1_0-asprite.h 
+		  out/sprite_playerRightStand0_0-asprite.h out/sprite_playerRightStand1_0-asprite.h \
+		  out/sprite_playerJetpackLeftRun0_0-asprite.h out/sprite_playerJetpackLeftRun1_0-asprite.h \
+                  out/sprite_playerJetpackLeftRun0_1-asprite.h out/sprite_playerJetpackLeftRun1_1-asprite.h \
+                  out/sprite_playerJetpackLeftRun0_2-asprite.h out/sprite_playerJetpackLeftRun1_2-asprite.h \
+                  out/sprite_playerJetpackLeftRun0_3-asprite.h out/sprite_playerJetpackLeftRun1_3-asprite.h \
+		  out/sprite_playerJetpackRightRun0_0-asprite.h out/sprite_playerJetpackRightRun1_0-asprite.h \
+	          out/sprite_playerJetpackRightRun0_1-asprite.h out/sprite_playerJetpackRightRun1_1-asprite.h \
+                  out/sprite_playerJetpackRightRun0_2-asprite.h out/sprite_playerJetpackRightRun1_2-asprite.h \
+                  out/sprite_playerJetpackRightRun0_3-asprite.h out/sprite_playerJetpackRightRun1_3-asprite.h \
+	          out/sprite_playerJetpackLeftJump0_0-asprite.h out/sprite_playerJetpackLeftJump1_0-asprite.h \
+		  out/sprite_playerJetpackRightJump0_0-asprite.h out/sprite_playerJetpackRightJump1_0-asprite.h \
+	          out/sprite_playerJetpackLeftStand0_0-asprite.h out/sprite_playerJetpackLeftStand1_0-asprite.h \
+		  out/sprite_playerJetpackRightStand0_0-asprite.h out/sprite_playerJetpackRightStand1_0-asprite.h\
+	          out/sprite_playerJetpackLeftThrust0_0-asprite.h out/sprite_playerJetpackLeftThrust1_0-asprite.h \
+		  out/sprite_playerJetpackRightThrust0_0-asprite.h out/sprite_playerJetpackRightThrust1_0-asprite.h \
+	          out/sprite_playerJetpackLeftThrust0_1-asprite.h out/sprite_playerJetpackLeftThrust1_1-asprite.h \
+		  out/sprite_playerJetpackRightThrust0_1-asprite.h out/sprite_playerJetpackRightThrust1_1-asprite.h \
 
 out/adf/sprite.o: $(HSPRITE_HEADERS)
 out/workbench/sprite.o: $(HSPRITE_HEADERS)
@@ -236,6 +252,85 @@ out/sprite_playerLeftStand0_%.png: assets/sprite_1.png out
 .SECONDARY:
 out/sprite_playerLeftStand1_%.png: assets/sprite_1.png out
 	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+out/sprite_playerRightJump0_%.png: assets/sprite_1.png out
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+.SECONDARY:
+out/sprite_playerRightJump1_%.png: assets/sprite_1.png out
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+.SECONDARY:
+out/sprite_playerLeftJump0_%.png: assets/sprite_1.png out
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+.SECONDARY:
+out/sprite_playerLeftJump1_%.png: assets/sprite_1.png out
+	../tools/croppa/out/croppa --input=assets/sprite_1.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+
+
+.SECONDARY:
+out/sprite_playerJetpackLeftRun0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
+.SECONDARY:
+out/sprite_playerJetpackLeftRun1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
+.SECONDARY:
+out/sprite_playerJetpackRightRun0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
+.SECONDARY:
+out/sprite_playerJetpackRightRun1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
+.SECONDARY:
+out/sprite_playerJetpackRightJump0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+.SECONDARY:
+out/sprite_playerJetpackRightJump1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+.SECONDARY:
+out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+.SECONDARY:
+out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+
+.SECONDARY:
+out/sprite_playerJetpackRightStand0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
+.SECONDARY:
+out/sprite_playerJetpackRightStand1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
+.SECONDARY:
+out/sprite_playerJetpackLeftStand0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
+.SECONDARY:
+out/sprite_playerJetpackLeftStand1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+.SECONDARY:
+out/sprite_playerJetpackRightJump0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+.SECONDARY:
+out/sprite_playerJetpackRightJump1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+.SECONDARY:
+out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+.SECONDARY:
+out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+
+
+.SECONDARY:
+out/sprite_playerJetpackRightThrust0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=123
+
+.SECONDARY:
+out/sprite_playerJetpackRightThrust1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=123
+.SECONDARY:
+out/sprite_playerJetpackLeftThrust0_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=75
+.SECONDARY:
+out/sprite_playerJetpackLeftThrust1_%.png: assets/sprite_3.png out
+	../tools/croppa/out/croppa --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=75
+
+
 
 
 
