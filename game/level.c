@@ -45,9 +45,12 @@ level_load(uint16_t index)
     return;
   }
 
+#ifdef DEBUG
   if (index >= LEVEL_NUM_LEVELS) {
-    game_paused = 1;
+    message_screenOn("Invalid level number");
+    for(;;);
   }
+#endif
 
 
   message_screenOn("Loading...");

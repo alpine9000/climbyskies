@@ -10,7 +10,6 @@
 #define JOYSTICK_POS_DOWNLEFT  6
 #define JOYSTICK_POS_DOWNRIGHT 4
 
-
 #define PLAYER_MAX_BLIT_WIDTH       48
 #define PLAYER_FUZZY_TOP            3
 #define PLAYER_FUZZY_BOTTOM         0
@@ -26,7 +25,6 @@
 
 
 typedef enum {
-
   PLAYER_ANIM_LEFT_JUMP,
   PLAYER_ANIM_LEFT_STAND,
   PLAYER_ANIM_LEFT_RUN,
@@ -103,7 +101,6 @@ sprite_animation_t player_animations[] = {
     },
     .facing = FACING_LEFT
   },
-
   [PLAYER_ANIM_LEFT_STAND] = { 
     .animation = {
       .start = SPRITE_CLIMBER_STAND_LEFT, 
@@ -121,7 +118,6 @@ sprite_animation_t player_animations[] = {
     .facing = FACING_LEFT
   },
   [PLAYER_ANIM_RIGHT_STAND] = {
-
     .animation = {
       .start = SPRITE_CLIMBER_STAND_RIGHT, 
       .stop = SPRITE_CLIMBER_STAND_RIGHT,
@@ -237,7 +233,6 @@ sprite_animation_t player_animations[] = {
 #endif
 };
 
-
 typedef struct {
   int16_t x;
   int16_t y;
@@ -252,7 +247,7 @@ typedef struct {
 } player_sprite_save_t;
 static player_sprite_save_t player_saveBuffers[2];
 #endif
-//static 
+
 player_t player;
 
 
@@ -399,7 +394,6 @@ player_processJoystick(void)
 {
 #define NOT_UP_THRESHOLD 1
   static uint16_t notUpCount = NOT_UP_THRESHOLD;
-
 
 #ifdef GAME_JETPACK
   if (player.jetpackFuel > 0 && JOYSTICK_BUTTON_DOWN && player.state != PLAYER_STATE_JETPACK_THRUST) {
@@ -591,7 +585,6 @@ player_respawn(void)
 static int
 player_updateAlive(void)
 {
-  
 #ifdef GAME_JETPACK
   if (player.state == PLAYER_STATE_JETPACK_THRUST && (!JOYSTICK_BUTTON_DOWN || player.jetpackFuel == 0)) {
     player.state = PLAYER_STATE_JETPACK_FALL_IN_COLLISION;
@@ -766,7 +759,6 @@ player_updateAlive(void)
     case PLAYER_STATE_JETPACK_THRUST:
     case PLAYER_STATE_JETPACK_FALL:
     case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
-
       if (game_cameraY > 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
 	game_setBackgroundScroll(SCROLL_PIXELS, game_cameraY - ((4*16)-SCROLL_PIXELS));
       } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {

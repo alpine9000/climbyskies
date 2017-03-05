@@ -25,6 +25,7 @@ record_setState(record_state_t state)
   level.record->joystickButton = 0;
 }
 
+
 void
 record_process(void)
 {
@@ -62,4 +63,3 @@ record_process(void)
 }
 
 #endif
-

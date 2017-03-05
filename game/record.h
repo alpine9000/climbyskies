@@ -1,7 +1,6 @@
 #ifndef __RECORD_H
 #define __RECORD_H
 
-
 #ifdef GAME_RECORDING
 
 #define RECORD_MAX_RECORD 1024

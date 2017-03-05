@@ -103,7 +103,6 @@ extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
 extern frame_buffer_t game_scoreBoardFrameBuffer;
 extern uint32_t game_score;
-extern uint16_t game_paused;
 extern uint16_t game_keyPressed;
 
 #include "registers.h"

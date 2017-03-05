@@ -8,7 +8,22 @@
 #endif
 
 #define GAME_LEVEL_BONUS_TRANSFER_RATE 32
+#ifdef DEBUG
 #define GAME_RASTERAVERAGE_LENGTH 16
+#endif
+
+static void
+game_switchFrameBuffers(void);
+static void
+game_newGame(menu_command_t command);
+static void
+game_loadLevel(menu_command_t command);
+static void
+game_render(void);
+static void
+game_scrollBackground(void);
+static void
+game_setCamera(int16_t offset);
 
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
@@ -25,51 +40,37 @@ uint32_t game_lives;
 uint16_t game_level;
 uint16_t game_keyPressed;
 
-static void
-game_switchFrameBuffers(void);
-static void
-game_newGame(menu_command_t command);
-static void
-game_loadLevel(menu_command_t command);
-static void
-game_render(void);
-static 
-void
-game_scrollBackground(void);
-static void
-game_setCamera(int16_t offset);
-
 static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
 static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
 
-uint16_t game_paused;
+static uint16_t game_paused;
 static uint16_t game_singleStep;
+static int16_t game_targetCameraY;
+static int16_t game_shake;
+static uint32_t game_lastScore;
+static uint32_t game_lastLevelScore;
+static int16_t game_levelComplete;
+
+#ifdef DEBUG
 static uint32_t game_lastVerticalBlankCount;
 static int16_t game_turtle;
-#ifdef DEBUG
 static uint16_t game_rasterLines[GAME_RASTERAVERAGE_LENGTH];
 static uint16_t game_rasterLinesIndex = 0;
 static uint16_t game_maxRasterLine = 0;
 static uint16_t game_average = 0;
-#endif
-static int16_t game_targetCameraY;
-static int16_t game_shake;
-static int16_t game_scoreBoardMode;
-static uint32_t game_lastScore;
-static uint32_t game_lastLevelScore;
+static int16_t game_missedFrameCount;
 static uint16_t game_lastAverage;
 static uint16_t game_lastMaxRasterLine;
 static int16_t game_lastEnemyCount;
 static int16_t game_lastItemCount;
-static int16_t game_levelComplete;
-static int16_t game_missedFrameCount;
 static int16_t game_lastMissedFrameCount;
+static int16_t game_scoreBoardMode;
+#endif
 
 static void (*game_tileRender)(uint16_t hscroll);
 
-static int16_t tileY;
 
  __section(data_c)  copper_t copper  = {
 #ifdef PLAYER_HARDWARE_SPRITE
@@ -172,8 +173,9 @@ game_init(menu_command_t command)
   game_newGame(command);
 }
 
+
 static void
-debug_showScore(uint16_t refresh)
+game_renderScore(uint16_t refresh)
 {
   if (game_levelComplete) {
     if (game_levelScore >= GAME_LEVEL_BONUS_TRANSFER_RATE<<2) {
@@ -187,7 +189,6 @@ debug_showScore(uint16_t refresh)
     game_levelScore--;
   }
 
-
 #ifdef DEBUG_SCROLL
   if (game_scoreBoardMode == 10) {
     text_drawScoreBoard(text_intToHex((uint32_t)tile_tilePtr, 8), 0);
@@ -197,7 +198,9 @@ debug_showScore(uint16_t refresh)
   }
 #endif
 
+#ifdef DEBUG
   if (game_scoreBoardMode == 0) {
+#endif
     if (game_levelScore != game_lastLevelScore) {
       static char *buffer = "xxxxxxxxxx";
       char* score = text_intToAscii(game_levelScore>>2, 4);
@@ -223,11 +226,13 @@ debug_showScore(uint16_t refresh)
 	}
 	x+= 8;
       }
-      //   text_drawScoreBoard(text_intToAscii(game_score, 6), SCREEN_WIDTH-(6*8));
       game_lastScore = game_score;
     }
+#ifdef DEBUG
   }
+#endif
 }
+
 
 static void
 game_refreshScoreboard(void)
@@ -235,7 +240,9 @@ game_refreshScoreboard(void)
   game_lastScore = 1;  
   game_lastLevelScore = 0;
 
+#ifdef DEBUG
   if (game_scoreBoardMode == 0) {
+#endif
 
 #ifdef GAME_RECORDING    
     switch (record_getState()) {
@@ -254,7 +261,7 @@ game_refreshScoreboard(void)
 #endif
 
     text_drawScoreBoard("BONUS 0" , 8);  
-    debug_showScore(1);
+    game_renderScore(1);
     uint32_t i, x;
     for (i = 0, x = (SCREEN_WIDTH/2)-17; i < game_lives; i++, x+=10) {
       gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 176, x, 5, 16, 8);
@@ -263,7 +270,9 @@ game_refreshScoreboard(void)
     for (; i < 3; i++, x+= 10) {
       gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 5, 16, 8);
     }
+#ifdef DEBUG
   }
+#endif
 }
 
 
@@ -280,8 +289,8 @@ game_loseLife(void)
 
 
 #ifdef GAME_RECORDING
-static 
-void
+#ifdef DEBUG
+static void
 game_refreshDebugScoreboard(void)
 {
   gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
@@ -294,6 +303,8 @@ game_refreshDebugScoreboard(void)
   }
 }
 #endif
+#endif
+
 
 static void
 game_newGame(menu_command_t command)
@@ -310,46 +321,44 @@ game_newGame(menu_command_t command)
   game_loadLevel(command);
 }
 
+
 static void
 game_loadLevel(menu_command_t command)
 {  
-
   custom->bltafwm = 0xffff;
-  game_turtle = 0;
-#ifdef DEBUG
-  game_average = 0;
-  game_maxRasterLine = 0;
-  game_rasterLinesIndex = 0;
-#endif
+
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   hw_verticalBlankCount = 0;
-  game_lastVerticalBlankCount = 0;
   game_singleStep = 0;
   game_paused = 0;
-#ifdef DEBUG_SCROLL
-  game_collisions = 0;
-#else
-  game_collisions = 1;
-#endif
   game_screenScrollY = 0;
   game_shake = 0;
   game_setBackgroundScroll(SCROLL_PIXELS, WORLD_HEIGHT-SCREEN_HEIGHT);
   game_levelScore = 9999<<2;
-#ifdef DEBUG_SCROLL
-  game_scoreBoardMode = 10;
-#else
-  game_scoreBoardMode = 0;
-#endif
   game_levelComplete = 0;
   game_lastScore = 1;
   game_lastLevelScore = 0;
+
+#ifdef DEBUG
+  game_turtle = 0;
+  game_average = 0;
+  game_maxRasterLine = 0;
+  game_rasterLinesIndex = 0;
+  game_lastVerticalBlankCount = 0;
+  game_lastMissedFrameCount = -1;
+  game_missedFrameCount = 0;
   game_lastAverage = -1;
   game_lastMaxRasterLine = -1;
   game_lastEnemyCount = -1;
   game_lastItemCount = -1;
-  game_lastMissedFrameCount = -1;
-  game_missedFrameCount = 0;
-  tileY = 0;
+#ifdef DEBUG_SCROLL
+  game_scoreBoardMode = 10;
+  game_collisions = 0;
+#else
+  game_scoreBoardMode = 0;
+  game_collisions = 1;
+#endif
+#endif
 
   game_switchFrameBuffers();
 
@@ -365,11 +374,8 @@ game_loadLevel(menu_command_t command)
   player_init(command);
 
   cloud_init();
-  
-  //gfx_fillRect(game_scoreBoardFrameBuffer, 0, 0, FRAME_BUFFER_WIDTH, SCOREBOARD_HEIGHT, 0);
 
   game_refreshScoreboard();
-  //  text_drawScoreBoard(text_intToAscii(version, 4), SCREEN_WIDTH-(4*8));  
 
   hw_waitBlitter();
 
@@ -380,8 +386,10 @@ game_loadLevel(menu_command_t command)
   game_render();
 
   hw_waitVerticalBlank();
+
   palette_fadeIn(level.fadeIn);
 }
+
 
 static inline void
 game_switchFrameBuffers(void)
@@ -417,11 +425,13 @@ game_switchFrameBuffers(void)
   game_offScreenBuffer = save;
 }
 
+
 void 
 game_shakeScreen(void)
 {
   game_shake = 5;
 }
+
 
 static void
 game_setCamera(int16_t offset)
@@ -435,17 +445,9 @@ game_setCamera(int16_t offset)
     game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
     game_targetCameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
     game_scroll = cameraSave-game_cameraY;
-  }
- 
-#if 1
-  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
-#else
-  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)));
+  } 
 
-  while (game_screenScrollY >= FRAME_BUFFER_HEIGHT) {
-    game_screenScrollY -= FRAME_BUFFER_HEIGHT;
-  }
-#endif
+  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
 }
 
 
@@ -455,6 +457,7 @@ game_scrollBackground(void)
   int16_t screenScrollSave = game_screenScrollY;
   game_setCamera(game_scroll);
   int16_t count = abs(game_scroll);
+  int16_t tileY;
 
   gfx_setupRenderTileOffScreen();
 
@@ -466,7 +469,6 @@ game_scrollBackground(void)
       sy--;
       tileY = (((sy+1) >> 4) << 4);
     }
-
     (*game_tileRender)(tileY);
   }
 }
@@ -511,8 +513,6 @@ debug_showRasterLine(void)
       frame = 0;
     }
   }
-
-
   
   int16_t line = hw_getRasterLine() - RASTER_Y_START;  
 
@@ -536,8 +536,8 @@ debug_showRasterLine(void)
   
   return;  
 }
-
 #endif
+
 
 static void
 game_render(void)
@@ -572,9 +572,9 @@ game_render(void)
 
 
 void
-game_setBackgroundScroll(int16_t s, int16_t targetCameraY)
+game_setBackgroundScroll(int16_t scrollSpeed, int16_t targetCameraY)
 {
-  game_scroll = s;
+  game_scroll = scrollSpeed;
   game_targetCameraY = targetCameraY;
 
   if (game_targetCameraY < 0) {
@@ -605,6 +605,7 @@ game_setLevelComplete(void)
   }
 }
 
+
 static void
 game_playLevel(uint16_t levelIndex)
 {
@@ -620,6 +621,7 @@ game_playLevel(uint16_t levelIndex)
 #endif
 }
 
+
 void
 game_startPlayback(void)
 {
@@ -627,6 +629,7 @@ game_startPlayback(void)
   game_loadLevel(MENU_COMMAND_REPLAY);
   game_refreshScoreboard();
 }
+
 
 void
 game_startRecord(void)
@@ -638,6 +641,7 @@ game_startRecord(void)
   game_refreshScoreboard();
 }
 
+
 int16_t
 game_processKeyboard()
 {
@@ -647,6 +651,7 @@ game_processKeyboard()
     message_box("GAME OVER");
     hw_waitForJoystick();
     break;
+#ifdef DEBUG
   case 'D':
     game_scoreBoardMode = !game_scoreBoardMode;
     if (game_scoreBoardMode == 0) {
@@ -657,6 +662,7 @@ game_processKeyboard()
     }
     game_collisions = !game_collisions;
     break;
+#endif
   case 'C':
     game_setLevelComplete();
     break;
@@ -711,7 +717,6 @@ game_processKeyboard()
 __EXTERNAL void
 game_loop()
 {
-  static int16_t operationCount = -1;
   int16_t joystickDown = 1;
 
   game_ctor();
@@ -776,6 +781,7 @@ game_loop()
       }
     } 
 
+#ifdef DEBUG
     if (game_turtle > 1) {
       custom->color[16] = 0xf00;
       game_turtle--;
@@ -783,22 +789,17 @@ game_loop()
       custom->color[16] = 0x09e;
       game_turtle--;
     }
+#endif
 
-    if (hw_getRasterLine() < 220) {
-      // if (operationCount == 10) {
-	
+    if (hw_getRasterLine() < 220 || game_levelComplete) {
 	SPEED_COLOR(0xfff);
-	debug_showScore(0);
+	game_renderScore(0);
 	SPEED_COLOR(0x000);
-	
-	//	operationCount = 0;
-	//      } 
       
 #ifdef DEBUG
       debug_showRasterLine();
 #endif
     }
-
     
     sound_schedule();
     hw_waitVerticalBlank();
@@ -813,15 +814,14 @@ game_loop()
     player_updateCopper();
 #endif
     
-    if (game_lastVerticalBlankCount == 0) {
-
-    } else if (hw_verticalBlankCount-game_lastVerticalBlankCount > 1) {
+#ifdef DEBUG
+    if (hw_verticalBlankCount-game_lastVerticalBlankCount > 1) {
       game_missedFrameCount++;
       game_turtle = 5;
     }
       
     game_lastVerticalBlankCount = hw_verticalBlankCount;
-
+#endif
 
     SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
@@ -832,11 +832,7 @@ game_loop()
 	game_scroll = 0;
       }
     }
-
-
-       
-
-
+     
     SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
     SPEED_COLOR(0xff0);
@@ -865,10 +861,7 @@ game_loop()
     }
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
-
-    operationCount++;
   }
-
 
 #if TRACKLOADER==0
  done:;

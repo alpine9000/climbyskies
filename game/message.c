@@ -1,9 +1,9 @@
 #include "game.h"
 
+#define MESSAGE_BOX_WIDTH 160
+
 extern frame_buffer_t message_frameBuffer;
 static uint16_t message_on = 0;
-
-#define MESSAGE_BOX_WIDTH 160
 
 #if TRACKLOADER==1
 typedef struct {
@@ -42,6 +42,7 @@ message_pokeCopperList(frame_buffer_t frameBuffer)
   }
 }
 #endif
+
 
 void
 message_screenOn(char* message)

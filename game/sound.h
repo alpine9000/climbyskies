@@ -27,9 +27,12 @@ sound_vbl(void);
 void
 sound_playSound(sound_t sound);
 #else
+#define sound_init()
 #define sound_vbl()
 #define sound_queueSound(x)
 #define sound_schedule()
+#define sound_playSound(x)
+#define sound_endLoop()
 #endif
 
 #endif

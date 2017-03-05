@@ -1,6 +1,5 @@
 #include "game.h"
 
-
 #define SOUND_LATCH_SCANLINES 5
 
 #if SFX==1
@@ -127,6 +126,7 @@ sound_playHeadSmash(void)
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
 
+
 static void 
 sound_playPickup(void)
 {
@@ -143,6 +143,7 @@ sound_playPickup(void)
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
 
+
 static void 
 sound_playFalling(void)
 {
@@ -154,6 +155,7 @@ sound_playFalling(void)
   aud->ac_len = 10506/2;
   custom->dmacon = DMAF_AUD3|DMAF_SETCLR;
 }
+
 
 #ifdef GAME_JETPACK
 static void 
@@ -169,6 +171,7 @@ sound_playJetpack(void)
 }
 #endif
 
+
 static void
 sound_resetSound(void)
 {
@@ -178,6 +181,7 @@ sound_resetSound(void)
   //    aud->ac_per = 1;
   aud->ac_ptr = &empty[0];
 }
+
 
 void
 sound_vbl(void)
@@ -217,6 +221,7 @@ sound_schedule(void)
   }
 }
 
+
 static void
 sound_doQueue(sound_t sound) 
 {
@@ -234,6 +239,7 @@ sound_doQueue(sound_t sound)
     }
   }
 }
+
 
 void
 sound_playSound(sound_t sound)
