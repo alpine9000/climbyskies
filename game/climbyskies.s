@@ -93,13 +93,6 @@ _menuBitplanes
 	incbin	"out/menu.bin"
 	cnop 0,512
 	
-	section  .data
-	
-	align 4
-	xdef _player_record
-_player_record:
-	incbin "recordings/default.raw"
-
 	section data_c
 	align 4
 	if SFX==1

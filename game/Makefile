@@ -10,7 +10,7 @@ USERSTACK_ADDRESS=7fffc
 BASE_ADDRESS=4000
 # note: this must be high enough not to conflict with MFMbufE
 BOOTBLOCK_ASM=alpine_bootblock.s
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c
 SRCS=hw_asm.s trackloader.s palette_asm.s  P6112-Play.s blitmtext.s blittext.s music_asm.s keyboard_asm.s
 
 MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
@@ -18,7 +18,8 @@ MODULE_HEADERS=$(addprefix out/, $(MODULES:.bin=.h))
 
 LEVEL_FILES=out/sprite_1.h out/background_1-map.c out/fade_in_1.h\
 	    out/sprite_2.h out/background_2-map.c out/fade_in_2.h\
-	    out/sprite_3.h out/background_3-map.c out/fade_in_3.h
+	    out/sprite_3.h out/background_3-map.c out/fade_in_3.h\
+	    out/default_recording.h
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby*.bin | awk '{print $$5}' | head -1)
 
@@ -193,6 +194,9 @@ out/sprite_%.h: assets/sprite_%.png palettes/palette_%.pal out
 	$(IMAGECON) --quantize --colors=32 --full-color-palette --input=out/sprite_$*-resized.png --output=out/sprite_$* --output-bitplanes --output-png --output-palette --output-palette-asm --use-palette=palettes/palette_$*.pal --output-mask --transparent-color=000,144,224
 	cat out/sprite_$*.bin | ../tools/external/bin2c/bin2c > out/sprite_$*.h
 	cat out/sprite_$*-mask.bin | ../tools/external/bin2c/bin2c > out/sprite_$*-mask.h
+
+out/%_recording.h: recordings/%.raw
+	cat recordings/$*.raw | ../tools/external/bin2c/bin2c > out/$*_recording.h
 
 out/%.h: assets/%.bin
 	cat assets/$*.bin | ../tools/external/bin2c/bin2c > out/$*.h

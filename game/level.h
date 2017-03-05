@@ -33,6 +33,8 @@ typedef struct {
   uint16_t fadeIn[PALETTE_FADE_IN_SIZE];
   uint16_t clouds;
   uint16_t moduleIndex;
+  uint8_t recordData[sizeof(record_t)];
+  record_t* record;
 } level_t DISK_SECTOR_ALIGN;
 
 extern level_t level;

@@ -1,0 +1,39 @@
+#ifndef __RECORD_H
+#define __RECORD_H
+
+
+#ifdef GAME_RECORDING
+
+#define RECORD_MAX_RECORD 1024
+
+typedef struct {
+  uint8_t joystickPos;
+  uint8_t joystickButton;
+  uint16_t frame;
+} record_item_t;
+
+typedef enum {
+  RECORD_IDLE,
+  RECORD_RECORD,
+  RECORD_PLAYBACK
+} record_state_t;
+
+typedef struct {
+  uint32_t size;
+  record_state_t state;
+  uint32_t index;
+  uint32_t lastJoystickPos;
+  uint32_t lastJoystickButton;
+  uint8_t joystickPos;
+  uint8_t joystickButton;
+  uint16_t frame;
+  record_item_t buffer[RECORD_MAX_RECORD];
+} record_t;
+
+void
+record_setState(record_state_t state);
+record_state_t
+record_getState(void);
+#endif
+
+#endif

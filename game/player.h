@@ -7,35 +7,6 @@
 #define PLAYER_HEIGHT               37
 #define PLAYER_BASE_PLATFORM_HEIGHT (TILE_HEIGHT*3)
 
-#ifdef PLAYER_RECORDING
-
-#define PLAYER_MAX_RECORD 1024
-
-typedef struct {
-  uint8_t joystickPos;
-  uint8_t joystickButton;
-  uint16_t frame;
-} player_record_item_t;
-
-typedef enum {
-  PLAYER_RECORD_IDLE,
-  PLAYER_RECORD_RECORD,
-  PLAYER_RECORD_PLAYBACK
-} player_record_state_t;
-
-typedef struct {
-  uint32_t size;
-  player_record_state_t state;
-  uint32_t index;
-  uint32_t lastJoystickPos;
-  uint32_t lastJoystickButton;
-  uint8_t joystickPos;
-  uint8_t joystickButton;
-  uint16_t frame;
-  player_record_item_t buffer[PLAYER_MAX_RECORD];
-} player_record_t;
-
-#endif
 
 typedef enum {
   PLAYER_STATE_DEFAULT,
@@ -92,11 +63,5 @@ player_hSpriteRender(void);
 void
 player_updateCopper(void);
 
-#ifdef PLAYER_RECORDING
-void
-player_setRecord(player_record_state_t state);
-player_record_state_t
-player_getRecord(void);
-#endif
 
 #endif

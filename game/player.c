@@ -255,30 +255,6 @@ static player_sprite_save_t player_saveBuffers[2];
 //static 
 player_t player;
 
-#ifdef PLAYER_RECORDING
-
-extern player_record_t player_record;
-
-player_record_state_t
-player_getRecord(void)
-{
-  return player_record.state;
-}
-
-
-void
-player_setRecord(player_record_state_t state)
-{
-  player_record.frame = 0;
-  player_record.state = state;
-  player_record.index = 0;
-  player_record.lastJoystickPos = 0xff;
-  player_record.lastJoystickButton = 0xff;
-  player_record.joystickPos = 0;
-  player_record.joystickButton = 0;
-}
-#endif
-
 
 static void 
 player_setAnim(int16_t anim)
@@ -309,18 +285,18 @@ player_setAnim(int16_t anim)
 void
 player_init(menu_command_t command)
 {
-#ifdef PLAYER_RECORDING
+#ifdef GAME_RECORDING
 
   switch (command) {
   case MENU_COMMAND_REPLAY:
-    player_setRecord(PLAYER_RECORD_PLAYBACK);
+    record_setState(RECORD_PLAYBACK);
     break;
   case MENU_COMMAND_RECORD:
-    player_setRecord(PLAYER_RECORD_RECORD);
+    record_setState(RECORD_RECORD);
     break;
   case MENU_COMMAND_PLAY:
   default:
-    player_setRecord(PLAYER_RECORD_IDLE);
+    record_setState(RECORD_IDLE);
     break;
   }
 #endif
@@ -420,30 +396,30 @@ player_tileCollision(int16_t x, int16_t y)
 static void
 player_processRecording(void)
 {
-#ifdef PLAYER_RECORDING
-  if (player_record.state == PLAYER_RECORD_RECORD && (player_record.lastJoystickPos != hw_joystickPos || player_record.lastJoystickButton != hw_joystickButton)) {
-    if (player_record.index < PLAYER_MAX_RECORD) {
-      player_record.buffer[player_record.index].joystickPos = hw_joystickPos;
-      player_record.buffer[player_record.index].joystickButton = hw_joystickButton;
-      player_record.buffer[player_record.index].frame = player_record.frame;
-      player_record.lastJoystickPos = hw_joystickPos;
-      player_record.lastJoystickButton = hw_joystickButton;
-      player_record.index++;
+#ifdef GAME_RECORDING
+  if (level.record->state == RECORD_RECORD && (level.record->lastJoystickPos != hw_joystickPos || level.record->lastJoystickButton != hw_joystickButton)) {
+    if (level.record->index < RECORD_MAX_RECORD) {
+      level.record->buffer[level.record->index].joystickPos = hw_joystickPos;
+      level.record->buffer[level.record->index].joystickButton = hw_joystickButton;
+      level.record->buffer[level.record->index].frame = level.record->frame;
+      level.record->lastJoystickPos = hw_joystickPos;
+      level.record->lastJoystickButton = hw_joystickButton;
+      level.record->index++;
     }
-  } else if (player_record.state == PLAYER_RECORD_PLAYBACK) {
-    if (player_record.index < PLAYER_MAX_RECORD) {
-      if (player_record.buffer[player_record.index].frame == player_record.frame) {
-	player_record.joystickPos = player_record.buffer[player_record.index].joystickPos;
-	player_record.joystickButton = player_record.buffer[player_record.index].joystickButton;
-	player_record.index++;
+  } else if (level.record->state == RECORD_PLAYBACK) {
+    if (level.record->index < RECORD_MAX_RECORD) {
+      if (level.record->buffer[level.record->index].frame == level.record->frame) {
+	level.record->joystickPos = level.record->buffer[level.record->index].joystickPos;
+	level.record->joystickButton = level.record->buffer[level.record->index].joystickButton;
+	level.record->index++;
       }
-      hw_joystickPos = player_record.joystickPos;
-      hw_joystickButton = player_record.joystickButton;
+      hw_joystickPos = level.record->joystickPos;
+      hw_joystickButton = level.record->joystickButton;
     }
 
   }
 
-  player_record.frame++;
+  level.record->frame++;
 #endif
 }
 

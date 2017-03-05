@@ -237,18 +237,18 @@ game_refreshScoreboard(void)
 
   if (game_scoreBoardMode == 0) {
 
-#ifdef PLAYER_RECORDING    
-    switch (player_getRecord()) {
-    case PLAYER_RECORD_IDLE:
+#ifdef GAME_RECORDING    
+    switch (record_getState()) {
+    case RECORD_IDLE:
       text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(14*8));  
       break;
-    case PLAYER_RECORD_RECORD:
+    case RECORD_RECORD:
       text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(14*8));        
       break;
-    case PLAYER_RECORD_PLAYBACK:
+    case RECORD_PLAYBACK:
 #endif
       text_drawScoreBoard("REPLAY  " , SCREEN_WIDTH-(14*8));        
-#ifdef PLAYER_RECORDING
+#ifdef GAME_RECORDING
       break;
     }
 #endif
@@ -611,13 +611,13 @@ game_playLevel(uint16_t levelIndex)
   }
   palette_black();
   game_loadLevel(MENU_COMMAND_PLAY);
-#ifdef PLAYER_RECORDING
-  player_setRecord(PLAYER_RECORD_IDLE);
+#ifdef GAME_RECORDING
+  record_setState(RECORD_IDLE);
   game_refreshScoreboard();
 #endif
 }
 
-static void
+void
 game_startPlayback(void)
 {
   palette_black();
@@ -625,20 +625,20 @@ game_startPlayback(void)
   game_refreshScoreboard();
 }
 
-static void
+void
 game_startRecord(void)
 {
   palette_black();
   game_loadLevel(MENU_COMMAND_REPLAY);
   game_refreshScoreboard();
-  player_setRecord(PLAYER_RECORD_RECORD);
+  record_setState(RECORD_RECORD);
   game_refreshScoreboard();
 }
 
 int16_t
 game_processKeyboard(void)
 {
-#ifdef PLAYER_RECORDING
+#ifdef GAME_RECORDING
   switch (keyboard_getKey() ) {
   case 'D':
     game_scoreBoardMode = !game_scoreBoardMode;
@@ -666,7 +666,7 @@ game_processKeyboard(void)
     game_startPlayback();
     break;
   case 'S':
-    player_setRecord(PLAYER_RECORD_IDLE);
+    record_setState(RECORD_IDLE);
     game_refreshScoreboard();
     break;
   case 'Z':

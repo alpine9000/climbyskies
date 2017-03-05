@@ -29,6 +29,9 @@ __LEVEL_DEFINITION(__LEVEL_NUMBER) =
     },
     .fadeIn = {
 #include __LEVEL_FADE_IN(__LEVEL_NUMBER)
+    },
+    .recordData = {
+#include "out/default_recording.h"
     }
   };
 

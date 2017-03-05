@@ -12,7 +12,7 @@
 //#define SHOW_SPEED                    1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
-#define PLAYER_RECORDING              1
+#define GAME_RECORDING                1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define PLAYER_BLIT_SPRITE_OVERDRAW   1
 //#define CLOUD_FULLCOLOR             1
@@ -114,6 +114,7 @@ extern uint16_t game_paused;
 #include "screen.h"
 #include "menu.h"
 #include "palette.h"
+#include "record.h"
 #include "level.h"
 #include "gfx.h"
 #include "mouse.h"
