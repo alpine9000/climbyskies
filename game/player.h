@@ -33,9 +33,6 @@ typedef struct {
   int16_t frameCounter;
   int16_t freeFall;
   player_state_t state;
-#ifdef PLAYER_BLIT_SPRITE_OVERDRAW
-  uint16_t hspriteCompatible;
-#endif
 #ifdef GAME_JETPACK
   uint16_t jetpackFuel;
   uint16_t jetpackFallVelocity;

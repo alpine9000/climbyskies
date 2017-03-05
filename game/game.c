@@ -73,6 +73,7 @@ static void (*game_tileRender)(uint16_t hscroll);
 static int16_t tileY;
 
  __section(data_c)  copper_t copper  = {
+#ifdef PLAYER_HARDWARE_SPRITE
   .sprpt = {
     SPR0PTL,0x0000,
     SPR0PTH,0x0000,
@@ -91,6 +92,7 @@ static int16_t tileY;
     SPR7PTL,0x0000,
     SPR7PTH,0x0000    
   },
+#endif
   .bpl1 = {
     BPL1PTL,0x0000,
     BPL1PTH,0x0000,
@@ -549,9 +551,9 @@ game_render(void)
 
   enemy_saveBackground(game_offScreenBuffer);
 
-  //#ifndef PLAYER_HARDWARE_SPRITE
+#ifndef PLAYER_HARDWARE_SPRITE
   player_saveBackground(game_offScreenBuffer);
-  //#endif
+#endif
 
   if (level.clouds) {
     cloud_saveBackground(game_offScreenBuffer);
@@ -565,8 +567,10 @@ game_render(void)
   item_render(game_offScreenBuffer);  
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
+#ifndef PLAYER_HARDWARE_SPRITE
   SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
+#endif
 }
 
 
@@ -839,9 +843,9 @@ game_loop()
     SPEED_COLOR(0xff0);
     item_restoreBackground();
     SPEED_COLOR(0xf00);
-    //#ifndef PLAYER_HARDWARE_SPRITE
+#ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
-    //#endif
+#endif
     SPEED_COLOR(0x00f);
     if (level.clouds) {
       cloud_restoreBackground();
