@@ -40,6 +40,12 @@ record_getState(void);
 
 void
 record_process(void);
+
+#else
+
+#define record_setState(x)
+#define record_process()
+
 #endif
 
 #endif

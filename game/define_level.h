@@ -32,9 +32,11 @@ __LEVEL_DEFINITION(__LEVEL_NUMBER) =
     .fadeIn = {
 #include __LEVEL_FADE_IN(__LEVEL_NUMBER)
     },
+#ifdef GAME_RECORDING
     .recordData = {
 #include __LEVEL_RECORDING(__LEVEL_NUMBER)
     }
+#endif
   };
 
 #undef __LEVEL_NUMBER

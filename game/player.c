@@ -286,7 +286,6 @@ void
 player_init(menu_command_t command)
 {
 #ifdef GAME_RECORDING
-
   switch (command) {
   case MENU_COMMAND_REPLAY:
     record_setState(RECORD_PLAYBACK);
@@ -299,6 +298,8 @@ player_init(menu_command_t command)
     record_setState(RECORD_IDLE);
     break;
   }
+#else
+  USE(command);
 #endif
 
 #ifdef PLAYER_HARDWARE_SPRITE

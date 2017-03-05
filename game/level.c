@@ -57,7 +57,9 @@ level_load(uint16_t index)
   disk_loadData(&level, level_levels[index].levelData, sizeof(level_t));
   level.clouds = level_levels[index].clouds;
   level.moduleIndex = level_levels[index].moduleIndex;
+#ifdef GAME_RECORDING
   level.record = (record_t*)&level.recordData;
+#endif
 
   message_screenOff();
 

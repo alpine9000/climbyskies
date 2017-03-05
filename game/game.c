@@ -279,6 +279,8 @@ game_loseLife(void)
   }
 }
 
+
+#ifdef GAME_RECORDING
 static 
 void
 game_refreshDebugScoreboard(void)
@@ -291,8 +293,8 @@ game_refreshDebugScoreboard(void)
   for (int16_t i = 0, x = (SCREEN_WIDTH/2)-15; i < 3; i++, x+=10) {
     gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 0, 16,  8);
   }
-
 }
+#endif
 
 static void
 game_newGame(menu_command_t command)
