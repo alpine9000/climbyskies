@@ -1,6 +1,9 @@
 #include "game.h"
 
+extern frame_buffer_t message_frameBuffer;
 static uint16_t message_on = 0;
+
+#define MESSAGE_BOX_WIDTH 160
 
 #if TRACKLOADER==1
 typedef struct {
@@ -108,4 +111,22 @@ message_screenOff(void)
   screen_setup((uint16_t*)&copper);
 #endif
   message_on = 0;
+}
+
+
+void
+message_box(char* message)
+{
+  gfx_fillRect(message_frameBuffer, 4, 4, MESSAGE_BOX_WIDTH-8, 8, 0);
+
+  frame_buffer_t ptr = message_frameBuffer;
+  ptr += FRAME_BUFFER_WIDTH_BYTES;
+  text_drawText8(ptr, message, (MESSAGE_BOX_WIDTH/2)-((strlen(message)/2)*8), 4);
+  ptr += 3*FRAME_BUFFER_WIDTH_BYTES;
+  text_drawText8(ptr, message, (MESSAGE_BOX_WIDTH/2)-((strlen(message)/2)*8), 4);
+
+  hw_waitVerticalBlank();
+  gfx_splitBlitNoMask(game_onScreenBuffer, message_frameBuffer, (SCREEN_WIDTH/2)-(MESSAGE_BOX_WIDTH/2), 48, 0, 0, MESSAGE_BOX_WIDTH, 16);
+
+  gfx_splitBlitNoMask(game_offScreenBuffer, message_frameBuffer, (SCREEN_WIDTH/2)-(MESSAGE_BOX_WIDTH/2), 48, 0, 0, MESSAGE_BOX_WIDTH, 16);
 }

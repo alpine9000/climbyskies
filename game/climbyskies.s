@@ -1,8 +1,9 @@
 	include "includes.i"
 	xdef _memset
 	xdef _custom
-	xdef _menuFrameBuffer
-	xdef _scoreBoardFrameBuffer
+	xdef _menu_frameBuffer
+	xdef _game_scoreBoardFrameBuffer
+	xdef _message_frameBuffer
 	
 	if TRACKLOADER=1
 byteMap:
@@ -72,7 +73,6 @@ l385	equ	0
 	rts
 	endif
 	
-
 	align 4
 	include "os.i"
 
@@ -80,12 +80,17 @@ l385	equ	0
 	section data_c
 	endif
 	align 4
-_scoreBoardBitplanes:
-	incbin  "out/scoreboard.bin"
-_menuFrameBuffer:
+_game_scoreBoardFrameBuffer:
+	dc.l	_scoreBoardBitplanes
+_message_frameBuffer:
+	dc.l	_messageBitplanes		
+_menu_frameBuffer:
 	dc.l	_menuBitplanes
-_scoreBoardFrameBuffer:
-	dc.l	_scoreBoardBitplanes	
+
+_scoreBoardBitplanes:
+	incbin  "out/scoreboard.bin"	
+_messageBitplanes:
+	incbin  "out/message.bin"
 
 	section .noload
 	cnop 0,512

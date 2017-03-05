@@ -285,20 +285,21 @@ item_update(sprite_t* p)
       case ITEM_ANIM_COIN:
 	game_score += 100;
 	sound_queueSound(SOUND_PICKUP);
+	ptr->state = ITEM_DEAD;
+	*ptr->tilePtr = 0;
+	ptr->deadRenderCount = 0;
 	break;
 #ifdef GAME_JETPACK
       case ITEM_ANIM_JETPACK:
-	sound_queueSound(SOUND_PICKUP);
-	player.jetpackFuel += 100;
+	if (player.jetpackFuel == 0) {
+	  sound_queueSound(SOUND_PICKUP);
+	  player.jetpackFuel += 100;
+	}
 	break;
 #endif
       default:
 	break;
       }
-      ptr->state = ITEM_DEAD;
-      *ptr->tilePtr = 0;
-      ptr->deadRenderCount = 0;
-
     }
 
 

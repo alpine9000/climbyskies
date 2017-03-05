@@ -2,7 +2,7 @@
 // http://www.picturetopeople.org/text_generator/others/3d/3d-perspective-text-effect-creator.html
 
 extern void palette_menuInstall(void);
-extern frame_buffer_t menuFrameBuffer;
+extern frame_buffer_t menu_frameBuffer;
 
 #define MENU_NUM_ITEMS             6
 #define MENU_TOP_COLOR             0x7ef
@@ -272,7 +272,7 @@ menu_loop(void)
 
   sound_init();
   message_screenOn("Loading...");
-  disk_loadData((void*)game_onScreenBuffer, (void*)menuFrameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
+  disk_loadData((void*)game_onScreenBuffer, (void*)menu_frameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
   message_screenOff();
 
   hw_waitVerticalBlank();

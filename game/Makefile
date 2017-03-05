@@ -1,4 +1,4 @@
-#KEEP_ASM=1
+KEEP_ASM=1
 USE_BIG=1
 SFX=1
 PLACEHOLDER_MUSIC=0
@@ -23,7 +23,7 @@ LEVEL_FILES=out/sprite_1.h out/background_1-map.c out/fade_in_1.h\
 
 MAX_P61_SIZE=$(shell ls -Sl assets/P61.climby*.bin | awk '{print $$5}' | head -1)
 
-IMAGES=font8x8.png menu.png scoreboard.png
+IMAGES=font8x8.png menu.png scoreboard.png message.png
 IMAGEDATA=$(addprefix out/, $(IMAGES:.png=.bin))
 ASSETS=$(IMAGEDATA) out/jump.raw out/coin1.raw out/pop.raw out/kill.raw out/falling.raw out/jetpack.raw out/jetpack_coin.raw
 
@@ -213,6 +213,9 @@ out/menu.bin: out assets/menu.png menu.pal
 
 out/scoreboard.bin: assets/scoreboard.png palettes/default.pal out
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
+
+out/message.bin: assets/message.png palettes/default.pal out
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/message.png --output=out/message --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
 
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@

@@ -53,4 +53,7 @@ gfx_quickRenderTileOffScreen(frame_buffer_t dest, int16_t x, int16_t y, frame_bu
 
 #endif
 
+void
+gfx_splitBlitNoMask(frame_buffer_t dest, frame_buffer_t src, int16_t dx, int16_t dy, int16_t sx, int16_t sy, int16_t w, int16_t _h);
+
 #endif

@@ -13,7 +13,6 @@
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
-frame_buffer_t game_scoreBoardFrameBuffer;
 
 int16_t game_cameraY;
 int16_t game_screenScrollY;
@@ -146,8 +145,6 @@ static int16_t tileY;
 void
 game_ctor(void)
 {
-  extern frame_buffer_t scoreBoardFrameBuffer;
-  game_scoreBoardFrameBuffer = scoreBoardFrameBuffer;
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
 }
@@ -602,8 +599,7 @@ void
 game_setLevelComplete(void)
 {
   if (!game_levelComplete) {
-    text_drawText8(game_offScreenBuffer+(FRAME_BUFFER_WIDTH_BYTES*3), "LEVEL COMPLETE!", 8+(SCREEN_WIDTH/2)-(8*8), (SCREEN_HEIGHT/2)-64);
-    text_drawText8(game_onScreenBuffer+(FRAME_BUFFER_WIDTH_BYTES*3), "LEVEL COMPLETE!", 8+(SCREEN_WIDTH/2)-(8*8), (SCREEN_HEIGHT/2)-64);
+    message_box("LEVEL COMPLETE!");
     game_levelComplete = 1;
     game_collisions = 0;
   }
@@ -647,6 +643,10 @@ game_processKeyboard()
 {
 #ifdef GAME_RECORDING
   switch (game_keyPressed) {
+  case 'O':
+    message_box("GAME OVER");
+    hw_waitForJoystick();
+    break;
   case 'D':
     game_scoreBoardMode = !game_scoreBoardMode;
     if (game_scoreBoardMode == 0) {

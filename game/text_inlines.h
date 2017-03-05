@@ -55,7 +55,7 @@ __text_drawChar8(frame_buffer_t frameBuffer, char c, int16_t x, int16_t y, int16
   }  
 }
 
-
+#if 0
 INLINE void
 text_drawChar8(frame_buffer_t fb, char c, int16_t x, int16_t y)
 {
@@ -72,6 +72,7 @@ text_drawChar8(frame_buffer_t fb, char c, int16_t x, int16_t y)
     }
   }
 }
+#endif
 
 
 INLINE void
@@ -79,11 +80,13 @@ text_drawText8(frame_buffer_t frameBuffer, char* string, int32_t x, int32_t y)
 {
   char* ptr = &string[0]; 
   do {
-    text_drawChar8(frameBuffer, *ptr, x, y);
+    //    text_drawChar8(frameBuffer, *ptr, x, y);
+    __text_drawChar8(frameBuffer, *ptr, x, y, 0, 8);
     ptr++;
     x += 8;
   } while (*ptr != 0);
 }
+
 
 
 INLINE void
