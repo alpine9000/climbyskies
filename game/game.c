@@ -736,22 +736,21 @@ game_loop()
   game_init(menuCommand);
 
   for (;;) {
-#ifdef DEBUG
-    if (game_paused && game_singleStep != 1) {
-      goto skip;
-    }
-    game_singleStep = 0;
-#endif
-
-    hw_readJoystick();
-
     game_keyPressed = keyboard_getKey();
+    hw_readJoystick();
 
     record_process();
 
     if (game_processKeyboard()) {
       goto menu;
     }
+      
+#ifdef DEBUG
+    if (game_paused && game_singleStep != 1) {
+      goto skip;
+    }
+    game_singleStep = 0;
+#endif
 
     SPEED_COLOR(0xF0F);
     player_update();
