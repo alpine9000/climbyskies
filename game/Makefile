@@ -1,4 +1,4 @@
-KEEP_ASM=1
+#KEEP_ASM=1
 USE_BIG=1
 SFX=1
 PLACEHOLDER_MUSIC=0
@@ -55,6 +55,7 @@ C_OPT_ASM_OUTPUT=-O3
 BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=64 -Wstack-usage=128 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses -I /usr/local/amiga/m68k-amigaos/ndk/include/ $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 CFLAGS=$(C_OPT) $(BASE_CFLAGS)
+CFLAGS_CHECK = $(BASE_CFLAGS)
 CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT) $(BASE_CFLAGS)
 
 ASM_OBJS=$(SRCS:.s=.o)
@@ -380,7 +381,7 @@ out/workbench/%.o: out/%.c out
 out/adf/big.o: $(ADF_C_OBJS)$(C_SRCS)
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) $(BIG_FLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.o
-	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
+	-@$(CC) -MM $(CFLAGS_CHECK) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
@@ -394,7 +395,7 @@ endif
 out/workbench/big.o: $(WORKBENCH_C_OBJS)$(C_SRCS)
 	cat $(C_SRCS) > big.c
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) big.c -o $*.o
-	-@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
+	-@$(CC) -MM $(CFLAGS_CHECK) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) big.c -o $*.d
 	@mv -f $*.d $*.d.tmp
 	@sed -e 's|.*:|$*.o:|' < $*.d.tmp > $*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
@@ -406,8 +407,12 @@ out/adf/%.o: %.c out
 ifeq ($(KEEP_ASM),1)
 	$(CC) -S $(CFLAGS_ASM_OUTPUT) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.s 
 endif
+ifeq ($(USE_BIG), 1)	
+	$(CC) -c $(CFLAGS_CHECK) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
+else
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.o
-	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d
+endif
+	@$(CC) -MM $(CFLAGS_CHECK) -DTRACKLOADER=1 -I$(AMIGA_INCLUDE) $< -o out/adf/$*.d
 	@mv -f out/adf/$*.d $*.d.tmp
 	@sed -e 's|.*:|out/adf/$*.o:|' < $*.d.tmp > out/adf/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
@@ -415,8 +420,12 @@ endif
 	@rm -f $*.d.tmp
 
 out/workbench/%.o: %.c out
+ifeq ($(USE_BIG), 1)	
+	$(CC) -c $(CFLAGS_CHECK) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.o
+else
 	$(CC) -c $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.o
-	@$(CC) -MM $(CFLAGS) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.d
+endif
+	@$(CC) -MM $(CFLAGS_CHECK) -DTRACKLOADER=0 -I$(AMIGA_INCLUDE) $< -o out/workbench/$*.d
 	@mv -f out/workbench/$*.d $*.d.tmp
 	@sed -e 's|.*:|out/workbench/$*.o:|' < $*.d.tmp > out/workbench/$*.d
 	@sed -e 's/.*://' -e 's/\\$$//' < $*.d.tmp | fmt -1 | \
