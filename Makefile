@@ -3,7 +3,8 @@ SUBDIRS=tools/makeadf \
 	tools/mapgen\
 	tools/fade\
 	tools/resize\
-	tools/croppa
+	tools/croppa\
+	tools/bin2c
 
 .PHONY: subdirs $(SUBDIRS)
 

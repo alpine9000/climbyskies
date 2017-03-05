@@ -10,11 +10,16 @@ MAPGENDIR=../tools/mapgen
 MAPGEN=$(MAPGENDIR)/out/mapgen
 FADEDIR=../tools/fade
 FADE=$(FADEDIR)/out/fade
+BIN2CDIR=../tools/bin2c
+BIN2C=$(BIN2CDIR)/out/bin2c
 
-ALL_TOOLS=$(MAKEADF) $(IMAGECON) $(MAPGEN) $(FADE) $(CROPPA) $(RESIZE)
+ALL_TOOLS=$(MAKEADF) $(IMAGECON) $(MAPGEN) $(FADE) $(CROPPA) $(RESIZE) $(BIN2C)
 
 $(IMAGECON):
 	make -C $(IMAGECONDIR)
+
+$(BIN2C):
+	make -C $(BIN2CDIR)
 
 $(SHRINKLEREXE):
 	make -C $(SHRINKLERDIR)
