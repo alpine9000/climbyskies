@@ -1,6 +1,6 @@
 #include "game.h"
 
-#define ITEM_MAX_ITEMS 10
+#define ITEM_MAX_ITEMS 12
 #define ITEM_COLLISION_FUZZY 8
 
 typedef enum {
@@ -309,10 +309,10 @@ item_update(sprite_t* p)
 
     if (save->state == ITEM_DEAD && (save->deadRenderCount++ > 2)) {
       remove = 1;
-    } else  if (game_scroll == 0) {
-      if ((save->sprite.y-game_cameraY) > (SCREEN_HEIGHT+ITEM_HEIGHT+1)) {
+    } else {
+      if ((save->sprite.y-game_cameraY) > (SCREEN_HEIGHT+(TILE_HEIGHT*2))) {
 	remove = 1;
-      } else if ((save->sprite.y-game_cameraY) < -(ITEM_HEIGHT+1)) {
+      } else if ((save->sprite.y-game_cameraY) < -((TILE_HEIGHT*2))) {
 	remove = 1;
       }
     }

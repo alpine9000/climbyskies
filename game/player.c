@@ -393,35 +393,6 @@ player_tileCollision(int16_t x, int16_t y)
   return 0;
 }
 
-static void
-player_processRecording(void)
-{
-#ifdef GAME_RECORDING
-  if (level.record->state == RECORD_RECORD && (level.record->lastJoystickPos != hw_joystickPos || level.record->lastJoystickButton != hw_joystickButton)) {
-    if (level.record->index < RECORD_MAX_RECORD) {
-      level.record->buffer[level.record->index].joystickPos = hw_joystickPos;
-      level.record->buffer[level.record->index].joystickButton = hw_joystickButton;
-      level.record->buffer[level.record->index].frame = level.record->frame;
-      level.record->lastJoystickPos = hw_joystickPos;
-      level.record->lastJoystickButton = hw_joystickButton;
-      level.record->index++;
-    }
-  } else if (level.record->state == RECORD_PLAYBACK) {
-    if (level.record->index < RECORD_MAX_RECORD) {
-      if (level.record->buffer[level.record->index].frame == level.record->frame) {
-	level.record->joystickPos = level.record->buffer[level.record->index].joystickPos;
-	level.record->joystickButton = level.record->buffer[level.record->index].joystickButton;
-	level.record->index++;
-      }
-      hw_joystickPos = level.record->joystickPos;
-      hw_joystickButton = level.record->joystickButton;
-    }
-
-  }
-
-  level.record->frame++;
-#endif
-}
 
 static void
 player_processJoystick(void)
@@ -917,7 +888,6 @@ player_update(void)
   if (player.state == PLAYER_STATE_FREEFALL) {
     player_updateFreeFall();
   } else {
-    player_processRecording();
     player_updateAlive();
     player_processJoystick(); // todo work out why this is after updateAlive()
   }

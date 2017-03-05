@@ -10,6 +10,7 @@ typedef struct {
   uint8_t joystickPos;
   uint8_t joystickButton;
   uint16_t frame;
+  uint16_t key;
 } record_item_t;
 
 typedef enum {
@@ -24,6 +25,7 @@ typedef struct {
   uint32_t index;
   uint32_t lastJoystickPos;
   uint32_t lastJoystickButton;
+  uint16_t lastKey;
   uint8_t joystickPos;
   uint8_t joystickButton;
   uint16_t frame;
@@ -32,8 +34,12 @@ typedef struct {
 
 void
 record_setState(record_state_t state);
+
 record_state_t
 record_getState(void);
+
+void
+record_process(void);
 #endif
 
 #endif

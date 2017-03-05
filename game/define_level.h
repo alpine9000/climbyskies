@@ -11,6 +11,8 @@
 #define __LEVEL_SPRITE_MASK(x)       __LEVEL_SPRITE_MASK2(x)
 #define __LEVEL_FADE_IN2(x)          __LEVEL_STRINGIFY(out/fade_in_ ##x.h)
 #define __LEVEL_FADE_IN(x)           __LEVEL_FADE_IN2(x)
+#define __LEVEL_RECORDING2(x)        __LEVEL_STRINGIFY(out/level_recording_ ##x.h)
+#define __LEVEL_RECORDING(x)         __LEVEL_RECORDING2(x)
 #define __LEVEL_DEFINITION2(x)       level_level##x
 #define __LEVEL_DEFINITION(x)        __LEVEL_DEFINITION2(x)
 
@@ -31,7 +33,7 @@ __LEVEL_DEFINITION(__LEVEL_NUMBER) =
 #include __LEVEL_FADE_IN(__LEVEL_NUMBER)
     },
     .recordData = {
-#include "out/default_recording.h"
+#include __LEVEL_RECORDING(__LEVEL_NUMBER)
     }
   };
 

@@ -24,6 +24,7 @@ uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
 uint16_t game_level;
+uint16_t game_keyPressed;
 
 static void
 game_switchFrameBuffers(void);
@@ -636,10 +637,10 @@ game_startRecord(void)
 }
 
 int16_t
-game_processKeyboard(void)
+game_processKeyboard()
 {
 #ifdef GAME_RECORDING
-  switch (keyboard_getKey() ) {
+  switch (game_keyPressed) {
   case 'D':
     game_scoreBoardMode = !game_scoreBoardMode;
     if (game_scoreBoardMode == 0) {
@@ -737,6 +738,14 @@ game_loop()
 #endif
 
     hw_readJoystick();
+
+    game_keyPressed = keyboard_getKey();
+
+    record_process();
+
+    if (game_processKeyboard()) {
+      goto menu;
+    }
 
     SPEED_COLOR(0xF0F);
     player_update();
@@ -852,10 +861,6 @@ game_loop()
 
     joystickDown = JOYSTICK_BUTTON_DOWN;
 
-
-    if (game_processKeyboard()) {
-      goto menu;
-    }
     operationCount++;
   }
 
