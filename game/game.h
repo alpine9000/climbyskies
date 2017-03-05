@@ -8,7 +8,7 @@
 //#define DEBUG_SCROLL 1
 
 #define DEBUG                         1
-#define INLINE_EVERYTHING             1
+//#define INLINE_EVERYTHING             1
 //#define SHOW_SPEED                    1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
