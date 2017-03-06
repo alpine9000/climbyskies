@@ -1,156 +1,245 @@
 installing the cross development environment
 ============================================
 
-Built on OSX 10.11.3, should work on any unix environment.
+Built on OSX should work on any unix environment with a bit of work.
 
 Notes: 
    * My /usr/local is writable by me. You will probable need to add "sudo" to any "make install" lines
-   * You can probably install most of this stuff using a package system rather than building from sources
 
-0. gcc-5.3.0 for OSX
+0. build dir
     ```
-# svn checkout svn://gcc.gnu.org/svn/gcc/tags/gcc_5_3_0_release gcc-5.3.0-src
-# cd gcc-5.3.0-src
-# ./contrib/download_prerequisites
-# cd ..
-# mkdir gcc-5.3.0-build
-# cd gcc-5.3.0-build
-#  ../gcc-5.3.0-src/configure --prefix=/usr/local --enable-languages=c,c++
-# make -j4
-# make install
+    mkdir ~/project
+    mkdir ~/project/downloads
+    mkdir ~/project/build
+    mkdir ~/project/repos
+    mkdir /usr/local/amiga
+    mkdir /usr/local/amiga/vgcc
+    mkdir /usr/local/amiga/vgcc/bin
+    mkdir /usr/local/amiga/vgcc/ndk
+    mkdir /usr/local/amiga/vgcc/ndk/include
+    cd ~/project
 ```
 
-1. The fantastic AmigaOS cross compiler for Linux / MacOSX / Windows 
-
-   https://github.com/cahirwpz/amigaos-cross-toolchain
-
+1. autoconf
     ```
-# git clone git://github.com/cahirwpz/amigaos-cross-toolchain.git
-# cd amigaos-cross-toolchain
-# ./toolchain-m68k --prefix=/usr/local/amiga build
-```
-   
-2. autoconf
-    ```
-    # curl -OL http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz
-    # tar xzf autoconf-2.69.tar.gz
-    # cd autoconf-2.69
-    # ./configure --prefix=/usr/local
-    # make
-    # make install
+    cd downloads
+    curl -OL http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.gz
+    cd ../build
+    tar xzf ../downloads/autoconf-2.69.tar.gz
+    cd autoconf-2.69
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ../..
 ```
 
-3. automake
+2. automake
     ```
-    # curl -OL http://ftpmirror.gnu.org/automake/automake-1.15.tar.gz
-    # tar xzf automake-1.15.tar.gz
-    # cd automake-1.15
-    # ./configure --prefix=/usr/local
-    # make
-    # make install
+    cd downloads
+    curl -OL http://ftpmirror.gnu.org/automake/automake-1.15.tar.gz
+    cd ../build
+    tar xzf ../downloads/automake-1.15.tar.gz
+    cd automake-1.15
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ../../
 ```
 
-4. pkg-config
+3. lha
     ```
-    # curl -OL https://pkg-config.freedesktop.org/releases/pkg-config-0.29.tar.gz
-    # tar zxf pkg-config-0.29.tar.gz
-    # cd pkg-config-0.29
-    # ./configure --with-internal-glib --prefix=/usr/local LDFLAGS="-framework CoreFoundation -framework Carbon"
-    # make
-    # make install
+    cd repos
+    git clone https://github.com/jca02266/lha.git
+    cd lha
+    aclocal
+    autoheader
+    automake -a
+    autoconf
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ../../
 ```
 
-5. lha
+4. Install the NDK
     ```
-    # git clone https://github.com/jca02266/lha.git
-    # aclocal
-    # autoheader
-    # automake -a
-    # autoconf
-    # ./configure --prefix=/usr/local
-    # make
-    # make install
+    cd downloads
+    curl -O http://www.haage-partner.de/download/AmigaOS/NDK39.lha
+    cd ../build
+    lha x ../downloads/NDK39.lha
+    cp -r NDK_3.9/Include/include_i/* /usr/local/amiga/vgcc/ndk/include/
+    cp -r NDK_3.9/Include/include_h/* /usr/local/amiga/vgcc/ndk/include/
+    cd ..
+```
+
+5. pkg-config
+    ```
+    cd downloads 
+    curl -OL https://pkg-config.freedesktop.org/releases/pkg-config-0.29.tar.gz
+    cd ../build
+    tar zxf ../downloads/pkg-config-0.29.tar.gz
+    cd pkg-config-0.29
+    ./configure --with-internal-glib --prefix=/usr/local LDFLAGS="-framework CoreFoundation -framework Carbon"
+    make
+    make install
+    cd ../../
 ```
 
 6. libtool
     ```
-   # wget http://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz
-   # tar zxfv libtool-2.4.6.tar.gz
-   # cd libtool-2.4.6
-   # ./configure --prefix=/usr/local
-   # make
-   # make install
+    cd downloads
+    curl -OL http://ftpmirror.gnu.org/libtool/libtool-2.4.6.tar.gz
+    cd ../build    
+    tar zxfv ../downloads/libtool-2.4.6.tar.gz
+    cd libtool-2.4.6
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ../../
 ```
 
 7. libpng
     ```
-   # wget ftp://ftp.simplesystems.org/pub/png/src/libpng16/libpng-1.6.21.tar.gz
-   # tar zxfv libpng-1.6.21.tar.gz
-   # cd libpng-1.6.21
-   # ./configure --prefix=/usr/local
-   # make
-   # make install
+   cd downloads
+   curl -OL ftp://ftp.simplesystems.org/pub/png/src/libpng16/libpng-1.6.28.tar.gz
+   cd ../build
+   tar zxfv ../downloads/libpng-1.6.28.tar.gz
+   cd libpng-1.6.28
+   ./configure --prefix=/usr/local
+   make
+   make install
+   cd ../..
 ```
 
 8. pngquant
     ```
-    # git clone git://github.com/pornel/pngquant.git
-    # cd pngquant/lib
-    # ./configure --prefix=/usr/local
-    # make
-    # mkdir /usr/local/include/pngquant
-    # cp *.h /usr/local/include/pngquant/
-    # cp *.a /usr/local/lib
+    cd repos
+    git clone git://github.com/pornel/pngquant.git
+    cd pngquant
+    ./configure --prefix=/usr/local
+    cd lib
+    ./configure --prefix=/usr/local
+    make
+    mkdir /usr/local/include/pngquant
+    cp *.h /usr/local/include/pngquant/
+    cp *.a /usr/local/lib
+    cd ../../..
 ```
 
 9. GraphicsMagick
     ```
-    # wget http://78.108.103.11/MIRROR/ftp/GraphicsMagick/1.3/GraphicsMagick-1.3.23.tar.gz
-    # tar zxfv GraphicsMagick-1.3.23.tar.gz
-    # cd GraphicsMagick-1.3.23
-    # ./configure --prefix=/usr/local
-    # make
-    # make install
+    cd downloads
+    curl -OL http://78.108.103.11/MIRROR/ftp/GraphicsMagick/1.3/GraphicsMagick-1.3.23.tar.gz
+    cd build
+    tar zxfv ../downloads/GraphicsMagick-1.3.23.tar.gz
+    cd GraphicsMagick-1.3.23
+    ./configure --prefix=/usr/local
+    make
+    make install
+    cd ../../
 ```
 
 10. CMake
     ```
-    # curl -O  https://cmake.org/files/v3.5/cmake-3.5.1-Darwin-x86_64.tar.gz
-    # tar zxfv cmake-3.5.1-Darwin-x86_64.tar.gz
-    # mv CMake.app /Applications
+    cd downloads
+    curl -OL  https://cmake.org/files/v3.5/cmake-3.5.1-Darwin-x86_64.tar.gz
+    cd ../build
+    tar zxfv ../downloads/cmake-3.5.1-Darwin-x86_64.tar.gz
+    mv cmake-3.5.1-Darwin-x86_64/CMake.app /Applications
+    cd ..
 ```
 
 11. TMX C Loader
     ```
-    # git clone https://github.com/baylej/tmx.git
-    # cd tmx
-    # mkdir build
-    # cd build
-    # /Applications/CMake.app/Contents/bin/cmake ..
-    # make install
+    cd repos
+    git clone https://github.com/baylej/tmx.git
+    cd tmx
+    mkdir build
+    cd build
+    /Applications/CMake.app/Contents/bin/cmake ..
+    make install
+    cd ../../..
 ```
 
 12. SOX
     ```
-    # git clone git://sox.git.sourceforge.net/gitroot/sox/sox
-    # cd sox
-    # autoreconf -i
-    # ./configure --prefix=/usr/local
-    # make install
+    cd repos
+    git clone git://sox.git.sourceforge.net/gitroot/sox/sox
+    cd sox
+    autoreconf -i
+    ./configure --prefix=/usr/local
+    make install
+    cd ../../
 ```
 
-13. Up to date vlink
-  ```
-    # curl -O http://sun.hasenbraten.de/vlink/release/vlink.tar.gz
-    # tar zxfv vlink.tar.gz 
-    # cd vlink
-    # mkdir objects
-    # make
-    # cp vlink /usr/local/amiga/bin
+13. vlink
+  ``` 
+    cd downloads
+    curl -OL http://sun.hasenbraten.de/vlink/release/vlink.tar.gz
+    cd ../build
+    tar zxfv ../downloads/vlink.tar.gz 
+    cd vlink
+    mkdir objects
+    make
+    cp vlink /usr/local/amiga/vgcc/bin
+    cd ../../
 ```
 
-14. html2text
-  ```
-    # git clone https://github.com/aaronsw/html2text.git
-    # cp html2text/html2text.py /usr/local/bin
+14. vasm
+    ```
+    cd downloads
+    curl -OL http://sun.hasenbraten.de/vasm/release/vasm.tar.gz
+    cd ../build
+    tar zxfv ../downloads/vasm.tar.gz
+    cd vasm
+    make CPU=m68k SYNTAX=mot
+    cp vasmm68k_mot /usr/local/amiga/vgcc/bin/
+    cd ../../
 ```
+
+15. fake wget (if you don't have wget)
+    ```
+    echo "#\!/bin/sh" > /usr/local/bin/wget
+    echo "curl -OL \$*" >>  /usr/local/bin/wget
+    chmod +x /usr/local/bin/wget
+```
+
+16. gcc osx (if you don't have gcc)
+    ```
+    cd downloads
+    curl -OL http://mirrors.concertpass.com/gcc/releases/gcc-6.3.0/gcc-6.3.0.tar.gz
+    cd ../builds
+    tar zxfv ../downloads/gcc-6.3.0.tar.gz
+    cd gcc-6.3.0
+    ./contrib/download_prerequisites
+    cd ..
+    mkdir gcc-6.3.0.build
+    cd gcc-6.3.0.build
+    ../gcc-6.3.0/configure --prefix=/usr/local/ --enable-languages=c,c++
+    make -j4
+    make install
+    cd ../../
+```
+
+17. vasm amiga gcc
+    ```
+    cd repos   
+    git clone https://github.com/alpine9000/gcc.git
+    cd gcc
+     ./contrib/download_prerequisites
+    cd ../../build
+    mkdir gcc
+    cd gcc
+    ../../repos/gcc/configure --prefix=/usr/local/amiga/vgcc --target=m68k-amigaos --enable-languages=c --with-as=/usr/local/amiga/vgcc/bin/vasmm68k_mot
+    make -j4 all-gcc
+    make -j4 install-gcc
+    cd ../../
+```
+
+18. climby skies
+    ```
+    cd repos
+    git clone https://github.com/alpine9000/climbyskies.git
+    cd climbyskies
+    make
+``` 

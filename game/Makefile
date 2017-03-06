@@ -8,7 +8,7 @@ SFX=1
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
 VASM=/usr/local/amiga/vgcc/bin/vasmm68k_mot
 LD=/usr/local/amiga/vgcc/bin/vlink
-INCLUDE=-I /usr/local/amiga/m68k-amigaos/ndk/include/
+INCLUDE=-I /usr/local/amiga/vgcc/ndk/include/
 
 
 # userstack used by bootblock
@@ -111,9 +111,6 @@ go: test
 
 goaga: test
 	 $(A1200T_RUN_SCRIPT)
-
-list:
-	m68k-amigaos-objdump  -b binary --disassemble-all out/bootblock.bin -m m68k > out/bootblock.txt
 
 bin:
 	mkdir bin
