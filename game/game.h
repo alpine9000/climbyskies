@@ -8,7 +8,7 @@
 //#define DEBUG_SCROLL 1
 
 #define DEBUG                         1
-//#define INLINE_EVERYTHING             1
+#define INLINE_EVERYTHING             1
 //#define SHOW_SPEED                    1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
@@ -135,7 +135,7 @@ extern copper_t copper;
 void 
 game_loop(void);
 void
-game_setBackgroundScroll(int16_t s, int16_t targetCameraY);
+game_requestCameraY(int16_t targetCameraY);
 void
 game_shakeScreen(void);
 void

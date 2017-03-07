@@ -131,3 +131,11 @@ message_box(char* message)
 
   gfx_splitBlitNoMask(game_offScreenBuffer, message_frameBuffer, (SCREEN_WIDTH/2)-(MESSAGE_BOX_WIDTH/2), 48, 0, 0, MESSAGE_BOX_WIDTH, 16);
 }
+
+
+void
+message_alert(char* message)
+{
+  message_box(message);  
+  hw_waitForJoystick();
+}
