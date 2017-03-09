@@ -36,6 +36,7 @@ typedef struct {
   int16_t imageIndex;
   sprite_save_t* save;
   frame_buffer_t saveBuffer;
+  uint16_t saveBufferHeightOffset;
   image_t* image;
 #ifdef PLAYER_COLLISION_BOX
   collision_coords_t collisionBox;

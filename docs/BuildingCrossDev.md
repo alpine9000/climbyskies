@@ -5,6 +5,7 @@ Built on OSX should work on any unix environment with a bit of work.
 
 Notes: 
    * My /usr/local is writable by me. You will probable need to add "sudo" to any "make install" lines
+   * There are a bunch of Makefiles in devenv that might do all of this for you
 
 0. build dir
     ```

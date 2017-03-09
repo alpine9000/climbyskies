@@ -224,10 +224,11 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   ptr->sprite.y = y;
   ptr->sprite.save = &ptr->saves[0];
   ptr->sprite.saveBuffer = ptr->saveBuffers[0].fb;
+  ptr->sprite.saveBufferHeightOffset = ((48/8)*SCREEN_BIT_DEPTH);
   ptr->saves[0].blit[0].size = 0;
   ptr->saves[0].blit[1].size = 0;
   ptr->saves[1].blit[0].size = 0;
-  ptr->saves[0].blit[1].size = 0;
+  ptr->saves[1].blit[1].size = 0;
   ptr->sprite.x = x;
   ptr->velocity.x = dx;
   ptr->velocity.y = 0;

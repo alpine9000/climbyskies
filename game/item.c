@@ -132,7 +132,7 @@ item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr)
     ptr->saves[0].blit[0].size = 0;
     ptr->saves[0].blit[1].size = 0;
     ptr->saves[1].blit[0].size = 0;
-    ptr->saves[0].blit[1].size = 0;
+    ptr->saves[1].blit[1].size = 0;
     ptr->sprite.x = x;
     ptr->anim = &item_animations[anim];
     ptr->animId = anim;

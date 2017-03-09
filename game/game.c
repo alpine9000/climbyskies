@@ -347,6 +347,8 @@ game_loadLevel(menu_command_t command)
   game_debugRenderFrame = 0;
 #endif
 
+  message_boxOff();
+
   game_switchFrameBuffers();
 
   sound_init();
@@ -625,6 +627,8 @@ game_render(void)
 
   enemy_saveBackground(game_offScreenBuffer);
 
+  message_boxSaveBackground(game_offScreenBuffer);
+
 #ifndef PLAYER_HARDWARE_SPRITE
   player_saveBackground(game_offScreenBuffer);
 #endif
@@ -641,10 +645,14 @@ game_render(void)
   item_render(game_offScreenBuffer);  
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
+
+  message_boxRender(game_offScreenBuffer);
+
 #ifndef PLAYER_HARDWARE_SPRITE
   SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
 #endif
+
 }
 
 
@@ -657,17 +665,6 @@ game_requestCameraY(int16_t targetCameraY)
     game_targetCameraY = 0;
   } else if (game_targetCameraY > WORLD_HEIGHT-SCREEN_HEIGHT) {
     game_targetCameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
-  }
-}
-
-
-void
-game_setLevelComplete(void)
-{
-  if (!game_levelComplete) {
-    message_box("LEVEL COMPLETE!");
-    game_levelComplete = 1;
-    game_collisions = 0;
   }
 }
 
@@ -685,6 +682,26 @@ game_playLevel(uint16_t levelIndex)
   record_setState(RECORD_IDLE);
   game_refreshScoreboard();
 #endif
+}
+
+
+
+static void
+game_finishLevel(void)
+{
+  game_score += game_levelScore;
+  game_playLevel(game_level + 1);
+}
+
+
+void
+game_setLevelComplete(void)
+{
+  if (!game_levelComplete) {
+    message_box("LEVEL COMPLETE!", game_finishLevel);
+    game_levelComplete = 1;
+    game_collisions = 0;
+  }
 }
 
 
@@ -714,11 +731,18 @@ game_processKeyboard()
 {
 #ifdef GAME_RECORDING
   switch (game_keyPressed) {
-  case 'O':
-    message_box("GAME OVER");
-    hw_waitForJoystick();
-    break;
 #ifdef DEBUG
+  case 'O':
+    {
+      static int16_t toggle = 0;
+      if (!toggle) {
+	message_box("GAME OVER", (void(*)(void))0);
+      } else {
+	message_boxDismiss();
+      }
+      toggle = !toggle;
+    }
+    break;
   case 'D':
     game_scoreBoardMode++;
     if (game_scoreBoardMode > 2) {
@@ -793,11 +817,10 @@ game_processKeyboard()
 }
 
 
+
 __EXTERNAL void
 game_loop()
 {
-  int16_t joystickDown = 1;
-
   game_ctor();
 
   message_screenOn("Welcome to Climby Skies!");
@@ -913,6 +936,7 @@ game_loop()
     enemy_restoreBackground();
     SPEED_COLOR(0xff0);
     item_restoreBackground();
+    message_boxRestoreBackground();
     SPEED_COLOR(0xf00);
 #ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
@@ -928,15 +952,6 @@ game_loop()
 #ifdef DEBUG
   skip:;
 #endif
-
-    if (!joystickDown && JOYSTICK_BUTTON_DOWN) {    
-      joystickDown = 1;
-      if (game_levelComplete && game_levelScore == 0) {
-	game_playLevel(game_level + 1);
-      }
-    }
-
-    joystickDown = JOYSTICK_BUTTON_DOWN;
   }
 
 #if TRACKLOADER==0

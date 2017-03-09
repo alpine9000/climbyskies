@@ -25,7 +25,8 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
   } else {
     if (y > -h) {
       gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, image->w, h+y);    
-      frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((48/8)*SCREEN_BIT_DEPTH)); // TODO:
+      //      frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((48/8)*SCREEN_BIT_DEPTH)); // TODO:
+      frame_buffer_t dest =  a->saveBuffer + ((h+y) * a->saveBufferHeightOffset);
       gfx_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
     } else {
       gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    

@@ -21,7 +21,7 @@ void
 gfx_bitBlitNoMask(frame_buffer_t dest, frame_buffer_t src, int16_t sx, int16_t sy, int16_t dx, int16_t dy, int16_t w, int16_t h)
 {
   static volatile struct Custom* _custom = CUSTOM;
-  uint32_t widthWords =  ((w+15)>>4);
+  uint32_t widthWords =  ((w)>>4);
   int32_t shift = 0;//(dx&0xf);
   
   dest += gfx_dyOffsetsLUT[dy] + (dx>>3);
@@ -46,6 +46,16 @@ gfx_splitBlitNoMask(frame_buffer_t dest, frame_buffer_t src, int16_t dx, int16_t
   int32_t by = sy;
   int32_t h = _h;
   int32_t y = dy;
+
+  if (y < 0) {
+    h -= (-y);
+    by += (-y);
+    y = 0;
+  }
+
+  if (h == 0) {
+    return;
+  }
   
   y = y-game_screenScrollY;
   if (y >= 0) {
