@@ -80,7 +80,7 @@ static sprite_animation_t enemy_animations[] = {
   }
 };
 
-int16_t enemy_count;
+static int16_t enemy_count;
 static enemy_t* enemy_activeList;
 static enemy_t* enemy_freeList;
 static int16_t enemy_configIndex;
@@ -466,3 +466,10 @@ enemy_update(sprite_t* p)
     }
   }
 }
+
+#ifdef DEBUG
+int16_t enemy_getCount(void)
+{
+  return enemy_count;
+}
+#endif

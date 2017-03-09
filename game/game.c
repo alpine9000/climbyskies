@@ -29,9 +29,7 @@ frame_buffer_t game_onScreenBuffer;
 
 int16_t game_cameraY;
 int16_t game_screenScrollY;
-int16_t game_scroll;
 int16_t game_collisions;
-int16_t game_numEnemies;
 uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
@@ -43,6 +41,7 @@ static volatile __section(bss_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1]
 static volatile __section(bss_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
 
+static int16_t game_scroll;
 static uint16_t game_paused;
 static uint16_t game_singleStep;
 static int16_t game_targetCameraY;
@@ -55,8 +54,10 @@ static int16_t game_levelComplete;
 static uint32_t game_lastVerticalBlankCount;
 static int16_t game_turtle;
 static uint16_t game_rasterLines[GAME_RASTERAVERAGE_LENGTH];
-static uint16_t game_rasterLinesIndex ;
+static uint16_t game_rasterLinesIndex;
 static uint16_t game_maxRasterLine;
+static uint16_t game_collectTotal;				 
+static uint32_t game_total;
 static uint16_t game_average;
 static int16_t game_missedFrameCount;
 static uint16_t game_lastAverage;
@@ -65,10 +66,10 @@ static int16_t game_lastEnemyCount;
 static int16_t game_lastItemCount;
 static int16_t game_lastMissedFrameCount;
 static int16_t game_scoreBoardMode;
+static int16_t game_debugRenderFrame;
 #endif
 
 static void (*game_tileRender)(uint16_t hscroll, uint16_t itemY);
-
 
  __section(data_c)  copper_t copper  = {
 #ifdef PLAYER_HARDWARE_SPRITE
@@ -138,7 +139,6 @@ static void (*game_tileRender)(uint16_t hscroll, uint16_t itemY);
     BPL5PTH,0x0000,
   },
   .end = {0xFFFF, 0xFFFE}
-
 };
 
 void
@@ -147,6 +147,7 @@ game_ctor(void)
   game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
   game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
 }
+
 
 __EXTERNAL void
 game_init(menu_command_t command)
@@ -186,15 +187,6 @@ game_renderScore(uint16_t refresh)
   } else {
     game_levelScore--;
   }
-
-#ifdef DEBUG_SCROLL
-  if (game_scoreBoardMode == 10) {
-    text_drawScoreBoard(text_intToHex((uint32_t)tile_tilePtr, 8), 0);
-
-    text_drawScoreBoard(text_intToAscii((uint32_t)tile_tilePtr, 8), 8*10);
-    return;
-  }
-#endif
 
 #ifdef DEBUG
   if (game_scoreBoardMode == 0) {
@@ -339,7 +331,9 @@ game_loadLevel(menu_command_t command)
   game_lastLevelScore = 0;
 
 #ifdef DEBUG
+  game_collectTotal = 1;
   game_turtle = 0;
+  game_total = 0;
   game_average = 0;
   game_maxRasterLine = 0;
   game_rasterLinesIndex = 0;
@@ -349,13 +343,9 @@ game_loadLevel(menu_command_t command)
   game_lastMaxRasterLine = -1;
   game_lastEnemyCount = -1;
   game_lastItemCount = -1;
-#ifdef DEBUG_SCROLL
-  game_scoreBoardMode = 10;
-  game_collisions = 0;
-#else
   game_scoreBoardMode = 0;
   game_collisions = 1;
-#endif
+  game_debugRenderFrame = 0;
 #endif
 
   game_switchFrameBuffers();
@@ -423,7 +413,6 @@ game_switchFrameBuffers(void)
     }
   }
 
-
   frame_buffer_t save = game_onScreenBuffer;
   game_onScreenBuffer = game_offScreenBuffer;
   game_offScreenBuffer = save;
@@ -433,7 +422,7 @@ game_switchFrameBuffers(void)
 void 
 game_shakeScreen(void)
 {
-  game_shake = 6;
+  game_shake = 4;
 }
 
 
@@ -497,6 +486,7 @@ game_scrollBackground(void)
 
   gfx_setupRenderTileOffScreen();
 
+#if 0
   for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
     if (game_scroll > 0) {
       sy++;
@@ -511,6 +501,25 @@ game_scrollBackground(void)
     }
     (*game_tileRender)(tileY, itemY);
   }
+#else
+  if (game_scroll > 0) {
+    for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
+      sy++;
+      cy--;
+      tileY = (((sy-1) >> 4) << 4);
+      itemY = cy+1;
+      (*game_tileRender)(tileY, itemY);
+    }
+  } else {
+    for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
+      sy--;
+      cy++;
+      tileY = (((sy+1) >> 4) << 4);
+      itemY = cy-1;
+      (*game_tileRender)(tileY, itemY);
+    }    
+  }
+#endif
 }
 
 
@@ -519,38 +528,40 @@ game_scrollBackground(void)
 static void
 
 debug_mode1(void)
-{
-  static int16_t frame = 0;
-  
-  if (frame == 0) {
+{ 
+  if (game_debugRenderFrame == 0) {
     if (game_average != game_lastAverage) {
       text_drawScoreBoard(text_intToAscii(game_average, 4), 0);
       game_lastAverage = game_average;
     }
-  } else if(frame == 1){
+  } else if(game_debugRenderFrame == 1){
     if (game_maxRasterLine != game_lastMaxRasterLine) {
       text_drawScoreBoard(text_intToAscii(game_maxRasterLine, 4), 5*8);
       game_lastMaxRasterLine = game_maxRasterLine;
     }
-  } else if (frame == 2) {
+  } else if (game_debugRenderFrame == 2) {
+    int16_t enemy_count = enemy_getCount();
     if (enemy_count != game_lastEnemyCount) {
-      text_drawScoreBoard(text_intToAscii(enemy_count, 4), 10*8);
+      text_drawScoreBoard(text_intToAscii(enemy_count, 2), 10*8);
       game_lastEnemyCount = enemy_count;
     }
-  } else if (frame == 3) {
+  } else if (game_debugRenderFrame == 3) {
+    int16_t item_count = item_getCount();
     if (item_count != game_lastItemCount) {
-      text_drawScoreBoard(text_intToAscii(item_count, 4), 15*8);
+      text_drawScoreBoard(text_intToAscii(item_count, 2), 13*8);
       game_lastItemCount = item_count;
     }
-  } else if (frame == 4) {
+  } else if (game_debugRenderFrame == 4) {
     if (game_missedFrameCount != game_lastMissedFrameCount) {
-      text_drawScoreBoard(text_intToAscii(game_missedFrameCount, 4), 20*8);
+      text_drawScoreBoard(text_intToAscii(game_missedFrameCount, 3), 16*8);
       game_lastMissedFrameCount = game_missedFrameCount;
     }
+  } else if (game_debugRenderFrame == 5) {
+    text_drawScoreBoard(itoa(game_total), 20*8);
   }
-  frame++;
-  if (frame > 4) {
-    frame = 0;
+  game_debugRenderFrame++;
+  if (game_debugRenderFrame > 5) {
+    game_debugRenderFrame = 0;
   }
 }
 
@@ -558,23 +569,25 @@ debug_mode1(void)
 static void
 debug_showRasterLine(void)
 {  
-  switch (game_scoreBoardMode) {
-  case 1:
-    debug_mode1();
-    break;
-  case 2:
-    text_drawScoreBoard(text_intToAscii(game_cameraY, 4), 0);
-    text_drawScoreBoard(text_intToAscii(game_targetCameraY, 4), 5*8);
-    if (game_scroll > 0) {
-      text_drawScoreBoard(" ", 10*8);
-      text_drawScoreBoard(text_intToAscii(game_scroll, 4), 11*8);
-    } else {
-      text_drawScoreBoard("-", 10*8);
-      text_drawScoreBoard(text_intToAscii(-game_scroll, 4), 11*8);
+  if (hw_getRasterLine() < 220 || game_levelComplete) {
+    switch (game_scoreBoardMode) {
+    case 1:
+      debug_mode1();
+      break;
+    case 2:
+      text_drawScoreBoard(text_intToAscii(game_cameraY, 4), 0);
+      text_drawScoreBoard(text_intToAscii(game_targetCameraY, 4), 5*8);
+      if (game_scroll > 0) {
+	text_drawScoreBoard(" ", 10*8);
+	text_drawScoreBoard(text_intToAscii(game_scroll, 4), 11*8);
+      } else {
+	text_drawScoreBoard("-", 10*8);
+	text_drawScoreBoard(text_intToAscii(-game_scroll, 4), 11*8);
+      }
+      break;
     }
-    break;
   }
-  
+
   int16_t line = hw_getRasterLine() - RASTER_Y_START;  
 
   if (line < 0) {
@@ -594,7 +607,11 @@ debug_showRasterLine(void)
     game_average += game_rasterLines[i];
   }
   game_average = game_average >> 4 /* / GAME_RASTERAVERAGE_LENGTH */;
-  
+
+  if (game_collectTotal) {
+    game_total += line;
+  }
+
   return;  
 }
 #endif
@@ -676,6 +693,7 @@ void
 game_startPlayback(void)
 {
   palette_black();
+  music_restart();
   game_loadLevel(MENU_COMMAND_REPLAY);
   game_refreshScoreboard();
 }
@@ -722,6 +740,9 @@ game_processKeyboard()
     }
     break;
 #endif
+  case 'X':
+    game_collectTotal = !game_collectTotal;
+    break;
   case 'C':
     game_setLevelComplete();
     break;
@@ -824,8 +845,8 @@ game_loop()
     item_update(&player.sprite);
 
     if (game_shake == 0) {
-      if (level.clouds) {
-	cloud_update();
+      if (level.clouds && game_scroll) {
+	cloud_update(game_scroll >> 2);
       }
     } else if (game_shake > 0) {
       if (game_cameraY == WORLD_HEIGHT-SCREEN_HEIGHT) {
@@ -851,11 +872,11 @@ game_loop()
 	SPEED_COLOR(0xfff);
 	game_renderScore(0);
 	SPEED_COLOR(0x000);
+    }
       
 #ifdef DEBUG
-      debug_showRasterLine();
+    debug_showRasterLine();
 #endif
-    }
     
     sound_schedule();
     hw_waitVerticalBlank();
@@ -964,4 +985,25 @@ strlen(char* s)
   }
 
   return count;
+}
+
+char *
+itoa(int32_t i)
+{
+  static char buf[12];
+  char *p = buf + 11;
+  if (i >= 0) {
+    do {
+      *--p = '0' + (i % 10);
+      i /= 10;
+    } while (i != 0);
+    return p;
+  } else {
+    do {
+      *--p = '0' - (i % 10);
+      i /= 10;
+    } while (i != 0);
+    *--p = '-';
+  }
+  return p;
 }

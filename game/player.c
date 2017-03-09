@@ -403,10 +403,6 @@ player_processJoystick(void)
   }
 #endif
     
-#ifdef DEBUG_SCROLL
-  static int last  = -1;
-  if (hw_joystickPos != last)
-#endif
   switch (hw_joystickPos) {
   case JOYSTICK_POS_IDLE:
     player.velocity.x = 0;
@@ -421,34 +417,16 @@ player_processJoystick(void)
     }
     break;
   case JOYSTICK_POS_RIGHT:
-#ifdef DEBUG_SCROLL
-    //game_setBackgroundScroll(1, game_cameraY-1);
-#else
     player.velocity.x = PHYSICS_VELOCITY_RUN;
     if (player.state == PLAYER_STATE_ONGROUND) {
       notUpCount++;
     }
-#endif
-    break;
-  case JOYSTICK_POS_DOWN:
-#ifdef DEBUG_SCROLL
-    if (game_scroll == 0) {
-      //      game_setBackgroundScroll(-1, game_cameraY+1);
-    }
-    break;
-#endif
     break;
   case JOYSTICK_POS_UP:
-#ifndef DEBUG_SCROLL 
     if (notUpCount > NOT_UP_THRESHOLD && player.velocity.y == 0 && player.state == PLAYER_STATE_ONGROUND) {
       player.velocity.y = PHYSICS_VELOCITY_JUMP;
     } 
     notUpCount = 0;
-#else
-    if (game_scroll == 0) {
-      //      game_setBackgroundScroll(1, game_cameraY-1);
-    }
-#endif
     break;
   case JOYSTICK_POS_UPRIGHT:
     player.velocity.x =  PHYSICS_VELOCITY_RUN;
@@ -465,10 +443,6 @@ player_processJoystick(void)
     notUpCount = 0;
     break;
   }
-
-#ifdef DEBUG_SCROLL
-  last = hw_joystickPos;
-#endif
 
   return;
 }
@@ -751,47 +725,40 @@ player_updateAlive(void)
     }
   }
 
-#ifdef DEBUG_SCROLL
-  if (0) {
-#endif
-    switch (player.state) {
+  switch (player.state) {
 #ifdef GAME_JETPACK  
-    case PLAYER_STATE_JETPACK_THRUST:
-    case PLAYER_STATE_JETPACK_FALL:
-    case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
-      if (game_cameraY > 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-	game_requestCameraY(game_cameraY - ((4*16)-SCROLL_PIXELS));
-      } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
-	game_requestCameraY(game_cameraY + ((2*16)));
-      } else {
-	//game_scroll = 0;
-	game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
-      }
-      break;
-#endif
-    default:
-      if (player.velocity.y == 0 && collision) {
-	if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND &&  (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
-	  // scroll when landing on platform
-	  game_requestCameraY(game_cameraY - ((3*16)-SCROLL_PIXELS));
-	  //game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
-	}
-      } else if (player.velocity.y >= 0 &&  ((player.sprite.y-game_cameraY) >= (SCREEN_HEIGHT - 64 - PLAYER_HEIGHT))) {
-	// scroll when jumping off      
-	//game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));       
-	//	game_setBackgroundScroll(-player.velocity.y, game_cameraY + player.velocity.y );
-	game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
-	//      } else if (player.velocity.y < 0 && ((player.sprite.y-game_cameraY) < 28)) {
-      } else if (player.velocity.y < 0 && ((player.sprite.y-game_cameraY) < 32)) {
-	// fast jumping
-	//	game_requestCameraY(game_cameraY - 18);
-	game_requestCameraY(game_cameraY - 48);
-      }
-      break;
+  case PLAYER_STATE_JETPACK_THRUST:
+  case PLAYER_STATE_JETPACK_FALL:
+  case PLAYER_STATE_JETPACK_FALL_IN_COLLISION:
+    if (game_cameraY > 0 && (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
+      game_requestCameraY(game_cameraY - ((4*16)-SCROLL_PIXELS));
+    } else if (player.velocity.y > 0 &&  ((player.sprite.y-game_cameraY) > (SCREEN_HEIGHT - 64))) {
+      game_requestCameraY(game_cameraY + ((2*16)));
+    } else {
+      game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
     }
-#ifdef DEBUG_SCROLL
-  }
+    break;
 #endif
+  default:
+    if (player.velocity.y == 0 && collision) {
+      if (game_cameraY > 0 && player.state == PLAYER_STATE_ONGROUND &&  (player.sprite.y-game_cameraY) <= (SCREEN_HEIGHT-(PLAYER_SCROLL_THRESHOLD))) {
+	// scroll when landing on platform
+	game_requestCameraY(game_cameraY - ((3*16)-SCROLL_PIXELS));
+	//game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
+      }
+    } else if (player.velocity.y >= 0 &&  ((player.sprite.y-game_cameraY) >= (SCREEN_HEIGHT - 64 - PLAYER_HEIGHT))) {
+      // scroll when jumping off      
+      //game_setBackgroundScroll(-SCROLL_PIXELS*2, game_cameraY + ((2*16)));       
+      //	game_setBackgroundScroll(-player.velocity.y, game_cameraY + player.velocity.y );
+      game_requestCameraY(-1*((SCREEN_HEIGHT - 68 - PLAYER_HEIGHT)-player.sprite.y));
+      //      } else if (player.velocity.y < 0 && ((player.sprite.y-game_cameraY) < 28)) {
+    } else if (player.velocity.y < 0 && ((player.sprite.y-game_cameraY) < 32)) {
+      // fast jumping
+      //	game_requestCameraY(game_cameraY - 18);
+      game_requestCameraY(game_cameraY - 48);
+    }
+    break;
+  }
 
   if (player.sprite.y <= TILE_HEIGHT*7 && player.state == PLAYER_STATE_ONGROUND) {
     game_setLevelComplete();

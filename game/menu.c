@@ -307,13 +307,7 @@ menu_loop(void)
 
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
 
-#ifdef DEBUG_SCROLL
-  if (0) {
-#endif
-    palette_fadeIn(menuFadeIn);
-#ifdef DEBUG_SCROLL
-  }
-#endif
+  palette_fadeIn(menuFadeIn);
   
   custom->color[5] = 0x08d;  
 
@@ -338,12 +332,7 @@ menu_loop(void)
   }
 
   command = MENU_COMMAND_PLAY;
-#ifdef DEBUG_SCROLL
-  done = 1;
-#else
   done = 0;
-#endif
-
   
   while (!done) {
     hw_readJoystick();

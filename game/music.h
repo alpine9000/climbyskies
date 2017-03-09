@@ -11,6 +11,8 @@ music_setVolume(__REG("d0", int32_t volume));
 void 
 music_play(uint16_t moduleIndex);
 void
+music_restart(void);
+void
 music_next(void);
 uint16_t
 music_toggle_music(void);

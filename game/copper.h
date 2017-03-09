@@ -18,4 +18,6 @@ typedef struct {
   uint16_t end[2];
 } copper_t;
 
+extern copper_t copper;
+
 #endif

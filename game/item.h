@@ -13,7 +13,6 @@ typedef enum {
   ITEM_ANIM_HEADSMASH, // Smash non smashable platforms
 } item_anim_t;
 
-extern int16_t item_count;
 
 void
 item_init(void);
@@ -27,4 +26,8 @@ void
 item_update(sprite_t* p);
 void
 item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr);
+#ifdef DEBUG
+int16_t 
+item_getCount(void);
+#endif
 #endif

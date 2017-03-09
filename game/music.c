@@ -40,12 +40,29 @@ music_play(uint16_t moduleIndex)
   }
   music_currentModule = moduleIndex;
   uint16_t p61_Target = P61_Target;
+  music_data_ptr = music_data_ptr == music_module1 ? music_module2 : music_module1;
   disk_loadData(music_data_ptr, music_songs[moduleIndex].data, music_songs[moduleIndex].length);
   P61_Master = 0;
+  P61_Target = 0;
+  hw_waitVerticalBlank();
+  hw_waitVerticalBlank();
   P61_Init(music_data_ptr);
   P61_Target = p61_Target;
-  music_data_ptr = music_data_ptr == music_module1 ? music_module2 : music_module1;
 }
+
+
+void
+music_restart(void)
+{
+  uint16_t p61_Target = P61_Target;
+  P61_Master = 0;
+  P61_Target = 0;
+  hw_waitVerticalBlank();
+  hw_waitVerticalBlank();
+  P61_Init(music_data_ptr);
+  P61_Target = p61_Target;  
+}
+
 
 void
 music_next(void)

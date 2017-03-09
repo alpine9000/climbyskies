@@ -79,8 +79,8 @@ Notes:
     cd ../build
     tar zxf ../downloads/pkg-config-0.29.tar.gz
     cd pkg-config-0.29
-    ./configure --with-internal-glib --prefix=/usr/local LDFLAGS="-framework CoreFoundation -framework Carbon"
-    make
+    ./configure CC=clang --with-internal-glib --prefix=/usr/local LDFLAGS="-framework CoreFoundation -framework Carbon"
+    make -j4
     make install
     cd ../../
 ```
@@ -204,24 +204,7 @@ Notes:
     chmod +x /usr/local/bin/wget
 ```
 
-16. gcc osx (if you don't have gcc)
-    ```
-    cd downloads
-    curl -OL http://mirrors.concertpass.com/gcc/releases/gcc-6.3.0/gcc-6.3.0.tar.gz
-    cd ../builds
-    tar zxfv ../downloads/gcc-6.3.0.tar.gz
-    cd gcc-6.3.0
-    ./contrib/download_prerequisites
-    cd ..
-    mkdir gcc-6.3.0.build
-    cd gcc-6.3.0.build
-    ../gcc-6.3.0/configure --prefix=/usr/local/ --enable-languages=c,c++
-    make -j4
-    make install
-    cd ../../
-```
-
-17. vasm amiga gcc
+16. vasm amiga gcc
     ```
     cd repos   
     git clone https://github.com/alpine9000/gcc.git
@@ -236,7 +219,7 @@ Notes:
     cd ../../
 ```
 
-18. climby skies
+17. climby skies
     ```
     cd repos
     git clone https://github.com/alpine9000/climbyskies.git

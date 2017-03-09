@@ -5,8 +5,6 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
-//#define DEBUG_SCROLL 1
-
 #define DEBUG                         1
 #define INLINE_EVERYTHING             1
 //#define SHOW_SPEED                    1
@@ -83,6 +81,7 @@ typedef ULONG size_t;
 extern void* memcpy(void* destination, void* source, size_t num);
 extern void* memset(void *dst, int c, size_t n);
 extern int strlen(char* s);
+extern char* itoa(int32_t i);
 
 #undef __chip
 #define __section(x) __attribute__ ((section (#x))) 
@@ -95,10 +94,7 @@ typedef volatile struct Custom* custom_t;
 extern custom_t custom; 
 extern int16_t game_cameraY;
 extern int16_t game_screenScrollY;
-extern int16_t game_scroll;
 extern int16_t game_collisions;
-extern uint32_t game_frameCount;
-extern frame_buffer_t game_saveBuffer;
 extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
 extern frame_buffer_t game_scoreBoardFrameBuffer;
@@ -129,8 +125,6 @@ extern uint16_t game_keyPressed;
 #include "sound.h"
 #include "keyboard.h"
 #include "message.h"
-
-extern copper_t copper;
 
 void 
 game_loop(void);

@@ -198,16 +198,18 @@ cloud_render(frame_buffer_t fb)
 
 
 void
-cloud_update(void)
+cloud_update(int16_t scroll)
 {
   if (game_cameraY >= WORLD_HEIGHT-SCREEN_HEIGHT) {
     return;
   }
   for (int16_t i = 0; i < CLOUD_NUM_CLOUDS; i++) {
     cloud_t* cloud = &clouds[i];
-    if (game_scroll) {
-      cloud->sprite.y-=(game_scroll>>2 /* /4 */);
-    }
+
+    //if (game_scroll) {
+    //      cloud->sprite.y-=(game_scroll>>2 /* /4 */);
+    //}
+    cloud->sprite.y -= scroll;
     
     if (cloud->sprite.y >= game_cameraY+SCREEN_HEIGHT) {
       cloud->sprite.y = game_cameraY-CLOUD_HEIGHT;

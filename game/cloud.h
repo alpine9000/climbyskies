@@ -15,6 +15,6 @@ cloud_restoreBackground(void);
 void 
 cloud_render(frame_buffer_t fb);
 void 
-cloud_update(void);
+cloud_update(int16_t scroll);
 
 #endif

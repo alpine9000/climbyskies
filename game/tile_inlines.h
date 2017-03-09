@@ -19,7 +19,6 @@ tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
   }
 }
 
-__EXTERNAL uint16_t debug_xxx = 0;
 
 INLINE void
 tile_renderNextTile(uint16_t hscroll, uint16_t itemY)
