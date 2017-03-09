@@ -147,7 +147,7 @@ get_tile_spriteId(tmx_map *m, unsigned int gid)
 	}
 	char* name = zero;
 	if (p) {
-	  name = p->value;
+	  name = p->value.string;
 	  if (config.verbose) {
 	    printf("%s - prop = %s\n", ts->name, name);
 	  } 

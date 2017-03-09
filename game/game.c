@@ -1,5 +1,4 @@
 #include "game.h"
-#include "version/version.h"
 
 #ifdef SHOW_SPEED
 #define SPEED_COLOR(x) custom->color[0] = x;

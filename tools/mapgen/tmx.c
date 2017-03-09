@@ -103,7 +103,7 @@ dump_prop(tmx_property *p, int depth)
   } else {
   printf("\n%s" "properties={", padding);
     while (p) {
-      printf("\n%s\t" "'%s'='%s'", padding, p->name, p->value);
+      printf("\n%s\t" "'%s'='%s'", padding, p->name, p->value.string);
       p = p->next;
     }
     printf("\n" "%s}", padding);
