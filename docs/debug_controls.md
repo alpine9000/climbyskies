@@ -5,7 +5,7 @@ in-menu
 -------
 
 |key|command|
-|---|-------|
+|:---:|:----|
 | 1 | proceed to level 1 |
 | 2 | proceed to level 2 |
 | 3 | proceed to level 3 |
@@ -17,7 +17,7 @@ in-game
 -------
 
 |key|command|
-|---|-------|
+|:---:|:----|
 | 1 | proceed to level 1 |
 | 2 | proceed to level 2 |
 | 3 | proceed to level 3 |
