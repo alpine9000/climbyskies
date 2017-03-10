@@ -27,12 +27,12 @@ PROGRAM_BIN=out/main.bin
 
 
 # all the components that form the game
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c
 SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s
 MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
 SOUND_FILES=jump.wav coin1.wav pop.wav kill.wav falling.wav jetpack.wav jetpack_coin.wav
 LEVELS=1 2 3
-IMAGES=font8x8.png menu.png scoreboard.png message.png
+IMAGES=font8x8.png menu.png scoreboard.png popup.png
 include sprite.mk
 
 
@@ -196,8 +196,8 @@ out/menu.bin: assets/menu.png menu.pal
 out/scoreboard.bin: assets/scoreboard.png palettes/default.pal
 	$(IMAGECON) --colors=32 --full-color-palette --input=assets/scoreboard.png --output=out/scoreboard --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
 
-out/message.bin: assets/message.png palettes/default.pal
-	$(IMAGECON) --colors=32 --full-color-palette --input=assets/message.png --output=out/message --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
+out/popup.bin: assets/popup.png palettes/default.pal
+	$(IMAGECON) --colors=32 --full-color-palette --input=assets/popup.png --output=out/popup --output-bitplanes --output-png --output-palette-asm --output-palette --use-palette=palettes/default.pal
 
 out/bootblock.bin: out/bootblock.o
 	$(LD) -brawbin1 $< -o $@

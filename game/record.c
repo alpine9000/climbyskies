@@ -12,6 +12,18 @@ record_getState(void)
 
 
 void
+record_showAddress(void)
+{
+  char buffer[16];
+  
+  strcpy(buffer, itoh((uint32_t)record_ptr, 8));
+  strcat(buffer, " ");
+  strcat(buffer,  itoh(sizeof(record_t), 4));
+  popup(buffer, popup_off);
+}
+
+
+void
 record_setState(record_state_t state)
 {
   level.record->size = sizeof(record_t);

@@ -23,7 +23,7 @@ item_restoreBackground(void);
 void
 item_render(frame_buffer_t fb);
 void
-item_update(sprite_t* p);
+item_update(void);
 void
 item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr);
 #ifdef DEBUG

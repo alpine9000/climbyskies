@@ -1,11 +1,15 @@
 #include "game.h"
 
+uint16_t palette_background = 0;
+
 void
 palette_black()
 {
   for (int16_t i = 0; i < 32; i++) {
     custom->color[i] = 0x000;
   }
+
+  palette_background = 0;
 }
 
 void
@@ -18,4 +22,6 @@ palette_fadeIn(uint16_t* fadeInFadeTable)
 
     hw_waitScanLines(100);
   }
+
+  palette_background = fadeInFadeTable[63*32];
 }

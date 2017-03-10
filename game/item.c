@@ -53,6 +53,10 @@ static item_t* item_freeList;
 static __section(bss_c) item_t item_buffer[ITEM_MAX_ITEMS];
 
 
+static void
+item_updateItem(item_t* ptr);
+
+
 static item_t*
 item_getFree(void)
 {
@@ -232,6 +236,8 @@ item_render(frame_buffer_t fb)
   gfx_renderSprite16NoShiftSetup = 0;
 
   while (ptr != 0) {
+    //item_updateItem(ptr);
+
     if (ptr->state != ITEM_DEAD) {
       sprite_render16NoShift(fb, ptr->sprite);
     }
@@ -263,50 +269,55 @@ item_aabb(sprite_t* p, item_t* item)
 }
 
 
+static void
+item_updateItem(item_t* ptr)
+{
+  if (ptr->frameCounter == ptr->anim->animation.speed) {
+    ptr->sprite.imageIndex++;
+    ptr->frameCounter = 0;
+    if (ptr->sprite.imageIndex > ptr->anim->animation.stop) {
+      ptr->sprite.imageIndex = ptr->anim->animation.start;
+    }
+    ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+  } else {
+    ptr->frameCounter++;
+  }
+  
+  if (/*(ptr->frameCounter == 0) &&*/ ptr->state != ITEM_DEAD && item_aabb(&player.sprite, ptr)) {
+    switch (ptr->animId) {
+    case ITEM_ANIM_COIN:
+      game_score += 100;
+      sound_queueSound(SOUND_PICKUP);
+      ptr->state = ITEM_DEAD;
+      *ptr->tilePtr = 0;
+      ptr->deadRenderCount = 0;
+      break;
+#ifdef GAME_JETPACK
+    case ITEM_ANIM_JETPACK:
+      if (player.jetpackFuel == 0) {
+	sound_queueSound(SOUND_PICKUP);
+	player.jetpackFuel += 100;
+      }
+      break;
+#endif
+    default:
+      break;
+    }
+  }
+}
+
 void
-item_update(sprite_t* p)
+item_update(void)
 {
   item_t* ptr = item_activeList;
 
   while (ptr != 0) {
-    if (ptr->frameCounter == ptr->anim->animation.speed) {
-      ptr->sprite.imageIndex++;
-      ptr->frameCounter = 0;
-      if (ptr->sprite.imageIndex > ptr->anim->animation.stop) {
-	ptr->sprite.imageIndex = ptr->anim->animation.start;
-      }
-      ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
-    } else {
-      ptr->frameCounter++;
-    }
-
-    if (/*(ptr->frameCounter == 0) &&*/ ptr->state != ITEM_DEAD && item_aabb(p, ptr)) {
-      switch (ptr->animId) {
-      case ITEM_ANIM_COIN:
-	game_score += 100;
-	sound_queueSound(SOUND_PICKUP);
-	ptr->state = ITEM_DEAD;
-	*ptr->tilePtr = 0;
-	ptr->deadRenderCount = 0;
-	break;
-#ifdef GAME_JETPACK
-      case ITEM_ANIM_JETPACK:
-	if (player.jetpackFuel == 0) {
-	  sound_queueSound(SOUND_PICKUP);
-	  player.jetpackFuel += 100;
-	}
-	break;
-#endif
-      default:
-	break;
-      }
-    }
-
+    item_updateItem(ptr);
     item_t* save = ptr;
     ptr = ptr->next;
-
+    
     int16_t remove = 0;
-
+    
     if (save->state == ITEM_DEAD && (save->deadRenderCount++ > 2)) {
       remove = 1;
     } else {
@@ -316,11 +327,11 @@ item_update(sprite_t* p)
 	remove = 1;
       }
     }
-
+    
     if (remove) {
       item_remove(save);
       item_addFree(save);
-    }
+    }    
   }
 }
 

@@ -1,7 +1,13 @@
 #ifndef __HW_H
 #define __HW_H
 
+#ifdef GAME_BLITTER_WAIT_DEBUG
+#define hw_waitBlitter()  _hw_debugWaitBlitter()
+void 
+_hw_debugWaitBlitter(void);
+#else
 #define hw_waitBlitter()  while (((volatile struct Custom*)CUSTOM)->dmaconr & 1<<14);
+#endif
 
 void 
 hw_waitVerticalBlank(void);

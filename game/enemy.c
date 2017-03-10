@@ -140,7 +140,6 @@ static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
   },
 };
 
-
 static enemy_t*
 enemy_getFree(void)
 {
@@ -305,19 +304,6 @@ enemy_restoreBackground(void)
 }
 
 
-void
-enemy_render(frame_buffer_t fb)
-{
-  enemy_t* ptr = enemy_activeList;
-  while (ptr != 0) {
-    if (ptr->state != ENEMY_REMOVED) {
-      sprite_render(fb, ptr->sprite);
-    }
-    ptr = ptr->next;
-  }
-}
-
-
 static inline int16_t
 enemy_aabb(sprite_t* p, enemy_t* enemy)
 {
@@ -355,6 +341,98 @@ enemy_aabb(sprite_t* p, enemy_t* enemy)
 }
 
 
+static inline void
+enemy_updateEnemy(enemy_t* ptr)
+{
+  int16_t newX =  ptr->sprite.x+ptr->velocity.x;
+  if (newX > SCREEN_WIDTH) {
+    newX = -ptr->width;
+  } else if (newX < -32) {
+    newX = SCREEN_WIDTH;
+  }
+  
+  int16_t x;
+  
+  if ((ptr->sprite.x >= PLAYER_WIDTH  && ptr->sprite.x < (SCREEN_WIDTH-PLAYER_WIDTH))) {
+    if (ptr->velocity.x > 0) {
+      x = newX + PLAYER_WIDTH - (PLAYER_FUZZY_WIDTH);
+    } else {
+      x = newX + (PLAYER_FUZZY_WIDTH);
+    }
+  } else { // stop enemies just displaying when there is no platform for them
+    if (ptr->velocity.x > 0) {
+      x = newX + PLAYER_WIDTH - 1;
+    } else {
+      x = newX + 1;
+    }
+  }
+  
+  if (ptr->state == ENEMY_DEAD) {
+    ptr->velocity.y += PHYSICS_VELOCITY_G;
+    if (ptr->velocity.y > PHYSICS_TERMINAL_VELOCITY) {
+      ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
+    }
+  }
+  
+  ptr->sprite.y += ptr->velocity.y;
+  int16_t y = ptr->sprite.y + ptr->height;
+  if (ptr->state == ENEMY_ALIVE && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
+    //if (BACKGROUND_TILE(x, y) == TILE_SKY) {
+    if (!TILE_COLLISION(BACKGROUND_TILE(x, y))) {
+      if (++ptr->skyCount > 1) { // two skies means nothing to stand on
+	ptr->state = ENEMY_REMOVED;
+      } else {	    
+	newX = ptr->sprite.x;
+	ptr->velocity.x = -ptr->velocity.x;
+	if (ptr->velocity.x > 0) {
+	  ptr->animId = ptr->animId == ENEMY_ANIM_LEFT_RUN ? ENEMY_ANIM_RIGHT_RUN : ENEMY_ANIM_RIGHT_SKATE;
+	  ptr->anim = &enemy_animations[ptr->animId];
+	} else {
+	  ptr->animId = ptr->animId == ENEMY_ANIM_RIGHT_RUN ? ENEMY_ANIM_LEFT_RUN : ENEMY_ANIM_LEFT_SKATE;
+	  ptr->anim = &enemy_animations[ptr->animId];
+	}
+	ptr->sprite.imageIndex = ptr->anim->animation.start;
+	ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+      }
+    } else {
+      ptr->skyCount = 0;
+    }
+  }
+  
+  ptr->sprite.x = newX;   
+  
+  if (ptr->frameCounter == ptr->anim->animation.speed) {
+    ptr->sprite.imageIndex++;
+    ptr->frameCounter = 0;
+    if (ptr->sprite.imageIndex > ptr->anim->animation.stop) {
+      ptr->sprite.imageIndex = ptr->anim->animation.start;
+    }
+    ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+  } else {
+    ptr->frameCounter++;
+  }
+  
+  if (
+      game_collisions && 
+      ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(&player.sprite, ptr)) {
+    player_freeFall();
+  }
+}
+
+
+void
+enemy_render(frame_buffer_t fb)
+{
+  enemy_t* ptr = enemy_activeList;
+  while (ptr != 0) {
+    if (ptr->state != ENEMY_REMOVED) {
+      sprite_render(fb, ptr->sprite);
+    }
+    ptr = ptr->next;
+  }
+}
+
+
 int16_t
 enemy_headsmash(int16_t x, int16_t y)
 {
@@ -375,87 +453,13 @@ enemy_headsmash(int16_t x, int16_t y)
 
 
 void
-enemy_update(sprite_t* p)
+enemy_update(void)
 {
-  int16_t removedCount = 0;
   enemy_t* ptr = enemy_activeList;
 
-  while (ptr != 0) {
-    int16_t newX =  ptr->sprite.x+ptr->velocity.x;
-    if (newX > SCREEN_WIDTH) {
-      newX = -ptr->width;
-    } else if (newX < -32) {
-      newX = SCREEN_WIDTH;
-    }
-
-    int16_t x;
-    
-    if ((ptr->sprite.x >= PLAYER_WIDTH  && ptr->sprite.x < (SCREEN_WIDTH-PLAYER_WIDTH))) {
-      if (ptr->velocity.x > 0) {
-	x = newX + PLAYER_WIDTH - (PLAYER_FUZZY_WIDTH);
-      } else {
-	x = newX + (PLAYER_FUZZY_WIDTH);
-      }
-    } else { // stop enemies just displaying when there is no platform for them
-      if (ptr->velocity.x > 0) {
-	x = newX + PLAYER_WIDTH - 1;
-      } else {
-	x = newX + 1;
-      }
-    }
-
-    if (ptr->state == ENEMY_DEAD) {
-      ptr->velocity.y += PHYSICS_VELOCITY_G;
-      if (ptr->velocity.y > PHYSICS_TERMINAL_VELOCITY) {
-	ptr->velocity.y = PHYSICS_TERMINAL_VELOCITY;
-      }
-    }
-
-    ptr->sprite.y += ptr->velocity.y;
-    int16_t y = ptr->sprite.y + ptr->height;
-    if (ptr->state == ENEMY_ALIVE && ptr->onGround && x >= 0 && x < SCREEN_WIDTH) {
-      //if (BACKGROUND_TILE(x, y) == TILE_SKY) {
-      if (!TILE_COLLISION(BACKGROUND_TILE(x, y))) {
-	if (++ptr->skyCount > 1) { // two skies means nothing to stand on
-	    ptr->state = ENEMY_REMOVED;
-	} else {	    
-	  newX = ptr->sprite.x;
-	  ptr->velocity.x = -ptr->velocity.x;
-	  if (ptr->velocity.x > 0) {
-	    ptr->animId = ptr->animId == ENEMY_ANIM_LEFT_RUN ? ENEMY_ANIM_RIGHT_RUN : ENEMY_ANIM_RIGHT_SKATE;
-	    ptr->anim = &enemy_animations[ptr->animId];
-	  } else {
-	    ptr->animId = ptr->animId == ENEMY_ANIM_RIGHT_RUN ? ENEMY_ANIM_LEFT_RUN : ENEMY_ANIM_LEFT_SKATE;
-	    ptr->anim = &enemy_animations[ptr->animId];
-	  }
-	  ptr->sprite.imageIndex = ptr->anim->animation.start;
-	  ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
-	}
-      } else {
-	ptr->skyCount = 0;
-      }
-    }
-
-    ptr->sprite.x = newX;   
-
-    if (ptr->frameCounter == ptr->anim->animation.speed) {
-      ptr->sprite.imageIndex++;
-      ptr->frameCounter = 0;
-      if (ptr->sprite.imageIndex > ptr->anim->animation.stop) {
-	ptr->sprite.imageIndex = ptr->anim->animation.start;
-      }
-      ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
-    } else {
-      ptr->frameCounter++;
-    }
-
-    if (
-	game_collisions && 
-	ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(p, ptr)) {
-      player_freeFall();
-    }
-  
+  while (ptr != 0) { 
     enemy_t* save = ptr;
+    enemy_updateEnemy(ptr);
     ptr = ptr->next;
 
     if ((save->state == ENEMY_REMOVED && (save->deadRenderCount++ > 2)) ||
@@ -463,7 +467,6 @@ enemy_update(sprite_t* p)
 	((save->sprite.y-game_cameraY) < -(ENEMY_DROP_THRESHOLD))) {
       enemy_remove(save);
       enemy_addFree(save);
-      removedCount++;
     }
   }
 }

@@ -3,7 +3,7 @@
 	xdef _custom
 	xdef _menu_frameBuffer
 	xdef _game_scoreBoardFrameBuffer
-	xdef _message_frameBuffer
+	xdef _popup_frameBuffer
 	
 	if TRACKLOADER=1
 byteMap:
@@ -82,15 +82,15 @@ l385	equ	0
 	align 4
 _game_scoreBoardFrameBuffer:
 	dc.l	_scoreBoardBitplanes
-_message_frameBuffer:
-	dc.l	_messageBitplanes		
+_popup_frameBuffer:
+	dc.l	_popupBitplanes		
 _menu_frameBuffer:
 	dc.l	_menuBitplanes
 
 _scoreBoardBitplanes:
 	incbin  "out/scoreboard.bin"	
-_messageBitplanes:
-	incbin  "out/message.bin"
+_popupBitplanes:
+	incbin  "out/popup.bin"
 
 	section .noload
 	cnop 0,512

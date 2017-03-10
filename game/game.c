@@ -277,7 +277,6 @@ game_loseLife(void)
 }
 
 
-#ifdef GAME_RECORDING
 #ifdef DEBUG
 static void
 game_refreshDebugScoreboard(void)
@@ -291,7 +290,6 @@ game_refreshDebugScoreboard(void)
     gfx_renderSprite(game_scoreBoardFrameBuffer, 208, 184, x, 0, 16,  8);
   }
 }
-#endif
 #endif
 
 
@@ -347,7 +345,7 @@ game_loadLevel(menu_command_t command)
   game_debugRenderFrame = 0;
 #endif
 
-  message_boxOff();
+  popup_off();
 
   game_switchFrameBuffers();
 
@@ -627,7 +625,7 @@ game_render(void)
 
   enemy_saveBackground(game_offScreenBuffer);
 
-  message_boxSaveBackground(game_offScreenBuffer);
+  popup_saveBackground(game_offScreenBuffer);
 
 #ifndef PLAYER_HARDWARE_SPRITE
   player_saveBackground(game_offScreenBuffer);
@@ -646,7 +644,7 @@ game_render(void)
   SPEED_COLOR(0x050);
   enemy_render(game_offScreenBuffer);  
 
-  message_boxRender(game_offScreenBuffer);
+  popup_render(game_offScreenBuffer);
 
 #ifndef PLAYER_HARDWARE_SPRITE
   SPEED_COLOR(0x005);
@@ -698,7 +696,7 @@ void
 game_setLevelComplete(void)
 {
   if (!game_levelComplete) {
-    message_box("LEVEL COMPLETE!", game_finishLevel);
+    popup("LEVEL COMPLETE!", game_finishLevel);
     game_levelComplete = 1;
     game_collisions = 0;
   }
@@ -708,6 +706,9 @@ game_setLevelComplete(void)
 void
 game_startPlayback(void)
 {
+  game_score = 0;
+  game_lives = 3;
+
   palette_black();
   music_restart();
   game_loadLevel(MENU_COMMAND_REPLAY);
@@ -729,16 +730,15 @@ game_startRecord(void)
 int16_t
 game_processKeyboard()
 {
-#ifdef GAME_RECORDING
   switch (game_keyPressed) {
 #ifdef DEBUG
   case 'O':
     {
       static int16_t toggle = 0;
       if (!toggle) {
-	message_box("GAME OVER", (void(*)(void))0);
+	popup("GAME OVER", 0);
       } else {
-	message_boxDismiss();
+	popup_dismiss();
       }
       toggle = !toggle;
     }
@@ -762,18 +762,14 @@ game_processKeyboard()
       break;
     }
     break;
-#endif
   case 'X':
     game_collectTotal = !game_collectTotal;
     break;
-  case 'C':
-    game_setLevelComplete();
-    break;
-  case 'T':
-    game_singleStep = 1;
-    break;
-  case ' ':
-    game_paused = !game_paused;
+    
+#endif
+#ifdef GAME_RECORDING
+  case 'A':
+    record_showAddress();
     break;
   case 'R':
     game_startRecord();
@@ -784,6 +780,16 @@ game_processKeyboard()
   case 'S':
     record_setState(RECORD_IDLE);
     game_refreshScoreboard();
+    break;
+#endif
+  case 'C':
+    game_setLevelComplete();
+    break;
+  case 'T':
+    game_singleStep = 1;
+    break;
+  case ' ':
+    game_paused = !game_paused;
     break;
   case 'Z':
     music_next();
@@ -812,7 +818,7 @@ game_processKeyboard()
     game_playLevel(2);
     break;
   }
-#endif
+
   return 0;
 }
 
@@ -862,9 +868,9 @@ game_loop()
     SPEED_COLOR(0xF0F);
     player_update();
     SPEED_COLOR(0x0fF);
-    enemy_update(&player.sprite);
+    enemy_update();
     SPEED_COLOR(0x2f2);
-    item_update(&player.sprite);
+    item_update();
 
     if (game_shake == 0) {
       if (level.clouds && game_scroll) {
@@ -936,7 +942,7 @@ game_loop()
     enemy_restoreBackground();
     SPEED_COLOR(0xff0);
     item_restoreBackground();
-    message_boxRestoreBackground();
+    popup_restoreBackground();
     SPEED_COLOR(0xf00);
 #ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
@@ -987,37 +993,4 @@ void* memcpy(void* destination, void* source, size_t num)
     d[i] = s[i];
   }
   return destination;
-}
-
-
-int
-strlen(char* s) 
-{
-  int count = 0;
-  while (*s++ != 0) {
-    count++;
-  }
-
-  return count;
-}
-
-char *
-itoa(int32_t i)
-{
-  static char buf[12];
-  char *p = buf + 11;
-  if (i >= 0) {
-    do {
-      *--p = '0' + (i % 10);
-      i /= 10;
-    } while (i != 0);
-    return p;
-  } else {
-    do {
-      *--p = '0' - (i % 10);
-      i /= 10;
-    } while (i != 0);
-    *--p = '-';
-  }
-  return p;
 }

@@ -33,12 +33,12 @@ typedef struct {
 
 void
 record_setState(record_state_t state);
-
 record_state_t
 record_getState(void);
-
 void
 record_process(void);
+void
+record_showAddress(void);
 
 #else
 

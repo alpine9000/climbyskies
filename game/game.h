@@ -11,6 +11,7 @@
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
 #define GAME_RECORDING                1
+//#define GAME_BLITTER_WAIT_DEBUG       1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define CLOUD_FULLCOLOR             1
 #define INDICATOR_COLOR_INDEX        16
@@ -80,8 +81,6 @@ typedef ULONG size_t;
 
 extern void* memcpy(void* destination, void* source, size_t num);
 extern void* memset(void *dst, int c, size_t n);
-extern int strlen(char* s);
-extern char* itoa(int32_t i);
 
 #undef __chip
 #define __section(x) __attribute__ ((section (#x))) 
@@ -101,6 +100,7 @@ extern frame_buffer_t game_scoreBoardFrameBuffer;
 extern uint32_t game_score;
 extern uint16_t game_keyPressed;
 
+#include "string.h"
 #include "registers.h"
 #include "hw.h"
 #include "disk.h"
@@ -125,6 +125,7 @@ extern uint16_t game_keyPressed;
 #include "sound.h"
 #include "keyboard.h"
 #include "message.h"
+#include "popup.h"
 
 void 
 game_loop(void);

@@ -20,7 +20,7 @@ enemy_restoreBackground(void);
 void
 enemy_render(frame_buffer_t fb);
 void
-enemy_update(sprite_t* p);
+enemy_update(void);
 void
 enemy_ctor(void);
 void
