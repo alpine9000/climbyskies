@@ -1,11 +1,5 @@
 #include "game.h"
 
-#ifdef SHOW_SPEED
-#define SPEED_COLOR(x) custom->color[0] = x;
-#else
-#define SPEED_COLOR(x) 
-#endif
-
 #define GAME_SCORE_RASTERLINE_CUTOFF 220
 
 #define GAME_LEVEL_BONUS_TRANSFER_RATE 32
@@ -675,19 +669,15 @@ game_render(void)
     cloud_saveBackground(game_offScreenBuffer);
   }
   
-  SPEED_COLOR(0x500);
   if (level.clouds) {
     cloud_render(game_offScreenBuffer);
   }
-  SPEED_COLOR(0x202);
-  item_render(game_offScreenBuffer);  
-  SPEED_COLOR(0x050);
-  enemy_render(game_offScreenBuffer);  
 
+  item_render(game_offScreenBuffer);  
+  enemy_render(game_offScreenBuffer);  
   popup_render(game_offScreenBuffer);
 
 #ifndef PLAYER_HARDWARE_SPRITE
-  SPEED_COLOR(0x005);
   player_render(game_offScreenBuffer);
 #endif
 
@@ -906,11 +896,8 @@ game_loop()
     game_singleStep = 0;
 #endif
 
-    SPEED_COLOR(0xF0F);
     player_update();
-    SPEED_COLOR(0x0fF);
     enemy_update();
-    SPEED_COLOR(0x2f2);
     item_update();
 
     if (game_shake == 0) {
@@ -938,9 +925,7 @@ game_loop()
 #endif
 
     if (hw_getRasterLine() < GAME_SCORE_RASTERLINE_CUTOFF || game_levelComplete) {
-	SPEED_COLOR(0xfff);
 	game_renderScore(0);
-	SPEED_COLOR(0x000);
     }
       
 #ifdef DEBUG
@@ -969,7 +954,6 @@ game_loop()
     game_lastVerticalBlankCount = hw_verticalBlankCount;
 #endif
 
-    SPEED_COLOR(0xf00);
     game_switchFrameBuffers();
 
     if (game_cameraY != game_targetCameraY) {
@@ -979,20 +963,17 @@ game_loop()
       }
     } 
      
-    SPEED_COLOR(0x0f0);
     enemy_restoreBackground();
-    SPEED_COLOR(0xff0);
     item_restoreBackground();
     popup_restoreBackground();
-    SPEED_COLOR(0xf00);
+
 #ifndef PLAYER_HARDWARE_SPRITE
     player_restoreBackground();
 #endif
-    SPEED_COLOR(0x00f);
+
     if (level.clouds) {
       cloud_restoreBackground();
     }
-    SPEED_COLOR(0x000);
 
     game_render();
 

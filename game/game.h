@@ -7,11 +7,10 @@
 
 #define DEBUG                         1
 #define INLINE_EVERYTHING             1
-//#define SHOW_SPEED                    1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
 #define GAME_RECORDING                1
-//#define GAME_BLITTER_WAIT_DEBUG       1
+#define GAME_BLITTER_WAIT_DEBUG       1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define CLOUD_FULLCOLOR             1
 #define INDICATOR_COLOR_INDEX        16
