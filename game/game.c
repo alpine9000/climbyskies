@@ -6,6 +6,8 @@
 #define SPEED_COLOR(x) 
 #endif
 
+#define GAME_SCORE_RASTERLINE_CUTOFF 220
+
 #define GAME_LEVEL_BONUS_TRANSFER_RATE 32
 #ifdef DEBUG
 #define GAME_RASTERAVERAGE_LENGTH 16
@@ -57,6 +59,8 @@ static uint16_t game_rasterLinesIndex;
 static uint16_t game_maxRasterLine;
 static uint16_t game_collectTotal;				 
 static uint32_t game_total;
+static uint32_t game_frame;
+static uint32_t game_hwframe;
 static uint16_t game_average;
 static int16_t game_missedFrameCount;
 static uint16_t game_lastAverage;
@@ -331,6 +335,8 @@ game_loadLevel(menu_command_t command)
   game_collectTotal = 1;
   game_turtle = 0;
   game_total = 0;
+  game_frame  = 0;
+  game_hwframe = 0;
   game_average = 0;
   game_maxRasterLine = 0;
   game_rasterLinesIndex = 0;
@@ -526,40 +532,69 @@ game_scrollBackground(void)
 #ifdef DEBUG
 static void
 
-debug_mode1(void)
+debug_mode3(void)
 { 
-  if (game_debugRenderFrame == 0) {
+  switch (game_debugRenderFrame) {
+  case 0:
     if (game_average != game_lastAverage) {
       text_drawScoreBoard(text_intToAscii(game_average, 4), 0);
       game_lastAverage = game_average;
     }
-  } else if(game_debugRenderFrame == 1){
+    break;
+  case 1:
     if (game_maxRasterLine != game_lastMaxRasterLine) {
       text_drawScoreBoard(text_intToAscii(game_maxRasterLine, 4), 5*8);
       game_lastMaxRasterLine = game_maxRasterLine;
     }
-  } else if (game_debugRenderFrame == 2) {
-    int16_t enemy_count = enemy_getCount();
-    if (enemy_count != game_lastEnemyCount) {
-      text_drawScoreBoard(text_intToAscii(enemy_count, 2), 10*8);
-      game_lastEnemyCount = enemy_count;
+    break;
+  case 2:
+    {
+      int16_t enemy_count = enemy_getCount();
+      if (enemy_count != game_lastEnemyCount) {
+	text_drawScoreBoard(text_intToAscii(enemy_count, 3), 10*8);
+	game_lastEnemyCount = enemy_count;
+      }
     }
-  } else if (game_debugRenderFrame == 3) {
-    int16_t item_count = item_getCount();
-    if (item_count != game_lastItemCount) {
-      text_drawScoreBoard(text_intToAscii(item_count, 2), 13*8);
-      game_lastItemCount = item_count;
+    break;
+  case 3:
+    {
+      int16_t item_count = item_getCount();
+      if (item_count != game_lastItemCount) {
+	text_drawScoreBoard(text_intToAscii(item_count, 2), 14*8);
+	game_lastItemCount = item_count;
+      }
     }
-  } else if (game_debugRenderFrame == 4) {
-    if (game_missedFrameCount != game_lastMissedFrameCount) {
-      text_drawScoreBoard(text_intToAscii(game_missedFrameCount, 3), 16*8);
-      game_lastMissedFrameCount = game_missedFrameCount;
-    }
-  } else if (game_debugRenderFrame == 5) {
-    text_drawScoreBoard(itoa(game_total), 20*8);
-  }
+    break;
+  default:
+    break;
+  } 
   game_debugRenderFrame++;
-  if (game_debugRenderFrame > 5) {
+  if (game_debugRenderFrame > 3) {
+    game_debugRenderFrame = 0;
+  }
+}
+
+void
+debug_mode1(void)
+{ 
+  switch (game_debugRenderFrame) {
+  case 0:
+    text_drawScoreBoard(itoa(game_total), 0);
+    break;
+  case 2:
+    text_drawScoreBoard(itoa(game_frame), 9*8);
+    break;
+  case 3:
+    text_drawScoreBoard(itoa(game_hwframe), 18*8);
+    break;
+  case 4:
+    text_drawScoreBoard(text_intToAscii(game_missedFrameCount, 3),27*8);
+    break;
+  default:
+    break;
+  } 
+  game_debugRenderFrame++;
+  if (game_debugRenderFrame > 4) {
     game_debugRenderFrame = 0;
   }
 }
@@ -568,7 +603,7 @@ debug_mode1(void)
 static void
 debug_showRasterLine(void)
 {  
-  if (hw_getRasterLine() < 220 || game_levelComplete) {
+  if (hw_getRasterLine() < GAME_SCORE_RASTERLINE_CUTOFF || game_levelComplete) {
     switch (game_scoreBoardMode) {
     case 1:
       debug_mode1();
@@ -583,6 +618,9 @@ debug_showRasterLine(void)
 	text_drawScoreBoard("-", 10*8);
 	text_drawScoreBoard(text_intToAscii(-game_scroll, 4), 11*8);
       }
+      break;
+    case 3:
+      debug_mode3();
       break;
     }
   }
@@ -609,6 +647,8 @@ debug_showRasterLine(void)
 
   if (game_collectTotal) {
     game_total += line;
+    game_frame++;
+    game_hwframe = hw_verticalBlankCount;
   }
 
   return;  
@@ -741,11 +781,12 @@ game_processKeyboard()
 	popup_dismiss();
       }
       toggle = !toggle;
+      debug_mode3();
     }
     break;
   case 'D':
     game_scoreBoardMode++;
-    if (game_scoreBoardMode > 2) {
+    if (game_scoreBoardMode > 3) {
       game_scoreBoardMode = 0;
     }
     switch (game_scoreBoardMode) {
@@ -756,9 +797,9 @@ game_processKeyboard()
       break;
     case 1:
     case 2:
+    case 3:
       game_collisions = 0;
       game_refreshDebugScoreboard();
-      break;
       break;
     }
     break;
@@ -896,7 +937,7 @@ game_loop()
     }
 #endif
 
-    if (hw_getRasterLine() < 220 || game_levelComplete) {
+    if (hw_getRasterLine() < GAME_SCORE_RASTERLINE_CUTOFF || game_levelComplete) {
 	SPEED_COLOR(0xfff);
 	game_renderScore(0);
 	SPEED_COLOR(0x000);

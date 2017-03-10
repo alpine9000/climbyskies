@@ -412,9 +412,7 @@ enemy_updateEnemy(enemy_t* ptr)
     ptr->frameCounter++;
   }
   
-  if (
-      game_collisions && 
-      ptr->state == ENEMY_ALIVE && /*(ptr->frameCounter == 0) &&*/ enemy_aabb(&player.sprite, ptr)) {
+  if (game_collisions && ptr->state == ENEMY_ALIVE && enemy_aabb(&player.sprite, ptr)) {
     player_freeFall();
   }
 }
