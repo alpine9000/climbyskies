@@ -13,7 +13,6 @@
 #define GAME_BLITTER_WAIT_DEBUG       1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define CLOUD_FULLCOLOR             1
-#define INDICATOR_COLOR_INDEX        16
 
 #ifdef INLINE_EVERYTHING
 #define INLINE static inline
