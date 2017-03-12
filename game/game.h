@@ -125,6 +125,7 @@ extern uint16_t game_keyPressed;
 #include "message.h"
 #include "popup.h"
 #include "dos.h"
+#include "panic.h"
 
 void 
 game_loop(void);

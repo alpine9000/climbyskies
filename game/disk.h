@@ -6,4 +6,7 @@
 void
 disk_loadData(void* dest, void* src, int32_t size);
 
+void
+disk_write(void* src);
+
 #endif

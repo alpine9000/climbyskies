@@ -2,7 +2,7 @@
 #KEEP_ASM=1
 USE_BIG=1
 SFX=1
-
+PHOTON_TRACKLOADER=0
 
 # programs and paths
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
@@ -10,7 +10,6 @@ VASM=/usr/local/amiga/vgcc/bin/vasmm68k_mot
 LD=/usr/local/amiga/vgcc/bin/vlink
 NDK=/usr/local/amiga/vgcc/ndk/
 INCLUDE=-I$(NDK)include/
-
 
 
 # userstack used by bootblock
@@ -29,8 +28,8 @@ PROGRAM_BIN=out/main.bin
 
 
 # all the components that form the game
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c
-SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c panic.c
+SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s sg_trackdisk.s
 MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
 SOUND_FILES=jump.wav coin1.wav pop.wav kill.wav falling.wav jetpack.wav jetpack_coin.wav
 LEVELS=1 2 3
@@ -41,13 +40,13 @@ include sprite.mk
 # program arguments
 LINKER_OPTIONS=-T link.script.x
 
-VASM_ARGS=-Fhunk -quiet -esc -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+VASM_ARGS=-Fhunk -quiet -esc -DSFX=$(SFX) -allmp -DMAX_P61_SIZE=$(MAX_P61_SIZE) -DPHOTON_TRACKLOADER=$(PHOTON_TRACKLOADER)
 VASM_C_ARGS=-ldots -Fhunk -quiet -no-opt
 
-EXTRA_DEFINES=-DSFX=$(SFX) -DMAX_P61_SIZE=$(MAX_P61_SIZE)
+EXTRA_DEFINES=-DSFX=$(SFX) -DMAX_P61_SIZE=$(MAX_P61_SIZE) -DPHOTON_TRACKLOADER=$(PHOTON_TRACKLOADER)
 REGPARAM=-mregparm=2
 #VASM_OPTS=-Wa,-no-opt
-VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed
+VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-mul -Wa,-opt-div -Wa,-opt-pea #-Wa,-opt-speed 
 ifeq ($(USE_BIG), 1)
 WHOLE_PROGRAM=-fwhole-program
 endif
@@ -343,7 +342,7 @@ out/workbench/main.o: $(MODULE) $(EXTRA) $(ASSETS)
 	@$(VASM) -depend=make -DTRACKLOADER=0 $(VASM_ARGS) $< -o $@ $(INCLUDE) > $*.d
 
 out/adf/%.o: %.s
-	$(VASM) $(VASM_ARGS)  -DTRACKLOADER=1 $< -o $@ $(INCLUDE)
+	$(VASM) $(VASM_ARGS) -DTRACKLOADER=1 $< -o $@ $(INCLUDE)
 	@$(VASM) -depend=make -DTRACKLOADER=1 $(VASM_ARGS) $< -o $@ $(INCLUDE) > out/adf/$*.d
 
 out/adf/%.o: out/%.c

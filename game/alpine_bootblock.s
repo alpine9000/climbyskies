@@ -21,7 +21,8 @@ ShortWt:MACRO				;CPU-independent nop;nop replacement
     *** Boot Block starts here ***
 
 Boot:	dc.b 	'DOS',0
-	dc.l 	0,880
+	dc.l 	0
+	dc.l	$19731973
 
 BootCode:	;gathers some data, turns off OS, copies itself to $100
 
