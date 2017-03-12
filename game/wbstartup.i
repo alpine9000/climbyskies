@@ -8,6 +8,8 @@
 	include	"libraries/dosextens.i"
 	ENDC
 
+	include "workbench/startup.i"
+
 _LVOForbid	EQU	-132
 _LVOFindTask	EQU	-294
 _LVOGetMsg	EQU	-372
@@ -37,6 +39,10 @@ fromWorkbench:
 	lea	pr_MsgPort(a4),a0
 	jsr	_LVOGetMsg(A6)	;then get it
 	move.l	d0,returnMsg	;save it for later reply
+	move.l	d0,a0
+	move.l  (sm_ArgList,a0),a0
+        move.l  (wa_Lock,a0),d0
+	move.l	d0,_startupDirLock
 
 	;; do some other stuff here RSN like the command line etc
 	nop
@@ -63,4 +69,6 @@ exitToDOS:
 
 	;; startup code variable
 returnMsg:	dc.l	0
+	xdef _startupDirLock
+_startupDirLock: dc.l	0
 	endif

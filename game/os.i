@@ -111,7 +111,7 @@ StartupFromOS:
 LongJump:	
 	move.l	longJump,a7	; this isn't required as the stack pointer will not be corrupted
 	movem.l (sp)+,d0-a6     ; but it does allow us to bail out of the middle of a subroutine
-	
+
 ***************************************************
 *** Restore Sytem Parameter etc.		***
 ***************************************************
@@ -149,7 +149,8 @@ END:	lea	$dff000,a6
 	jsr	-414(a6)			; Closelibrary()
 
 	bsr	RestoreSystemClock
-
+	jsr	_hiscore_save();                ; OS should be running now, safe to do OS stuff
+	
 	movem.l	(a7)+,d0-a6
 	moveq	#0,d0
 	rts

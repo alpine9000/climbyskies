@@ -60,12 +60,12 @@ tile_renderNextTileDown(uint16_t hscroll, uint16_t itemY)
     y = FRAME_BUFFER_HEIGHT+y;
   }
 
-#define OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
-  uint16_t offset = *(tile_tilePtr+OFFSET);
+#define _OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
+  uint16_t offset = *(tile_tilePtr+_OFFSET);
   gfx_quickRenderTileOffScreen(game_offScreenBuffer, tile_tileX, y, level.spriteBitplanes+offset);
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, level.spriteBitplanes+offset);
 
-  uint16_t* ptr = tile_itemPtr+OFFSET;
+  uint16_t* ptr = tile_itemPtr+_OFFSET;
 
   if (*(ptr) != 0) {
     if (ptr < &level.item_spriteIds[MAP_TILE_HEIGHT-1][MAP_TILE_WIDTH-1]) {    

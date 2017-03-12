@@ -426,6 +426,7 @@ enemy_render(frame_buffer_t fb)
     if (ptr->state != ENEMY_REMOVED) {
       sprite_render(fb, ptr->sprite);
     }
+    enemy_updateEnemy(ptr);
     ptr = ptr->next;
   }
 }
@@ -457,7 +458,7 @@ enemy_update(void)
 
   while (ptr != 0) { 
     enemy_t* save = ptr;
-    enemy_updateEnemy(ptr);
+    //enemy_updateEnemy(ptr);
     ptr = ptr->next;
 
     if ((save->state == ENEMY_REMOVED && (save->deadRenderCount++ > 2)) ||

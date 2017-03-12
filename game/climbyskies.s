@@ -1,10 +1,9 @@
 	include "includes.i"
 	xdef _memset
-	xdef _custom
 	xdef _menu_frameBuffer
 	xdef _game_scoreBoardFrameBuffer
 	xdef _popup_frameBuffer
-	
+
 	if TRACKLOADER=1
 byteMap:
 	dc.l	Entry
@@ -125,10 +124,6 @@ _sound_kill:
 
 	endif
 	
-	align 4
-_custom:
-	dc.l	CUSTOM
-
 	if TRACKLOADER=0	
 	section	bss
 	endif

@@ -18,6 +18,7 @@ Notes:
     mkdir /usr/local/amiga/vgcc/bin
     mkdir /usr/local/amiga/vgcc/ndk
     mkdir /usr/local/amiga/vgcc/ndk/include
+    mkdir /usr/local/amiga/vgcc/ndk/lib
     cd ~/project
 ```
 
@@ -70,6 +71,7 @@ Notes:
     lha x ../downloads/NDK39.lha
     cp -r NDK_3.9/Include/include_i/* /usr/local/amiga/vgcc/ndk/include/
     cp -r NDK_3.9/Include/include_h/* /usr/local/amiga/vgcc/ndk/include/
+    cp -r NDK_3.9/Include/linker_libs/* /usr/local/amiga/vgcc/ndk/lib
     cd ..
 ```
 

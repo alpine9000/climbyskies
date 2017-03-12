@@ -66,4 +66,5 @@ dirs:
 	@mkdir -p $(INSTALL_DIR)/bin
 	@mkdir -p $(INSTALL_DIR)/ndk
 	@mkdir -p $(INSTALL_DIR)/ndk/include
+	@mkdir -p $(INSTALL_DIR)/ndk/lib
 

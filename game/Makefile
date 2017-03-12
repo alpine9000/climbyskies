@@ -8,7 +8,9 @@ SFX=1
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc
 VASM=/usr/local/amiga/vgcc/bin/vasmm68k_mot
 LD=/usr/local/amiga/vgcc/bin/vlink
-INCLUDE=-I /usr/local/amiga/vgcc/ndk/include/
+NDK=/usr/local/amiga/vgcc/ndk/
+INCLUDE=-I$(NDK)include/
+
 
 
 # userstack used by bootblock
@@ -27,7 +29,7 @@ PROGRAM_BIN=out/main.bin
 
 
 # all the components that form the game
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c
 SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s
 MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
 SOUND_FILES=jump.wav coin1.wav pop.wav kill.wav falling.wav jetpack.wav jetpack_coin.wav
@@ -54,6 +56,7 @@ BIG_FLAGS=$(WHOLE_PROGRAM)
 C_OPT_ASM_OUTPUT=-O3
 BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=64 -Wstack-usage=128 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses $(INCLUDE) $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
+C_LIBS_WB=$(NDK)/lib/amiga.lib libgcc/out/gcc.lib
 CFLAGS=$(C_OPT) $(BASE_CFLAGS)
 CFLAGS_CHECK = $(BASE_CFLAGS)
 CFLAGS_ASM_OUTPUT=$(C_OPT_ASM_OUTPUT) $(BASE_CFLAGS)
@@ -429,7 +432,7 @@ ifeq ($(USE_BIG), 1)
 endif
 
 bin/$(GAME_NAME): bin $(ALL_TOOLS)  $(ALL_WORKBENCH_OBJS) 
-	$(LD) $(C_LIBS)	-hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
+	$(LD) $(C_LIBS_WB) -hunkattr bss_c=2 -hunkattr code_c=2 -hunkattr data_c=2  $(ALL_WORKBENCH_OBJS) -o $@
 ifeq ($(USE_BIG), 1)	
 	-@rm out/workbench/big.o
 endif

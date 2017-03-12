@@ -236,8 +236,6 @@ item_render(frame_buffer_t fb)
   gfx_renderSprite16NoShiftSetup = 0;
 
   while (ptr != 0) {
-    //item_updateItem(ptr);
-
     if (ptr->state != ITEM_DEAD) {
       sprite_render16NoShift(fb, ptr->sprite);
     }

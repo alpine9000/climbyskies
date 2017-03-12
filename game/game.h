@@ -10,7 +10,7 @@
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
 #define GAME_RECORDING                1
-#define GAME_BLITTER_WAIT_DEBUG       1
+//#define GAME_BLITTER_WAIT_DEBUG       1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define CLOUD_FULLCOLOR             1
 
@@ -88,7 +88,7 @@ extern void* memset(void *dst, int c, size_t n);
 typedef volatile uint8_t* frame_buffer_t;
 typedef volatile struct Custom* custom_t;
 
-extern custom_t custom; 
+#define custom ((custom_t)0xdff000)
 extern int16_t game_cameraY;
 extern int16_t game_screenScrollY;
 extern int16_t game_collisions;
@@ -124,6 +124,7 @@ extern uint16_t game_keyPressed;
 #include "keyboard.h"
 #include "message.h"
 #include "popup.h"
+#include "dos.h"
 
 void 
 game_loop(void);
