@@ -128,6 +128,14 @@ cloud_renderTileMask(frame_buffer_t fb, int16_t x, int16_t y, uint16_t tileOffse
     }
   }
 
+  if (y-game_cameraY + h > SCREEN_HEIGHT) {
+    h -= (y-game_cameraY+h)-SCREEN_HEIGHT;
+  }
+
+  if (h <= 0) {
+    return;
+  }
+
   y = y-game_cameraY-game_screenScrollY;
 
   if (y >= 0) {
