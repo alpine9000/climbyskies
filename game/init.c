@@ -21,10 +21,21 @@ init_amiga(void)
   custom->bplcon3 = 0xc00;
   custom->bplcon4 = 0x11;
 
+#if TRACKLOADER==1
+  extern char* startBSS;
+  extern char* endBSS;
+
+  char* ptr = startBSS;
+
+  while (ptr != endBSS) {
+    *ptr++ = 0;
+  }
+#endif
+
   enemy_ctor();
   gfx_ctor();
   sprite_ctor();
-
+  
 #ifdef GAME_KEYBOARD_ENABLED
   keyboard_ctor();
 #endif

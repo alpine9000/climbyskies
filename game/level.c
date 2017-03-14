@@ -52,8 +52,7 @@ level_load(uint16_t index)
   }
 #endif
 
-
-  message_screenOn("Loading...");
+  message_loading("Loading...");
 
   music_play(level_levels[index].moduleIndex);
 
@@ -64,7 +63,9 @@ level_load(uint16_t index)
   level.record = (record_t*)&level.recordData;
 #endif
 
+#if TRACKLOADER==1
   message_screenOff();
+#endif
 
   level_current = index;
 }

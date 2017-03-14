@@ -347,7 +347,7 @@ MFMbufE	equ 	MFMbuf+MFMlen	;lowest free address. $372e for a full bootblock.
 	
 mainStart:
 	incbin  "out/main.bin"
-	cnop    0,512
+	;; cnop    0,512
 mainEnd:	
 	end
 

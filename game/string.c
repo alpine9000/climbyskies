@@ -42,6 +42,34 @@ itoa(int32_t i)
 }
 
 
+char *
+itoan(int32_t i, int16_t nChars)
+{
+  static volatile char *buf = "000000000000";
+
+  for (int16_t n = 0; n < 12; n++) {
+    buf[n] = '0';
+  }
+
+  volatile char *p = buf + 12;
+  if (i >= 0) {
+    do {
+      *--p = '0' + (i % 10);
+      i /= 10;
+    } while (i != 0);
+  } else {
+    do {
+      *--p = '0' - (i % 10);
+      i /= 10;
+    } while (i != 0);
+    *--p = '-';
+  }
+
+  USE(nChars);
+  return (char *)buf + (12-nChars);
+}
+
+
 
 char *
 strcpy(char *dest, const char *src)

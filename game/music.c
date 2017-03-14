@@ -76,7 +76,7 @@ music_next(void)
 
 
 uint16_t
-music_toggle_music(void)
+music_toggle(void)
 {
   if (P61_Target == MUSIC_MAX_MUSIC_VOLUME) {
     P61_Target = 0;

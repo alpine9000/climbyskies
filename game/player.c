@@ -392,6 +392,10 @@ player_tileCollision(int16_t x, int16_t y)
 static void
 player_processJoystick(void)
 {
+  if (game_over) {
+    return;
+  }
+
 #define NOT_UP_THRESHOLD 1
   static uint16_t notUpCount = NOT_UP_THRESHOLD;
 

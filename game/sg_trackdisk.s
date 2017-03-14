@@ -14,14 +14,15 @@
 * d0=err = td_selectdisk(d0=diskID)
 * d0=err = td_read(d0.w=firstBlock, d1.w=numBlocks, a0=destination)
 * d0=err = td_write(d0.w=firstBlock, d1.w=numBlocks, a0=source) (TDWRITE)
-* d0=err = td_format(d0.w=trackNum, a0=source) (TDFORMAT)
+* d0=err = td_format(d0.w=trackNum, a0=source, a4=checkSize) (TDFORMAT)
 * td_motoroff()
 *
 
-	include	"../include/registers.i"
+	include "../include/registers.i"
 	include	"../include/cia.i"
 
-TDWRITE		equ	1
+;; TDWRITE         equ     1
+TDFORMAT        equ     1		
 
 ; Port A bits (input)
 DSKCHANGE	equ	2
@@ -65,14 +66,23 @@ WRITESUPPORT	set	1
 	bne	.\@
 	endm
 
+
 	code
+
+
 ;---------------------------------------------------------------------------
 	xdef	_td_init
 _td_init:
+	movem.l	d1-a6,-(sp)
+	lea	CUSTOM,a6
+	bsr 	td_init
+	movem.l (sp)+,d1-a6
+	rts
+	
+td_init:
 ; Initialize the trackloader and check for connected drives.
 
-	movem.l	d2-d3/a2-a3/a6,-(sp)
-	lea	CUSTOM,a6
+	movem.l	d2-d3/a2-a3,-(sp)
 	lea	CIAA+CIAPRA,a2
 	lea	CIAB+CIAPRB,a3
 
@@ -138,16 +148,25 @@ _td_init:
 	; get Chip RAM for the MFM buffer
 	move.l	#MFM_BUFSIZE,d0
 	;; bsr	alloc_chipmem
-	;; 	move.l	d0,MFMbuffer
-	move.l	#MFMbuf,MFMbuffer
+	;; move.l	d0,MFMbuffer
+	move.l  #MFMbuf,MFMbuffer
+	
 
-	movem.l	(sp)+,d2-d3/a2-a3/a6
+	movem.l	(sp)+,d2-d3/a2-a3
 	rts
 
 
 ;---------------------------------------------------------------------------
 	xdef	_td_selectdisk
-_td_selectdisk:
+
+_td_selectdisk:	
+	movem.l d1-a6,-(sp)
+	lea     CUSTOM,a6
+        bsr     td_selectdisk
+        movem.l (sp)+,d1-a6
+	rts
+	
+td_selectdisk:
 ; Required for all read/write operations on a disk!
 ; Check if any drive contains a disk with the given disk ID. The 32-bit ID
 ; is stored in the first disk block, at offset 8.
@@ -157,8 +176,7 @@ _td_selectdisk:
 ; d0 = disk ID
 ; -> d0/Z = ok
 
-	movem.l	d2-d4/a2-a3/a5/a6,-(sp)
-	lea	CUSTOM,a6
+	movem.l	d2-d4/a2-a3/a5,-(sp)
 	move.l	d0,d4			; d4 Disk-ID
 	lea	CIAA+CIAPRA,a2
 	lea	CIAB+CIAPRB,a3
@@ -206,7 +224,7 @@ _td_selectdisk:
 
 	; read error, try the next drive
 .readerr:
-	bsr	_td_motoroff
+	bsr	td_motoroff
 	bra	.next
 
 	; read block 0 and check the ID field (track 0, sector 0, offset 8)
@@ -214,30 +232,33 @@ _td_selectdisk:
 	moveq	#0,d0
 	moveq	#1,d1
 	move.l	a5,a0
-	bsr	_td_read
+	bsr	td_read
 	bne	.readerr
 
 	cmp.l	8(a5),d4
 	bne	.readerr
 
 	; found the right disk, read its directory block (track 0, sector 1)
-
-	if 0
 	moveq	#1,d0
 	moveq	#1,d1
 	move.l	a5,a0
-	bsr	_td_read
+	bsr	td_read
 	bne	.readerr
-	endif
 
 .exit:
-	movem.l	(sp)+,d2-d4/a2-a3/a5/a6
+	movem.l	(sp)+,d2-d4/a2-a3/a5
 	rts
-
 
 ;---------------------------------------------------------------------------
 	xdef	_td_read
-_td_read:
+_td_read:	
+        movem.l d1-a6,-(sp)
+	lea     CUSTOM,a6
+	bsr     td_read
+	movem.l (sp)+,d1-a6
+	rts
+	
+td_read:
 ; Read a sequence of blocks from disk. Turns on the motor automatically.
 ; Reread a whole track up to NUM_RETRIES times on data checksum errors.
 ; d0.w = start block
@@ -245,9 +266,8 @@ _td_read:
 ; a0 = destination buffer (number of blocks * 512 bytes long)
 ; -> d0/Z = error code (0=ok)
 
-	movem.l	d2-d7/a2-a3/a5/a6,-(sp)
+	movem.l	d2-d7/a2-a3/a5,-(sp)
 
-	lea	CUSTOM,a6
 	move.w	d0,d6			; d6: current block
 	move.w	d1,d7			; d7: remaining blocks to read
 	move.l	a0,a5			; a5: buffer
@@ -343,7 +363,7 @@ _td_read:
 .ok:
 	endif
 
-	movem.l	(sp)+,d2-d7/a2-a3/a5/a6
+	movem.l	(sp)+,d2-d7/a2-a3/a5
 	rts
 
 
@@ -465,12 +485,21 @@ td_trackread:
 
 	ifd	TDFORMAT
 ;---------------------------------------------------------------------------
-	xdef	td_format
+	xdef	_td_format
+
+_td_format:	
+	movem.l d1-a6,-(sp)
+	lea     CUSTOM,a6
+	bsr     td_format
+	movem.l (sp)+,d1-a6
+	rts
+	
 td_format:
 ; Write a whole track with new contents, without reading it first.
 ; Turns on the motor automatically.
 ; d0.w = track number
 ; a0 = source buffer (SECT_PER_TRACK * 512 bytes long)
+; a4 = check size
 ; -> d0/Z = error code (0=ok)
 
 	movem.l	d6-d7/a2-a3/a5,-(sp)
@@ -499,14 +528,15 @@ td_format:
 	moveq	#SECT_PER_TRK,d0
 	mulu	d6,d0
 	moveq	#SECT_PER_TRK,d1
-	bsr	_td_read			; decode sectors
+	bsr	td_read			; decode sectors
 	bne	.error
 
 	; compare with the original buffer
 	move.l	TrackBuffer,a0
 	move.l	a5,a1
 	moveq	#0,d0
-	move.w	#(SECT_PER_TRK*512/4)-1,d1
+	;; move.w	#(SECT_PER_TRK*512/4)-1,d1
+	move.w	a4,d1
 .1:	cmpm.l	(a0)+,(a1)+
 	dbne	d1,.1
 	beq	.exit			; verified ok
@@ -534,15 +564,22 @@ td_format:
 	ifd	TDWRITE
 ;---------------------------------------------------------------------------
 	xdef	_td_write
-_td_write:
+
+_td_write:	
+	movem.l d1-a6,-(sp)
+	lea     CUSTOM,a6
+	bsr     td_write
+	movem.l (sp)+,d1-a6
+	rts
+	
+td_write:
 ; Write a sequence of blocks to disk. Turns on the motor automatically.
 ; d0.w = start block
 ; d1.w = number of blocks
 ; a0 = source buffer (number of blocks * 512 bytes long)
 ; -> d0/Z = error code (0=ok)
 
-	movem.l	d4-d7/a2/a5/a6,-(sp)
-	lea	CUSTOM,a6
+	movem.l	d4-d7/a2/a5,-(sp)
 	move.w	d0,d6			; d6: current block
 	move.w	d1,d7			; d7: remaining blocks to write
 	move.l	a0,a5			; a5: buffer
@@ -576,7 +613,7 @@ _td_write:
 	move.w	d0,d4
 	moveq	#SECT_PER_TRK,d1
 	move.l	a2,a0
-	bsr	_td_read
+	bsr	td_read
 	bne	.exit
 
 	; now copy a new modified block to the write-buffer
@@ -602,7 +639,7 @@ _td_write:
 
 .exit:
 	tst.b	d0
-	movem.l	(sp)+,d4-d7/a2/a5/a6
+	movem.l	(sp)+,d4-d7/a2/a5
 	rts
 
 	endif	; TDWRITE
@@ -921,14 +958,21 @@ td_motoron:
 
 ;---------------------------------------------------------------------------
 	xdef	_td_motoroff
-_td_motoroff:
+
+_td_motoroff:	
+	movem.l d1-a6,-(sp)
+	lea     CUSTOM,a6
+	bsr     td_motoroff
+	movem.l (sp)+,d1-a6
+	rts	
+	
+td_motoroff:
 ; Turn off the drive's motor, unselect the drive.
 
 	tst.b	MotorOn
 	beq	.1			; already off
 
-	movem.l	d2/a2-a3/a6,-(sp)
-	lea	CUSTOM,a6
+	movem.l	d2/a2-a3,-(sp)
 	lea	CIAA+CIAPRA,a2
 	lea	CIAB+CIAPRB,a3
 
@@ -945,7 +989,7 @@ _td_motoroff:
 	bset	d2,(a3)
 
 	clr.b	MotorOn
-	movem.l	(sp)+,d2/a2-a3/a6
+	movem.l	(sp)+,d2/a2-a3
 .1:	rts
 
 
@@ -1101,7 +1145,7 @@ MotorOn:
 
 
 
-	bss
+	bss_c
 
 
 	; The directory from disk block 1 is cached here. It contains
@@ -1114,7 +1158,9 @@ DirBuffer:
 TrkWriteBuffer:
 	ds.b	SECT_PER_TRK*512
 	endif
-MFMbuf:	
-	dcb.b	$1a00*2
+
+MFMbuf:
+	dcb.b   $1a00*2
 	endif
 	endif
+	

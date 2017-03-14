@@ -9,7 +9,7 @@
 #define INLINE_EVERYTHING             1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
-#define GAME_RECORDING                1
+//#define GAME_RECORDING                1
 //#define GAME_BLITTER_WAIT_DEBUG       1
 #define PLAYER_HARDWARE_SPRITE        1
 //#define CLOUD_FULLCOLOR             1
@@ -23,6 +23,9 @@
 #endif
 
 #define abs(a) ((a) >= 0 ? (a) : -(a))  
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
+#define MENU_NUM_ITEMS      7
 
 #define MAP_TILE_WIDTH      16
 #define MAP_TILE_HEIGHT     201
@@ -69,11 +72,7 @@ typedef LONG int32_t;
 typedef ULONG uint32_t;
 typedef ULONG size_t;
 
-#if defined(__GNUC__)
 #define __NOLOAD __section(section noload)
-#else
-#define __NOLOAD __section(noload)
-#endif
 
 #define __EXTERNAL __attribute__((externally_visible))
 
@@ -96,6 +95,7 @@ extern frame_buffer_t game_offScreenBuffer;
 extern frame_buffer_t game_onScreenBuffer;
 extern frame_buffer_t game_scoreBoardFrameBuffer;
 extern uint32_t game_score;
+extern uint16_t game_over;
 extern uint16_t game_keyPressed;
 
 #include "string.h"
@@ -104,6 +104,7 @@ extern uint16_t game_keyPressed;
 #include "disk.h"
 #include "init.h"
 #include "screen.h"
+#include "hiscore.h"
 #include "menu.h"
 #include "palette.h"
 #include "record.h"

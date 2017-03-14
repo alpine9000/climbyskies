@@ -4,7 +4,7 @@
 extern void palette_menuInstall(void);
 extern frame_buffer_t menu_frameBuffer;
 
-#define MENU_NUM_ITEMS             6
+
 #define MENU_TOP_COLOR             0x7ef
 #define MENU_BOTTOM_COLOR          0x5cd
 #define MENU_TOP_COLOR_SELECTED    0xbe0
@@ -71,8 +71,17 @@ typedef struct {
   void (*callback)(void);
 } menu_item_t;
 
-static void menu_music_toggle(void);
 
+static void
+menu_render(void);
+static void
+menu_toggleMusic(void);
+static void
+menu_showHiScores(void);
+static void
+menu_select(uint16_t i);
+
+static menu_mode_t menu_mode;
 menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
   {
     .text = "PLAY NOW!",
@@ -96,22 +105,30 @@ menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
     .text = "MUSIC - ON ",
     .command = MENU_COMMAND_PLAY,
     .done = 0,
-    .callback = menu_music_toggle
+    .callback = menu_toggleMusic
   },
   {
     .text = "HI SCORES",
     .command = MENU_COMMAND_PLAY,
     .done = 0,
-    .callback = 0
+    .callback = menu_showHiScores
   },
   {
     .text = "CREDITS",
     .command = MENU_COMMAND_PLAY,
     .done = 0,
     .callback = 0
+  },
+  {
+    .text = "",
+    .command = MENU_COMMAND_PLAY,
+    .done = 0,
+    .callback = 0
   }
 };
 
+
+hiscore_t* menu_hiscores;  
 
 static void 
 menu_pokeCopperList(frame_buffer_t frameBuffer)
@@ -162,31 +179,62 @@ menu_processKeyboard(void)
 
 
 static void
+menu_renderText(frame_buffer_t fb, char* text, uint16_t y)
+{
+  uint16_t len = strlen(text);
+  text_drawMaskedText8Blitter(fb, text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
+  text_drawMaskedText8Blitter(fb, text, (SCREEN_WIDTH/2)-(len<<2), y);
+  fb -= SCREEN_WIDTH_BYTES;
+  text_drawMaskedText8Blitter(fb, text, (SCREEN_WIDTH/2)-(len<<2), y);
+  fb += SCREEN_WIDTH_BYTES;
+}
+
+
+
+static void
 menu_redraw(uint16_t i)
 {
   frame_buffer_t fb = game_onScreenBuffer;
   fb += 2*SCREEN_WIDTH_BYTES;
 
-  int16_t y = 130 + (menu_selected*16);
-  uint16_t len = strlen(menu_items[i].text);
+  int16_t y = 130 + (i*16);
+
+  int16_t len = max(strlen(menu_items[i].text), strlen(menu_hiscores[i-1].text));
 
   hw_waitVerticalBlank();
+  gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3)+2, 9, 1);
 
-  gfx_fillRectSmallScreen(game_onScreenBuffer, (SCREEN_WIDTH/2)-(len<<2), y, (len<<3), 9, 1);
-
-  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
-  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
-
-  fb -= SCREEN_WIDTH_BYTES;
-  text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(strlen(menu_items[i].text)<<2), y);
+  if (menu_mode == MENU_MODE_MENU) {        
+    menu_renderText(fb, menu_items[i].text, y);
+  } else {
+    if (i == 0) {
+      menu_renderText(fb, "HI SCORES", y);
+    } else {
+      menu_renderText(fb, menu_hiscores[i-1].text, y);
+    }
+  }
 }
 
+static void menu_refresh(void)
+{
+  for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
+    menu_redraw(i);
+  }    
+}
+
+static void
+menu_showHiScores(void)
+{
+  menu_mode = MENU_MODE_HISCORES;
+  menu_select(0);
+  menu_refresh();
+}
 
 static void
 menu_update_music_menu(void)
 {
   for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
-    if (menu_items[i].callback == menu_music_toggle) {
+    if (menu_items[i].callback == menu_toggleMusic) {
       if (music_enabled()) {
 	menu_items[i].text = "MUSIC - ON ";
       } else {
@@ -207,30 +255,49 @@ menu_render(void)
   fb += 2*SCREEN_WIDTH_BYTES;
   uint16_t y = 130;
 
-  for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
-    uint16_t len = strlen(menu_items[i].text);
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2)+1, y+1);
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(len<<2), y);
-    fb -= SCREEN_WIDTH_BYTES;
-    text_drawMaskedText8Blitter(fb, menu_items[i].text, (SCREEN_WIDTH/2)-(strlen(menu_items[i].text)<<2), y);
-    fb += SCREEN_WIDTH_BYTES;
+  switch (menu_mode) {
+  case MENU_MODE_MENU:
+    for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
+      menu_renderText(fb, menu_items[i].text, y);
+      y+= 16;
+    }
+    break;
+  case MENU_MODE_HISCORES:
+    menu_renderText(fb, "HI SCORES", y);
     y+= 16;
+    for (uint16_t i = 0; i < HISCORE_NUM_SCORES; i++) {
+      menu_renderText(fb, menu_hiscores[i].text, y);
+      y+= 16;
+    }
+    break;
   }
 }
 
+
 static void
-menu_music_toggle(void)
+menu_toggleMusic(void)
 {
-  music_toggle_music();
+  music_toggle();
   menu_update_music_menu();
   menu_redraw(menu_selected);
 }
 
 
 static void
+menu_select(uint16_t i)
+{
+  hw_waitVerticalBlank();
+  menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
+  menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR;
+  menu_selected = i;
+  menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR_SELECTED;
+  menu_copper.lines[menu_selected].color2[1] = MENU_BOTTOM_COLOR_SELECTED;    
+}
+
+static void
 menu_up(void)
 {
-  if (menu_selected > 0) {
+  if (menu_mode == MENU_MODE_MENU && menu_selected > 0) {
     sound_playSound(SOUND_MENU);
     hw_waitVerticalBlank();
     menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
@@ -247,7 +314,7 @@ menu_up(void)
 static void
 menu_down(void)
 {
-  if (menu_selected < MENU_NUM_ITEMS-1) {
+  if (menu_mode == MENU_MODE_MENU && menu_selected < MENU_NUM_ITEMS-1) {
     sound_playSound(SOUND_MENU);    
     hw_waitVerticalBlank();
     menu_copper.lines[menu_selected].color1[1] = MENU_TOP_COLOR;
@@ -264,14 +331,20 @@ menu_down(void)
 
 
 __EXTERNAL menu_command_t
-menu_loop(void)
+menu_loop(menu_mode_t mode)
 {
   menu_command_t command;
   uint16_t done;
   volatile uint16_t scratch;
 
+  menu_mode = mode;
+
+  menu_hiscores = hiscore_render();
+
   sound_init();
-  message_screenOn("Loading...");
+
+  message_loading("Loading...");
+
   disk_loadData((void*)game_onScreenBuffer, (void*)menu_frameBuffer, SCREEN_WIDTH_BYTES*SCREEN_HEIGHT*SCREEN_BIT_DEPTH);
   message_screenOff();
 
@@ -337,10 +410,15 @@ menu_loop(void)
   while (!done) {
     hw_readJoystick();
     if (JOYSTICK_BUTTON_DOWN) {
-      command = menu_items[menu_selected].command;
-      done = menu_items[menu_selected].done;
-      if (menu_items[menu_selected].callback != 0) {
-	menu_items[menu_selected].callback();
+      if (menu_mode == MENU_MODE_HISCORES) {
+	menu_mode = MENU_MODE_MENU;
+	menu_refresh();
+      } else {
+	command = menu_items[menu_selected].command;
+	done = menu_items[menu_selected].done;
+	if (menu_items[menu_selected].callback != 0) {
+	  menu_items[menu_selected].callback();
+	}
       }
       do {
 	hw_readJoystick();

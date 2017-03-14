@@ -30,6 +30,7 @@ uint32_t game_score;
 uint32_t game_lives;
 uint16_t game_level;
 uint16_t game_keyPressed;
+uint16_t game_over;
 
 static volatile __section(bss_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(bss_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
@@ -38,6 +39,7 @@ static volatile __section(bss_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1]
 
 static int16_t game_scroll;
 static uint16_t game_paused;
+static uint16_t game_gotoMenu;				 
 static uint16_t game_singleStep;
 static int16_t game_targetCameraY;
 static int16_t game_shake;
@@ -149,17 +151,6 @@ game_ctor(void)
 __EXTERNAL void
 game_init(menu_command_t command)
 {
-#if TRACKLOADER==1
-  extern char* startBSS;
-  extern char* endBSS;
-
-  char* ptr = startBSS;
-
-  while (ptr != endBSS) {
-    *ptr++ = 0;
-  }
-#endif
-
   hw_waitVerticalBlank();
   palette_black();
 
@@ -181,7 +172,7 @@ game_renderScore(uint16_t refresh)
       game_score += game_levelScore>>2;
       game_levelScore = 0;
     }
-  } else {
+  } else if (!game_over) {
     game_levelScore--;
   }
 
@@ -262,15 +253,29 @@ game_refreshScoreboard(void)
 #endif
 }
 
+void
+game_overCallback(void)
+{
+  game_gotoMenu = 1;  
+  hiscore_addScore(game_score);
+}
+
+void
+game_finish(void)
+{
+  game_collisions = 0;
+  game_over = 1;
+  popup("GAME OVER!", game_overCallback);
+}
 
 void
 game_loseLife(void)
 { 
-  if (game_lives > 0) {
+  if (game_lives > 1) {
     game_lives--;
     game_refreshScoreboard();
   } else {
-    // game over
+    game_finish();
   }
 }
 
@@ -317,6 +322,8 @@ game_loadLevel(menu_command_t command)
   game_scroll = 0;
   game_singleStep = 0;
   game_paused = 0;
+  game_over = 0;
+  game_gotoMenu = 0;
   game_screenScrollY = 0;
   game_shake = 0;
   game_requestCameraY(WORLD_HEIGHT-SCREEN_HEIGHT);
@@ -764,14 +771,9 @@ game_processKeyboard()
 #ifdef DEBUG
   case 'O':
     {
-      static int16_t toggle = 0;
-      if (!toggle) {
-	popup("GAME OVER", 0);
-      } else {
-	popup_dismiss();
-      }
-      toggle = !toggle;
-      debug_mode3();
+      game_finish();
+      break;
+      
     }
     break;
   case 'D':
@@ -829,7 +831,7 @@ game_processKeyboard()
     game_playLevel(game_level+1);
     break;
   case 'M':
-    music_toggle_music();
+    music_toggle();
     break;
 #ifdef GAME_JETPACK
   case 'J':
@@ -860,18 +862,20 @@ game_loop()
 {
   game_ctor();
 
-  message_screenOn("Welcome to Climby Skies!");
+  message_loading("Welcome to Climby Skies!");
 
   music_play(0);   
 
   hw_interruptsInit(); // Don't enable interrupts until music is set up
 
-  music_toggle_music();
+  music_toggle();
+
+  hiscore_ctor();
 
   menu_command_t menuCommand;
  menu:
   game_level = 0;
-  if ((menuCommand = menu_loop()) == MENU_COMMAND_EXIT) {
+  if ((menuCommand = menu_loop(game_over == 1 ? MENU_MODE_HISCORES : MENU_MODE_MENU)) == MENU_COMMAND_EXIT) {
 #if TRACKLOADER==0
     goto done;
 #endif
@@ -879,7 +883,7 @@ game_loop()
 
   game_init(menuCommand);
 
-  for (;;) {
+  for (;;) {    
     game_keyPressed = keyboard_getKey();
     hw_readJoystick();
 
@@ -895,7 +899,7 @@ game_loop()
     }
     game_singleStep = 0;
 #endif
-
+    
     player_update();
     enemy_update();
     item_update();
@@ -933,6 +937,11 @@ game_loop()
 #endif
     
     sound_schedule();
+
+    if (game_gotoMenu) {
+      goto menu;
+    }
+
     hw_waitVerticalBlank();
 #ifdef PLAYER_HARDWARE_SPRITE
     // this was before hw_waitVerticalBlank but caused glitches when things went too fast

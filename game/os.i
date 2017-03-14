@@ -67,6 +67,7 @@ WAITBLIT	MACRO
 StartupFromOS:
 	movem.l	d0-a6,-(a7)
 
+	jsr	_hiscore_load
 	bsr     SaveSystemClock
 	move.l	$4.w,a6
 	lea	GFXname(pc),a1

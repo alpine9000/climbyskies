@@ -15,7 +15,7 @@ music_restart(void);
 void
 music_next(void);
 uint16_t
-music_toggle_music(void);
+music_toggle(void);
 uint16_t
 music_enabled(void);
 #endif

@@ -1,6 +1,7 @@
 #ifndef __KEYBOARD_H
 #define __KEYBOARD_H
 
+extern uint16_t keyboard_code;
 void
 keyboard_ctor(void);
 void

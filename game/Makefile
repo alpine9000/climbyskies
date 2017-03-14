@@ -2,7 +2,7 @@
 #KEEP_ASM=1
 USE_BIG=1
 SFX=1
-PHOTON_TRACKLOADER=0
+PHOTON_TRACKLOADER=1
 
 # programs and paths
 CC=/usr/local/amiga/vgcc/bin/m68k-amigaos-gcc

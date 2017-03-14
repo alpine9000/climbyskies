@@ -1,12 +1,14 @@
 MEMORY 
 {
-    disk: org = 0x4000, len = 901120-0x4000
+    disk: org = 0x4000, len = 901120-0x4000-(512*11)
+    endDisk: org = 895488+0x3c00, len = 512*11
     ram: org = 0x00000, len = 0x80000
 }
 
 SECTIONS
 {
     load : { 
+    	. = 0x4000;
         startCode = .;
         _startCode = .;
         *(CODE)
@@ -26,6 +28,10 @@ SECTIONS
         *(noload)
         endData = .;
     } > disk
+
+    lastTrack (LOAD) : {
+       *(lastTrack)
+    } > endDisk;
 
     bss (NOLOAD) : {
         . = endCode;

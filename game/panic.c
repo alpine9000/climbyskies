@@ -4,7 +4,6 @@
 void
 _panic(char* message)
 {
-  message_screenOff();
   message_screenOn(message);
   for(;;);
 }

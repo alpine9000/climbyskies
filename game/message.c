@@ -3,7 +3,6 @@
 
 static uint16_t message_on = 0;
 
-#if TRACKLOADER==1
 typedef struct {
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
   uint16_t end[2];
@@ -39,20 +38,22 @@ message_pokeCopperList(frame_buffer_t frameBuffer)
     copperPtr = copperPtr + 4;
   }
 }
-#endif
 
 
 void
 message_screenOn(char* message)
 {
   if (message_on) {
+    gfx_fillRectSmallScreen(game_offScreenBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    text_drawMaskedText8Blitter(game_offScreenBuffer, message, (SCREEN_WIDTH/2)-(strlen(message)*4), (SCREEN_HEIGHT/2)+4);
+    hw_waitBlitter();
+    custom->bltafwm = 0xffff;
     return;
   }
 
   hw_waitVerticalBlank();
   palette_black();
 
-#if TRACKLOADER==1
   volatile uint16_t scratch;
 
   custom->dmacon = DMAF_RASTER|DMAF_SPRITE;
@@ -79,7 +80,6 @@ message_screenOn(char* message)
   /* install copper list, then enable dma and selected interrupts */
   custom->cop1lc = (uint32_t)copperPtr;
   scratch = custom->copjmp1;
-
   USE(scratch);
 
   message_pokeCopperList(game_offScreenBuffer);
@@ -87,10 +87,8 @@ message_screenOn(char* message)
   custom->dmacon = (DMAF_BLITTER|DMAF_SETCLR|DMAF_COPPER|DMAF_RASTER|DMAF_MASTER);
 
   hw_waitVerticalBlank();
+
   custom->color[1] = 0xfff;
-#else
-  USE(message);
-#endif
 
   message_on = 1;
 }
@@ -98,17 +96,28 @@ message_screenOn(char* message)
 void
 message_screenOff(void)
 {
+  if (message_on) {
+    hw_waitVerticalBlank();
+    palette_black();
+    
+    gfx_fillRectSmallScreen(game_offScreenBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
+    hw_waitBlitter();
+    
+    hw_waitVerticalBlank();
+    screen_setup((uint16_t*)&copper);
+    
+    message_on = 0;
+  }
+}
+
+void
+message_loading(char* message)
+{
 #if TRACKLOADER==1
-  hw_waitVerticalBlank();
-  palette_black();
-
-  gfx_fillRectSmallScreen(game_offScreenBuffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-  hw_waitBlitter();
-
-  hw_waitVerticalBlank();
-  screen_setup((uint16_t*)&copper);
+  message_screenOn(message);
+#else
+  USE(message);
 #endif
-  message_on = 0;
 }
 
 
