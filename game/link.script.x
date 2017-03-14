@@ -43,6 +43,11 @@ SECTIONS
         *(BSS_C)
 	*(CHIP_BSS)
 	_endBSS = .;
+    } > ram;
+
+    random (NOLOAD) : {
+    	. = _endBSS;
+    	*(random_c)
 	endRam = .;
     } > ram;
 }

@@ -110,9 +110,11 @@ hiscore_t*
 hiscore_render(void)
 {
   for (int16_t i = 0; i < HISCORE_NUM_SCORES; i++) {
+    hiscore.scores[i].name[sizeof(hiscore.scores[i].name)-1] = 0;
     strcpy(hiscore.scores[i].text, itoan(hiscore.scores[i].score, 6));
-    strcpy(&hiscore.scores[i].text[6], " - ");
-    strcpy(&hiscore.scores[i].text[9], hiscore.scores[i].name);
+    strcpy(&hiscore.scores[i].text[6], " -    ");
+    int16_t nameLen = strlen(hiscore.scores[i].name);
+    strcpy(&hiscore.scores[i].text[9+(3-nameLen)], hiscore.scores[i].name);
   }
   
   return hiscore.scores;
@@ -127,8 +129,6 @@ hiscore_saveData(void)
 
   message_loading("Saving hi score...");
   disk_write(&hiscore_disk, &hiscore, 1);
-  message_loading("Checking hi score...");
-  hiscore_load();
   message_screenOff();
 }
 #endif

@@ -2,6 +2,8 @@
 #define __POPUP_H
 
 void
+popup_ctor(void);
+void
 popup(char* popup, void (*callback)(void));
 void
 popup_dismiss(void);

@@ -60,6 +60,7 @@ static  __section(data_c)  menu_copper_t menu_copper  = {
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 3),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 4),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 5),
+    //   MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 6), todo: handle copper overflow
   },
   .end = {0xFFFF, 0xFFFE}
 };

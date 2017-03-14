@@ -8,8 +8,8 @@ P61_Init(__REG("a0", void* module));
 
 __EXTERNAL uint16_t P61_Target = 0;
 
-__section(bss_c) uint32_t music_module1[(MAX_P61_SIZE+512)/4];
-__section(bss_c) uint32_t music_module2[(MAX_P61_SIZE+512)/4];
+__section(random_c) uint32_t music_module1[(MAX_P61_SIZE+512)/4];
+__section(random_c) uint32_t music_module2[(MAX_P61_SIZE+512)/4];
 
 static __NOLOAD DISK_SECTOR_ALIGN uint8_t music_level_a[] = {
 #include "out/P61.climbyskies_ingame_a.h"
@@ -29,7 +29,8 @@ static music_song_t music_songs[] = {
   { music_level_b, sizeof(music_level_b)}
 };
 
-static void* music_data_ptr = music_module1;
+static void* music_current_ptr = music_module1;
+__EXTERNAL void* music_spare_ptr = music_module2;
 static uint16_t music_currentModule = 0xFFFF;
 
 void 
@@ -40,13 +41,14 @@ music_play(uint16_t moduleIndex)
   }
   music_currentModule = moduleIndex;
   uint16_t p61_Target = P61_Target;
-  music_data_ptr = music_data_ptr == music_module1 ? music_module2 : music_module1;
-  disk_loadData(music_data_ptr, music_songs[moduleIndex].data, music_songs[moduleIndex].length);
+  disk_loadData(music_spare_ptr, music_songs[moduleIndex].data, music_songs[moduleIndex].length);
+  music_current_ptr = music_current_ptr == music_module1 ? music_module2 : music_module1;
+  music_spare_ptr = music_spare_ptr == music_module1 ? music_module2 : music_module1;
   P61_Master = 0;
   P61_Target = 0;
   hw_waitVerticalBlank();
   hw_waitVerticalBlank();
-  P61_Init(music_data_ptr);
+  P61_Init(music_current_ptr);
   P61_Target = p61_Target;
 }
 
@@ -59,7 +61,7 @@ music_restart(void)
   P61_Target = 0;
   hw_waitVerticalBlank();
   hw_waitVerticalBlank();
-  P61_Init(music_data_ptr);
+  P61_Init(music_current_ptr);
   P61_Target = p61_Target;  
 }
 

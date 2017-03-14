@@ -86,7 +86,7 @@ static enemy_t* enemy_freeList;
 static int16_t enemy_configIndex;
 static int16_t enemy_yIndex;
 static uint16_t enemy_yStarts[WORLD_HEIGHT];
-static __section(bss_c) enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
+static __section(random_c) enemy_t enemy_buffer[ENEMY_MAX_ENEMIES];
 
 typedef struct {
   int16_t x;

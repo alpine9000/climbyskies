@@ -31,7 +31,7 @@ static int16_t cloudX[] = {
 
 static int16_t cloudXIndex = 0;
 
-static __section(bss_c) cloud_t clouds[CLOUD_NUM_CLOUDS];
+static __section(random_c) cloud_t clouds[CLOUD_NUM_CLOUDS];
 
 static cloud_t _clouds[CLOUD_NUM_CLOUDS] = {
   {

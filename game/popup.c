@@ -22,9 +22,13 @@ typedef struct {
   void (*callback)(void);
 } popup_box_sprite_t;
 
-static __section(bss_c) popup_box_sprite_t popup_boxSprite = {
-  .visible = 0
-};
+static __section(random_c) popup_box_sprite_t popup_boxSprite;
+
+void 
+popup_ctor(void)
+{
+  popup_boxSprite.visible = 0;
+}
 
 void
 popup_render(frame_buffer_t fb)

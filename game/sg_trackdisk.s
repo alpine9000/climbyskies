@@ -21,6 +21,7 @@
 	include "../include/registers.i"
 	include	"../include/cia.i"
 
+TrackBuffer     equ 	_music_spare_ptr
 ;; TDWRITE         equ     1
 TDFORMAT        equ     1		
 
@@ -1109,8 +1110,8 @@ Directory:
 
 	ifne	WRITESUPPORT
 	; track buffer (when writing a track)
-TrackBuffer:
-	dc.l	TrkWriteBuffer
+;; TrackBuffer:
+;; dc.l	TrkWriteBuffer
 	endif
 
 
@@ -1155,8 +1156,8 @@ DirBuffer:
 	ds.w	256
 
 	ifne	WRITESUPPORT
-TrkWriteBuffer:
-	ds.b	SECT_PER_TRK*512
+	;; TrkWriteBuffer:
+	;; ds.b	SECT_PER_TRK*512
 	endif
 
 MFMbuf:

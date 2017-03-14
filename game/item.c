@@ -50,7 +50,7 @@ static sprite_animation_t item_animations[] = {
 static int16_t item_count;
 static item_t* item_activeList;
 static item_t* item_freeList;
-static __section(bss_c) item_t item_buffer[ITEM_MAX_ITEMS];
+static __section(random_c) item_t item_buffer[ITEM_MAX_ITEMS];
 
 
 static void
