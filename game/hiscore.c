@@ -205,7 +205,7 @@ hiscore_prompt(char* message)
 void
 hiscore_addScore(uint32_t score)
 {
-  int16_t i;
+  int16_t i, dirty = 0;
   char* name;
 
   for (i = HISCORE_NUM_SCORES-1; i >= 0; i--) {
@@ -217,19 +217,23 @@ hiscore_addScore(uint32_t score)
 	hiscore.scores[i].score = score;
 	name = hiscore_prompt("A NEW HIGH SCORE!!!");
 	strcpy(hiscore.scores[i].name, (char*)name);
+	dirty = 1;
       }
     } else {
       if (i < HISCORE_NUM_SCORES-1) {
 	hiscore.scores[i+1].score = score;
 	name = hiscore_prompt("YOU ARE ON THE SCORE BOARD!");
 	strcpy(hiscore.scores[i+1].name, (char*)name);
+	dirty = 1;
       }
       break;
     }
   }
 
 #if TRACKLOADER==1
-  hiscore_saveData();
+  if (dirty) {
+    hiscore_saveData();
+  }
 #endif
 }
 
