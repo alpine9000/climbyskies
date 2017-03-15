@@ -22,6 +22,7 @@
 	include	"../include/cia.i"
 
 TrackBuffer     equ 	_music_spare_ptr
+Directory	equ	_music_spare_ptr
 ;; TDWRITE         equ     1
 TDFORMAT        equ     1		
 
@@ -1101,6 +1102,7 @@ td_delay:
 
 
 
+	if 0
 	section	data_c
 
 
@@ -1110,10 +1112,10 @@ Directory:
 
 	ifne	WRITESUPPORT
 	; track buffer (when writing a track)
-;; TrackBuffer:
-;; dc.l	TrkWriteBuffer
+TrackBuffer:
+	dc.l	TrkWriteBuffer
 	endif
-
+	endif
 
 
 	section	bss_c
@@ -1152,12 +1154,14 @@ MotorOn:
 	; The directory from disk block 1 is cached here. It contains
 	; up to 255 start blocks for files. The file length is calculated
 	; by using the next start block.
+	if 0
 DirBuffer:
 	ds.w	256
 
 	ifne	WRITESUPPORT
-	;; TrkWriteBuffer:
-	;; ds.b	SECT_PER_TRK*512
+TrkWriteBuffer:
+	ds.b	SECT_PER_TRK*512
+	endif
 	endif
 
 MFMbuf:

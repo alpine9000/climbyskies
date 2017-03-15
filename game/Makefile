@@ -53,7 +53,7 @@ endif
 C_OPT=-O3
 BIG_FLAGS=$(WHOLE_PROGRAM)
 C_OPT_ASM_OUTPUT=-O3
-BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=64 -Wstack-usage=128 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses $(INCLUDE) $(EXTRA_DEFINES)
+BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=256 -Wstack-usage=256 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses $(INCLUDE) $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 C_LIBS_WB=$(NDK)/lib/amiga.lib libgcc/out/gcc.lib
 CFLAGS=$(C_OPT) $(BASE_CFLAGS)
