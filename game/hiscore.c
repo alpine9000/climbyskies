@@ -46,33 +46,38 @@ hiscore_checksum(void)
 
 
 #if TRACKLOADER==1
-void
+uint16_t
 hiscore_load(void)
 {
+  uint16_t error = 0;
 #ifdef DEBUG
   if (sizeof(hiscore_disk) != 512) {
     PANIC("(sizeof(hiscore_disk) != 512");
   }
 #endif
 
-  disk_loadData(&hiscore, &hiscore_disk, sizeof(hiscore_disk));
+   error = disk_loadData(&hiscore, &hiscore_disk, sizeof(hiscore_disk));
 
-  uint32_t checksum = hiscore_checksum();
-
-  if (checksum != hiscore.checksum) {
-    message_loading(itoa(hiscore.checksum));
-    for (volatile int16_t x = 0; x < 200; x++) {
+  if (error) {
+    message_loading("error loading hiscore...");
+    for(int16_t i = 0; i < 200; i++) {
       hw_waitVerticalBlank();
-    }  
-    message_loading(itoa(checksum));
-    for (volatile int16_t x = 0; x < 200; x++) {
-      hw_waitVerticalBlank();
-    }  
-    message_screenOff();
+    }
+  } else {
+    uint32_t checksum = hiscore_checksum();
+    
+    if (checksum != hiscore.checksum) {
+      message_loading("hiscore checksum mismatch...");
+      for(int16_t i = 0; i < 200; i++) {
+	hw_waitVerticalBlank();
+      }
+    }
   }
+
+  return error;
 }
 #else
-__EXTERNAL void
+__EXTERNAL uint16_t
 hiscore_load(void)
 {
   int16_t loaded = 0;
@@ -93,6 +98,8 @@ hiscore_load(void)
   if (!loaded) {
     disk_loadData(&hiscore, &hiscore_disk, sizeof(hiscore_disk));
   }
+  
+  return 0;
 }
 
 #endif
@@ -234,6 +241,8 @@ hiscore_addScore(uint32_t score)
   if (dirty) {
     hiscore_saveData();
   }
+#else
+  USE(dirty);
 #endif
 }
 

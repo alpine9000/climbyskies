@@ -44,10 +44,11 @@ td_doInit(void)
 #endif
 
 
-void
+uint16_t
 disk_loadData(void* dest, void* src, int32_t size)
 {
 #if TRACKLOADER==1
+  uint16_t error = 0;
   int32_t startSector = ((((uint32_t)src)-((uint32_t)&startCode))>>9)+2; // +2 for bootblock
   int16_t numSectors = (size+512)>>9;
 #if PHOTON_TRACKLOADER==1
@@ -61,17 +62,22 @@ disk_loadData(void* dest, void* src, int32_t size)
 #endif
 
   td_doInit();
-  td_read(startSector+(numSectors-1), 1, dest);
-  volatile char* d = (char*)dest+((numSectors-1)*512);
-  char* s = dest;
-  for (int16_t i = 0; i < 512 && d < ((char*)dest)+size; i++, d++, s++) {
-    *d = *s;
-  }
-  if (numSectors > 1) {
-    td_read(startSector, numSectors-1, dest);
-  }
-  td_motoroff();
+  error = td_read(startSector+(numSectors-1), 1, dest);
 
+  if (!error) {
+    
+    volatile char* d = (char*)dest+((numSectors-1)*512);
+    char* s = dest;
+    for (int16_t i = 0; i < 512 && d < ((char*)dest)+size; i++, d++, s++) {
+      *d = *s;
+    }
+    if (numSectors > 1) {
+      error = td_read(startSector, numSectors-1, dest);
+    }
+  }
+
+  td_motoroff();
+  return error;
 #endif
 
 #else
@@ -82,6 +88,7 @@ disk_loadData(void* dest, void* src, int32_t size)
     *d++ = *s++;
   }
 
+  return 0;
 #endif
 }
 

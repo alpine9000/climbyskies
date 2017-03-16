@@ -33,9 +33,9 @@ uint16_t game_keyPressed;
 uint16_t game_over;
 
 static volatile __section(random_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-				    //static volatile __section(random_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
+static volatile __section(random_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
 static volatile __section(random_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-				    //static volatile __section(random_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
+static volatile __section(random_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
 
 static int16_t game_scroll;
 static uint16_t game_paused;

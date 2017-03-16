@@ -14,6 +14,9 @@ typedef struct {
 void
 hiscore_ctor(void);
 
+uint16_t
+hiscore_load(void);
+
 hiscore_t*
 hiscore_render(void);
 

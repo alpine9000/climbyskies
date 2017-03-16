@@ -7,7 +7,7 @@
 #define DISK_SECTOR_ALIGN
 #endif
 
-void
+uint16_t
 disk_loadData(void* dest, void* src, int32_t size);
 
 void

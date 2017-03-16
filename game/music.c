@@ -8,8 +8,8 @@ P61_Init(__REG("a0", void* module));
 
 __EXTERNAL uint16_t P61_Target = 0;
 
-__section(random_c) uint32_t music_module1[(MAX_P61_SIZE+512)/4];
-__section(random_c) uint32_t music_module2[(MAX_P61_SIZE+512)/4];
+__attribute__((aligned (4))) __section(random_c) uint32_t music_module1[(MAX_P61_SIZE+512)/4];
+__attribute__((aligned (4))) __section(random_c) uint32_t music_module2[(MAX_P61_SIZE+512)/4];
 
 static __NOLOAD DISK_SECTOR_ALIGN uint8_t music_level_a[] = {
 #include "out/P61.climbyskies_ingame_a.h"
