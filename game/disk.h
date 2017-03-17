@@ -10,9 +10,9 @@
 uint16_t
 disk_loadData(void* dest, void* src, int32_t size);
 
-void
-disk_read(void* dest, int16_t block, int16_t numBlocks);
+uint16_t
+disk_read(void* dest, void* src, int32_t size);
 
-void
+uint16_t
 disk_write(void* dest, void* src, int16_t numBlocks);
 #endif

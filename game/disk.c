@@ -93,13 +93,30 @@ disk_loadData(void* dest, void* src, int32_t size)
 }
 
 
-void
+uint16_t
+disk_read(void* dest, void* src, int32_t size)
+{
+  uint16_t error = 0;
+
+ retry:
+  error = disk_loadData(dest, src, size);
+  
+  if (error) {
+    if (message_ask("disk read fail, retry? y/n")) {
+      goto retry;
+    }
+  }
+
+  return error;
+}
+
+uint16_t
 disk_write(void* dest, void* src, int16_t numBlocks)
 {
+  uint32_t err = 0;
 #if TRACKLOADER==1
 #if PHOTON_TRACKLOADER==0
   int32_t startBlock = ((((uint32_t)dest)-((uint32_t)&startCode))>>9)+2; // +2 for bootblock
-  uint32_t err;
 
 #ifdef DEBUG
   if (((startBlock/11)*11) != startBlock) {
@@ -109,10 +126,6 @@ disk_write(void* dest, void* src, int16_t numBlocks)
 
   //if ((err = td_write(startBlock, numBlocks, src)) != 0) {
   if ((err = td_format(startBlock/11, src, 512*numBlocks)) != 0) {
-    message_loading(itoa(err));
-    for (volatile int16_t x = 0; x < 200; x++) {
-      hw_waitVerticalBlank();
-    }
   } else {
     td_motoroff();
   }
@@ -122,4 +135,5 @@ disk_write(void* dest, void* src, int16_t numBlocks)
   USE(src);
   USE(dest);
   USE(numBlocks);
+  return err;
 }

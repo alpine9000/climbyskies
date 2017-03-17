@@ -286,19 +286,13 @@ td_read:
 
 .blk_loop:
 	moveq	#NUM_RETRIES+1,d4	; d4: retries left
+.seek_track:
+	; seek track and read it into our MFM decoding buffer
 	moveq	#0,d5
 	move.w	d6,d5
 	divu	#SECT_PER_TRK,d5
 	cmp.w	CurrentTrk,d5
 	beq	.decode_blk
-
-.seek_track:
-	; seek track and read it into our MFM decoding buffer
-
-	;; hack to try and fix trackloader crashing on bad reads
-	moveq   #0,d5
-	move.w  d6,d5
-	divu    #SECT_PER_TRK,d5
 
 	move.w	d5,d0
 	bsr	td_seek

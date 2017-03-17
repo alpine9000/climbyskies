@@ -7,6 +7,6 @@ void
 message_loading(char* message);
 void
 message_screenOff(void);
-char*
-message_prompt(uint16_t numChars);
+uint16_t
+message_ask(char* message);
 #endif

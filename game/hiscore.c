@@ -47,7 +47,7 @@ hiscore_checksum(void)
 
 #if TRACKLOADER==1
 uint16_t
-hiscore_load(void)
+hiscore_load(uint16_t ignoreErrors)
 {
   uint16_t error = 0;
 #ifdef DEBUG
@@ -56,20 +56,29 @@ hiscore_load(void)
   }
 #endif
 
+ retry:
    error = disk_loadData(&hiscore, &hiscore_disk, sizeof(hiscore_disk));
 
-  if (error) {
-    message_loading("error loading hiscore...");
-    for(int16_t i = 0; i < 200; i++) {
-      hw_waitVerticalBlank();
-    }
+   if (error) {
+     if (ignoreErrors) {
+       message_loading("error loading hiscore...");
+       hw_waitScanLines(200);
+     } else {
+       if (message_ask("hiscore load fail, retry? y/n")) {
+	 goto retry;
+       }
+     }
   } else {
     uint32_t checksum = hiscore_checksum();
     
     if (checksum != hiscore.checksum) {
-      message_loading("hiscore checksum mismatch...");
-      for(int16_t i = 0; i < 200; i++) {
-	hw_waitVerticalBlank();
+      if (ignoreErrors) {
+	message_loading("hiscore checksum mismatch...");
+	hw_waitScanLines(200);
+      } else {
+	if (message_ask("hiscore chsm fail, retry? y/n")) {
+	  goto retry;
+	}
       }
     }
   }
@@ -78,8 +87,9 @@ hiscore_load(void)
 }
 #else
 __EXTERNAL uint16_t
-hiscore_load(void)
+hiscore_load(uint16_t ignoreErrors)
 {
+  USE(ignoreErrors);
   int16_t loaded = 0;
   dos_init();
 
@@ -108,7 +118,7 @@ void
 hiscore_ctor(void)
 {
 #if TRACKLOADER==1
-  hiscore_load();
+  hiscore_load(0);
 #endif
 }
 
@@ -130,12 +140,22 @@ hiscore_render(void)
 
 #if TRACKLOADER==1
 void
-hiscore_saveData(void)
+hiscore_saveData(uint16_t ignoreErrors)
 {
   hiscore.checksum = hiscore_checksum();
 
-  message_loading("Saving hi score...");
-  disk_write(&hiscore_disk, &hiscore, 1);
+ retry:
+  message_loading("Saving hiscore...");
+  if (disk_write(&hiscore_disk, &hiscore, 1) != 0) {
+    if (ignoreErrors) {
+      message_loading("hiscore save failed...");
+      hw_waitScanLines(200);
+    } else {
+      if (message_ask("hiscore save fail, retry? y/n")) {
+	goto retry;
+      }
+    }
+  }
   message_screenOff();
 }
 #endif
@@ -239,7 +259,7 @@ hiscore_addScore(uint32_t score)
 
 #if TRACKLOADER==1
   if (dirty) {
-    hiscore_saveData();
+    hiscore_saveData(0);
   }
 #else
   USE(dirty);

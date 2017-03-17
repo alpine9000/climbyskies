@@ -121,4 +121,27 @@ message_loading(char* message)
 #endif
 }
 
+uint16_t
+message_ask(char* message)
+{
+  uint16_t result = 0;
+  message_screenOn(message);
+  for (;;) {
+    hw_waitVerticalBlank();
+    uint32_t code = keyboard_getKey();
+    hw_readJoystick();
+
+    if (code == 'Y') {
+      result = 1;
+      break;
+    }
+
+    if (code == 'N' || JOYSTICK_BUTTON_DOWN) {
+      break;
+    }
+  }
+
+  message_screenOff();
+  return result;
+}
 

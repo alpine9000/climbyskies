@@ -15,7 +15,7 @@ void
 hiscore_ctor(void);
 
 uint16_t
-hiscore_load(void);
+hiscore_load(uint16_t ignoreErrors);
 
 hiscore_t*
 hiscore_render(void);
@@ -25,4 +25,7 @@ hiscore_addScore(uint32_t score);
 
 void
 hiscore_default(void);
+
+void
+hiscore_saveData(uint16_t ingoreErrors);
 #endif

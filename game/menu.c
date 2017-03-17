@@ -147,25 +147,24 @@ menu_pokeCopperList(frame_buffer_t frameBuffer)
 }
 
 #if TRACKLOADER==1
+#ifdef DEBUG
 static inline void
 debug_hiscoreStress(void)
 {
   for (int16_t i = 0; i < 100; i++) {
-    extern void hiscore_saveData();
-    hiscore_saveData();
+    hiscore_saveData(1);
     hw_waitVerticalBlank();
     message_loading("Loading hiscore...");
-    if (hiscore_load()) {
+    if (hiscore_load(1)) {
       message_loading("Loading failed...");
-      for (int16_t y = 0; y < 200; y++) {
-	hw_waitVerticalBlank();
-      }
+      hw_waitScanLines(200);
     }
     hw_waitVerticalBlank();
   }
   
   message_screenOff();
 }
+#endif
 #endif
 
 static int16_t
@@ -175,10 +174,12 @@ menu_processKeyboard(void)
   
   switch (code) {
 #if TRACKLOADER==1
+#ifdef DEBUG
   case 'Y':
     debug_hiscoreStress();
     return MENU_COMMAND_LEVEL;
     break;
+#endif
 #endif
   case 'P':
     return MENU_COMMAND_REPLAY;

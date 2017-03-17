@@ -30,7 +30,9 @@ SECTIONS
     } > disk
 
     lastTrack (LOAD) : {
+        lastTrackStart = .;
        *(lastTrack)
+       endDisk = .;
     } > endDisk;
 
     bss (NOLOAD) : {
@@ -47,6 +49,7 @@ SECTIONS
 
     random (NOLOAD) : {
     	. = _endBSS;
+	startRandom = .;
     	*(random_c)
 	endRam = .;
     } > ram;
