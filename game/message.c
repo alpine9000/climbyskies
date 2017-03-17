@@ -117,6 +117,7 @@ message_loading(char* message)
   message_screenOn(message);
 #else
   USE(message);
+  palette_black();
 #endif
 }
 
