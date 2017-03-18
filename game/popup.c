@@ -20,6 +20,7 @@ typedef struct {
   int16_t screenY;
   int16_t targetY;
   void (*callback)(void);
+  uint32_t frameCounter;
 } popup_box_sprite_t;
 
 static __section(random_c) popup_box_sprite_t popup_boxSprite;
@@ -63,7 +64,19 @@ popup_saveBackground(frame_buffer_t fb)
       if (popup_boxSprite.screenY > popup_boxSprite.targetY) {
 	popup_boxSprite.screenY-=8;
       }
+    } 
+
+    
+    if (popup_boxSprite.targetY != -POPUP_BOX_HEIGHT && popup_boxSprite.screenY >= popup_boxSprite.targetY) {
+      if (popup_boxSprite.frameCounter == 0) {
+	popup_boxSprite.frameCounter = hw_verticalBlankCount;
+      } else if ((hw_verticalBlankCount - popup_boxSprite.frameCounter ) > 100) {
+	if (!enemy_find(ENEMY_ANIM_JOYSTICK)) {
+	  enemy_addMapObject(ENEMY_ANIM_JOYSTICK, (SCREEN_WIDTH/2)-16, game_cameraY + (SCREEN_HEIGHT/2)-16, 0, 0);
+	}
+      }
     }
+    
 
     if (popup_boxSprite.callback && JOYSTICK_BUTTON_DOWN) {
       popup_boxSprite.targetY = -POPUP_BOX_HEIGHT;
@@ -91,6 +104,7 @@ popup(char* message, void(*callback)(void))
   if (popup_boxSprite.visible) {
     return;
   }
+  popup_boxSprite.frameCounter = 0;
   popup_boxSprite.callback = callback;
   popup_boxSprite.screenY = -POPUP_BOX_HEIGHT;
   popup_boxSprite.targetY = 48;

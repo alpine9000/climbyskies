@@ -31,6 +31,7 @@ uint32_t game_lives;
 uint16_t game_level;
 uint16_t game_keyPressed;
 uint16_t game_over;
+uint16_t game_levelComplete;
 
 static volatile __section(random_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
 static volatile __section(random_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
@@ -45,7 +46,6 @@ static int16_t game_targetCameraY;
 static int16_t game_shake;
 static uint32_t game_lastScore;
 static uint32_t game_lastLevelScore;
-static int16_t game_levelComplete;
 
 #ifdef DEBUG
 static uint32_t game_lastVerticalBlankCount;

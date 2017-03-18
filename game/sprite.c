@@ -538,8 +538,20 @@ image_t sprite_imageAtlas[] = {
     .y = 18,
     .w = ITEM_WIDTH,
     .h = ITEM_HEIGHT
-  }
+  },
 #endif
+  [SPRITE_JOYSTICK_1] = {
+    .x = 256,
+    .y = 112,
+    .w = 32,
+    .h = 32
+  },
+  [SPRITE_JOYSTICK_2] = {
+    .x = 288,
+    .y = 112,
+    .w = 32,
+    .h = 32
+  }
 };
 
 

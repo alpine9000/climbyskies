@@ -1,6 +1,6 @@
 #include "game.h"
 
-#define ENEMY_MAX_ENEMIES     5
+#define ENEMY_MAX_ENEMIES     4
 #define ENEMY_MAX_CONFIGS     6
 #define ENEMY_MAX_Y           4
 #define ENEMY_DROP_THRESHOLD  64
@@ -78,6 +78,14 @@ static sprite_animation_t enemy_animations[] = {
       .speed = 4
     },
     .facing = FACING_RIGHT
+  },
+  [ENEMY_ANIM_JOYSTICK] = {
+    .animation = {
+      .start = SPRITE_JOYSTICK_1,
+      .stop = SPRITE_JOYSTICK_2,
+      .speed = 25
+    },
+    .facing = FACING_RIGHT
   }
 };
 
@@ -139,6 +147,14 @@ static enemy_config_t enemy_configs[ENEMY_MAX_CONFIGS] = {
     .height = ENEMY_RUN_HEIGHT,
     .anim = ENEMY_ANIM_RIGHT_RUN
   },
+  [ENEMY_ANIM_JOYSTICK] = {
+    .x = 0,
+    .y = 0,
+    .dx = 0,
+    .onGround = 0,
+    .height = 32,
+    .anim = ENEMY_ANIM_JOYSTICK
+  }
 };
 
 static enemy_t*
@@ -201,16 +217,29 @@ enemy_remove(enemy_t* ptr)
   }
 }
 
+uint16_t
+enemy_find(uint16_t id)
+{
+  enemy_t* ptr = enemy_activeList;
+  while (ptr != 0) {
+    if (ptr->animId == id) {
+      return 1;
+    }
+    ptr = ptr->next;
+  }
+
+  return 0;
+}
 
 static void
 enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, uint16_t* tilePtrHi, uint16_t* tilePtrLo)
 {
-  if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
+  if (enemy_count >= ENEMY_MAX_ENEMIES || y < TILE_HEIGHT*2) {
     return;
   }
   enemy_t* p = enemy_activeList;
   while (p != 0) {
-    if (p->sprite.y == y && (*tilePtrHi == *p->tilePtrHi)) {
+    if (tilePtrHi && p->sprite.y == y && (*tilePtrHi == *p->tilePtrHi)) {
       return;
     }
     p = p->next;
@@ -349,8 +378,14 @@ enemy_updateEnemy(enemy_t* ptr)
   int16_t newX =  ptr->sprite.x+ptr->velocity.x;
   if (newX > SCREEN_WIDTH) {
     newX = -ptr->width;
+    if (game_over || game_levelComplete) {
+      ptr->state = ENEMY_REMOVED;
+    }
   } else if (newX < -32) {
     newX = SCREEN_WIDTH;
+    if (game_over || game_levelComplete) {
+      ptr->state = ENEMY_REMOVED;
+    }
   }
   
   int16_t x;
@@ -446,8 +481,10 @@ enemy_headsmash(int16_t x, int16_t y)
       ptr->velocity.y = PHYSICS_VELOCITY_KILL;
       game_score += 250;
       smash = 1;
-      *(ptr->tilePtrHi) = 0;
-      *(ptr->tilePtrLo) = 0;
+      if (ptr->tilePtrHi) {
+	*(ptr->tilePtrHi) = 0;
+	*(ptr->tilePtrLo) = 0;
+      }
 
     }
     ptr = ptr->next;
