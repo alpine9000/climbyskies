@@ -135,7 +135,7 @@ sound_playPickup(void)
 #ifdef GAME_JETPACK
   aud->ac_ptr = sound_loop == SOUND_JETPACK ? &sound_jetpack_coin : &sound_coin;
 #else
-  aud->ac_ptr =&sound_coin;
+  aud->ac_ptr = &sound_coin;
 #endif
   aud->ac_per = 321;
   aud->ac_vol = 64;
@@ -214,6 +214,7 @@ sound_schedule(void)
       if (sptr->loop) {
 	sound_loop = sound_next;
       } else  if (sound_loop != -1) {       
+	hw_waitScanLines(SOUND_LATCH_SCANLINES);
 	(*sound_queue[sound_loop].play)();
       }
       sound_next = -1;
