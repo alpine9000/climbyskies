@@ -2,7 +2,7 @@
 #define __HISCORE_H
 
 
-#define HISCORE_NUM_SCORES (MENU_NUM_ITEMS-1)
+#define HISCORE_NUM_SCORES (MENU_NUM_ITEMS)
 
 typedef struct {
   uint32_t score;

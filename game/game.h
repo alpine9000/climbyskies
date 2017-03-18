@@ -25,7 +25,7 @@
 #define abs(a) ((a) >= 0 ? (a) : -(a))  
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
-#define MENU_NUM_ITEMS      7
+#define MENU_NUM_ITEMS      6
 
 #define MAP_TILE_WIDTH      16
 #define MAP_TILE_HEIGHT     201

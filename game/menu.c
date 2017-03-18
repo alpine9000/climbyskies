@@ -4,6 +4,7 @@
 extern void palette_menuInstall(void);
 extern frame_buffer_t menu_frameBuffer;
 
+#define MENU_NUM_ITEMS             6
 
 #define MENU_TOP_COLOR             0x7ef
 #define MENU_BOTTOM_COLOR          0x5cd
@@ -20,13 +21,14 @@ typedef struct {
 typedef struct {
   uint16_t bpl1[SCREEN_BIT_DEPTH*2*2];
   menu_line_copper_t lines[MENU_NUM_ITEMS];
+  uint16_t wrap[2];
+  menu_line_copper_t overflowLine;
   uint16_t end[2];
 } menu_copper_t;
 
 uint16_t menu_selected = 0;
 
 #define MENU_TEXT_START (0x9fd1+((RASTER_Y_START-0x1d)*0x100))
-
 #define MENU_COPPER_WAIT_TOP(x)     { MENU_TEXT_START + (0x800*(x*2)), 0xfffe}
 #define MENU_COPPER_WAIT_BOTTOM(x)  { MENU_TEXT_START + 0x400 + (0x800*(x*2)), 0xfffe}
 #define MENU_COPPER_LINE(c1, c2, x) [x] = {	\
@@ -60,7 +62,13 @@ static  __section(data_c)  menu_copper_t menu_copper  = {
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 3),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 4),
     MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 5),
-    //   MENU_COPPER_LINE(MENU_TOP_COLOR, MENU_BOTTOM_COLOR, 6), todo: handle copper overflow
+  },
+  .wrap = {0xffdf,0xfffe},
+  .overflowLine = {
+    .wait1 =  {0x0001, 0xfffe},
+    .color1 = { COLOR07, MENU_TOP_COLOR},
+    .wait2 =  {0x03df, 0xfffe},
+   .color2 = { COLOR07, MENU_BOTTOM_COLOR}, 
   },
   .end = {0xFFFF, 0xFFFE}
 };
@@ -246,7 +254,7 @@ menu_redraw(uint16_t i)
 
 static void menu_refresh(void)
 {
-  for (uint16_t i = 0; i < MENU_NUM_ITEMS; i++) {
+  for (uint16_t i = 0; i < MENU_NUM_ITEMS+1; i++) {
     menu_redraw(i);
   }    
 }
