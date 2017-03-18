@@ -1,6 +1,6 @@
 #include "game.h"
 
-#define ENEMY_MAX_ENEMIES     5
+#define ENEMY_MAX_ENEMIES     4
 #define ENEMY_MAX_CONFIGS     6
 #define ENEMY_MAX_Y           4
 #define ENEMY_DROP_THRESHOLD  64
@@ -306,6 +306,7 @@ enemy_init(void)
       ptr->next->prev = ptr;
       ptr = ptr->next;
   }
+  ptr->next = 0;
 }
 
 

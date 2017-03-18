@@ -157,10 +157,11 @@ item_init(void)
   item_freeList->prev = 0;
   item_t* ptr = item_freeList;
   for (int16_t i = 1; i < ITEM_MAX_ITEMS; i++) {
-      ptr->next = &item_buffer[i];
-      ptr->next->prev = ptr;
-      ptr = ptr->next;
+    ptr->next = &item_buffer[i];
+    ptr->next->prev = ptr;
+    ptr = ptr->next;
   }
+  ptr->next = 0;
 }
 
 
