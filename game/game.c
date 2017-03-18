@@ -29,7 +29,6 @@ uint32_t game_levelScore;
 uint32_t game_score;
 uint32_t game_lives;
 uint16_t game_level;
-uint16_t game_keyPressed;
 uint16_t game_over;
 uint16_t game_levelComplete;
 
@@ -767,7 +766,7 @@ game_startRecord(void)
 int16_t
 game_processKeyboard()
 {
-  switch (game_keyPressed) {
+  switch (keyboard_key) {
 #ifdef DEBUG
   case 'O':
     {
@@ -881,10 +880,14 @@ game_loop()
 #endif
   }
 
+  if (menuCommand == MENU_COMMAND_MENU) {
+    goto menu;
+  }
+
   game_init(menuCommand);
 
   for (;;) {    
-    game_keyPressed = keyboard_getKey();
+    keyboard_read();
     hw_readJoystick();
 
     record_process();

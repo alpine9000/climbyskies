@@ -178,9 +178,7 @@ debug_hiscoreStress(void)
 static int16_t
 menu_processKeyboard(void)
 {
-  uint32_t code = keyboard_getKey();
-  
-  switch (code) {
+  switch (keyboard_key) {
 #if TRACKLOADER==1
 #ifdef DEBUG
   case 'Y':
@@ -189,6 +187,12 @@ menu_processKeyboard(void)
     break;
 #endif
 #endif
+  case 'A':
+    if (message_ask("ask test, menu? y/n")) {
+      return MENU_COMMAND_MENU;
+    }
+    return MENU_COMMAND_LEVEL;
+    break;
   case 'P':
     return MENU_COMMAND_REPLAY;
     break;
@@ -446,7 +450,8 @@ menu_loop(menu_mode_t mode)
   
   while (!done) {
     hw_readJoystick();
-    if (JOYSTICK_BUTTON_DOWN) {
+    keyboard_read();
+    if (game_fire()) {
       if (menu_mode == MENU_MODE_HISCORES) {
 	menu_mode = MENU_MODE_MENU;
 	menu_refresh();
@@ -457,9 +462,6 @@ menu_loop(menu_mode_t mode)
 	  menu_items[menu_selected].callback();
 	}
       }
-      do {
-	hw_readJoystick();
-      } while (JOYSTICK_BUTTON_DOWN);
     }
     if (JOYSTICK_DOWN()) {
       menu_down();

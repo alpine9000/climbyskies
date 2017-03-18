@@ -6,7 +6,8 @@ typedef enum {
   MENU_COMMAND_EXIT,
   MENU_COMMAND_REPLAY,
   MENU_COMMAND_RECORD,
-  MENU_COMMAND_LEVEL
+  MENU_COMMAND_MENU,
+  MENU_COMMAND_LEVEL,
 } menu_command_t;
 
 typedef enum {

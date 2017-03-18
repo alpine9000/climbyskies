@@ -6,6 +6,7 @@
 	xdef _hw_readJoystick
 	xdef _hw_waitForJoystick
 	xdef _hw_joystickButton
+	xref _hw_lastJoystickButton
 	xdef _hw_joystickPos	
 	xdef _hw_interruptsInit
 	xdef _hw_waitScanLines
@@ -113,6 +114,7 @@ _hw_readJoystick:
 	lsr.w   #6,d1
 	and.w   #%1111,d1
 	move.b	(.conv,pc,d1.w),d0
+	move.w  _hw_joystickButton,_hw_lastJoystickButton
 	move.w	d0,_hw_joystickButton
 	movem.l (sp)+,d0/d1
         rts
@@ -188,7 +190,9 @@ Level3InterruptHandler:
 	rte
 
 	align 4
-	
+
+_hw_lastJoystickButton
+	dc.w	0
 _hw_joystickButton:
 	dc.b	0
 _hw_joystickPos:

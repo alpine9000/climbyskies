@@ -128,15 +128,15 @@ message_ask(char* message)
   message_screenOn(message);
   for (;;) {
     hw_waitVerticalBlank();
-    uint32_t code = keyboard_getKey();
+    keyboard_read();
     hw_readJoystick();
 
-    if (code == 'Y') {
+    if (keyboard_key == 'Y') {
       result = 1;
       break;
     }
 
-    if (code == 'N' || JOYSTICK_BUTTON_DOWN) {
+    if (keyboard_key == 'N' || game_fire()) {
       break;
     }
   }

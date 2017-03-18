@@ -78,7 +78,7 @@ popup_saveBackground(frame_buffer_t fb)
     }
     
 
-    if (popup_boxSprite.callback && JOYSTICK_BUTTON_DOWN) {
+    if (popup_boxSprite.callback && game_fire()) {
       popup_boxSprite.targetY = -POPUP_BOX_HEIGHT;
     }
 

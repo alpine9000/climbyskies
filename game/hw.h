@@ -26,6 +26,7 @@ hw_waitForJoystick(void);
 uint32_t
 hw_getRasterLine(void);
 
+extern volatile uint8_t hw_lastJoystickButton;
 extern volatile uint8_t hw_joystickButton;
 extern volatile uint8_t hw_joystickPos;
 extern uint32_t hw_verticalBlankCount;

@@ -45,15 +45,15 @@ record_process(void)
   if (level.record->state == RECORD_RECORD && 
       (level.record->lastJoystickPos != hw_joystickPos || 
        level.record->lastJoystickButton != hw_joystickButton || 
-       level.record->lastKey != game_keyPressed)) {
+       level.record->lastKey != keyboard_key)) {
     if (level.record->index < RECORD_MAX_RECORD) {
       level.record->buffer[level.record->index].joystickPos = hw_joystickPos;
       level.record->buffer[level.record->index].joystickButton = hw_joystickButton;
-      level.record->buffer[level.record->index].key = game_keyPressed;
+      level.record->buffer[level.record->index].key = keyboard_key;
       level.record->buffer[level.record->index].frame = level.record->frame;
       level.record->lastJoystickPos = hw_joystickPos;
       level.record->lastJoystickButton = hw_joystickButton;
-      level.record->lastKey = game_keyPressed;
+      level.record->lastKey = keyboard_key;
       level.record->index++;
     }
   } else if (level.record->state == RECORD_PLAYBACK) {
@@ -61,7 +61,7 @@ record_process(void)
       if (level.record->buffer[level.record->index].frame == level.record->frame) {
 	level.record->joystickPos = level.record->buffer[level.record->index].joystickPos;
 	level.record->joystickButton = level.record->buffer[level.record->index].joystickButton;
-	game_keyPressed = level.record->buffer[level.record->index].key;
+	keyboard_key = level.record->buffer[level.record->index].key;
 	level.record->index++;
       }
       hw_joystickPos = level.record->joystickPos;

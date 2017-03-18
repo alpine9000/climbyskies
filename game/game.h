@@ -97,7 +97,6 @@ extern frame_buffer_t game_scoreBoardFrameBuffer;
 extern uint32_t game_score;
 extern uint16_t game_over;
 extern uint16_t game_levelComplete;
-extern uint16_t game_keyPressed;
 
 #include "string.h"
 #include "registers.h"
@@ -129,6 +128,8 @@ extern uint16_t game_keyPressed;
 #include "dos.h"
 #include "panic.h"
 
+#define game_fire() ((!(hw_lastJoystickButton&0x1) && (hw_joystickButton&0x1)) || \
+			(keyboard_key && keyboard_code == KEYBOARD_CODE_RETURN))
 void 
 game_loop(void);
 void

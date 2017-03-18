@@ -181,30 +181,28 @@ hiscore_prompt(char* message)
 
   text_drawMaskedText8Blitter(game_offScreenBuffer, "___", x, y);
 
-  int joystickDown = JOYSTICK_BUTTON_DOWN;
-
   for (;;) {
     char str[2] = {0,0};
-    game_keyPressed = keyboard_getKey();
+    keyboard_read();
     
-    if (game_keyPressed) {            
+    if (keyboard_key) {            
       //gfx_fillRectSmallScreen(game_offScreenBuffer, 0, 0, 16*8, 8, 0);
       //text_drawMaskedText8Blitter(game_offScreenBuffer, itoa(keyboard_code), 0, 0);
       
-      if (keyboard_code == 65 && bufferIndex > 0) {
-	x-=8;
-	hiscore_promptBuffer[bufferIndex] = 0;
-	bufferIndex--;
-	gfx_fillRectSmallScreen(game_offScreenBuffer, x, y, 8, 8, 0);
-	text_drawMaskedText8Blitter(game_offScreenBuffer, "_", x, y);
-      } else if (keyboard_code == 68) {
-	break;
-      } else {
+      if (keyboard_code == KEYBOARD_CODE_BACKSPACE) {
+	if (bufferIndex > 0) {
+	  x-=8;
+	  hiscore_promptBuffer[bufferIndex] = 0;
+	  bufferIndex--;
+	  gfx_fillRectSmallScreen(game_offScreenBuffer, x, y, 8, 8, 0);
+	  text_drawMaskedText8Blitter(game_offScreenBuffer, "_", x, y);	
+	}
+      } else if (keyboard_code != KEYBOARD_CODE_RETURN) {
 	if (bufferIndex < 3) {
-	  hiscore_promptBuffer[bufferIndex] = game_keyPressed;
+	  hiscore_promptBuffer[bufferIndex] = keyboard_key;
 	  bufferIndex++;
 	  hiscore_promptBuffer[bufferIndex] = 0;	
-	  str[0] = game_keyPressed;
+	  str[0] = keyboard_key;
 	  gfx_fillRectSmallScreen(game_offScreenBuffer, x, y, 8, 8, 0);
 	  text_drawMaskedText8Blitter(game_offScreenBuffer, str, x, y);
 	  x+=8;
@@ -213,11 +211,10 @@ hiscore_prompt(char* message)
     }
 
     hw_readJoystick();
-    if (!joystickDown && JOYSTICK_BUTTON_DOWN) {
+    if (game_fire()) {
       break;
     }
 
-    joystickDown = JOYSTICK_BUTTON_DOWN;
     hw_waitVerticalBlank();
   }
   
