@@ -341,7 +341,7 @@ player_tileOverlaps(int32_t x, int32_t y)
   if (x >= 0 && x < SCREEN_WIDTH && y >= 0) {
     return BACKGROUND_TILE(x, y);
   }
-  return 0;
+  return TILE_SKY;
 }
 
 
