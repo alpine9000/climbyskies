@@ -24,7 +24,7 @@ enemy_update(void);
 void
 enemy_ctor(void);
 void
-enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtr);
+enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtrHi, uint16_t* tilePtrLo);
 int16_t
 enemy_headsmash(int16_t x, int16_t y);
 #ifdef DEBUG

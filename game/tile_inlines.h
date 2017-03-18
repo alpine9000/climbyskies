@@ -4,7 +4,11 @@ tile_processMapObjectUp(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
   } else if (id & MAPOBJECT_TOP_RENDER_ENEMY_FLAG) {
-    enemy_addMapObject(id & 0xff, x, y+(3*TILE_HEIGHT), tilePtr);
+    uint16_t* tilePtrHi = tilePtr;
+    do {
+      tilePtr += MAP_TILE_WIDTH;
+    } while (!(*tilePtr & MAPOBJECT_BOTTOM_RENDER_ENEMY_FLAG));    
+    enemy_addMapObject(id & 0xff, x, y+(3*TILE_HEIGHT), tilePtrHi, tilePtr);
   }
 }
 
@@ -15,7 +19,11 @@ tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
   if (id & MAPOBJECT_ITEM_FLAG) {
     item_add(x, y, id & 0xFF, tilePtr);
   } else if (id & MAPOBJECT_BOTTOM_RENDER_ENEMY_FLAG) {
-     enemy_addMapObject(id & 0xff, x, y+TILE_HEIGHT, tilePtr);
+    uint16_t* tilePtrLo = tilePtr;
+    do {
+      tilePtr -= MAP_TILE_WIDTH;
+    } while (!(*tilePtr & MAPOBJECT_TOP_RENDER_ENEMY_FLAG));    
+    enemy_addMapObject(id & 0xff, x, y+TILE_HEIGHT, tilePtr, tilePtrLo);
   }
 }
 

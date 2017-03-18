@@ -34,7 +34,8 @@ typedef struct enemy {
   int16_t deadRenderCount;
   int16_t onGround;
   int16_t skyCount;
-  uint16_t* tilePtr;
+  uint16_t* tilePtrHi;
+  uint16_t* tilePtrLo;
 } enemy_t;
 
 static sprite_animation_t enemy_animations[] = {
@@ -202,20 +203,21 @@ enemy_remove(enemy_t* ptr)
 
 
 static void
-enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, uint16_t* tilePtr)
+enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, int16_t anim, uint16_t* tilePtrHi, uint16_t* tilePtrLo)
 {
   if (enemy_count >= ENEMY_MAX_ENEMIES-1 || y < TILE_HEIGHT*2) {
     return;
   }
   enemy_t* p = enemy_activeList;
   while (p != 0) {
-    if (p->sprite.y == y && *tilePtr == *p->tilePtr) {
+    if (p->sprite.y == y && (*tilePtrHi == *p->tilePtrHi)) {
       return;
     }
     p = p->next;
   }
   enemy_t* ptr = enemy_getFree();
-  ptr->tilePtr = tilePtr;
+  ptr->tilePtrHi = tilePtrHi;
+  ptr->tilePtrLo = tilePtrLo;
   ptr->state = ENEMY_ALIVE;
   ptr->width = 32;
   ptr->height = height;
@@ -243,10 +245,10 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
 
 
 void
-enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
+enemy_addMapObject(int16_t id, int16_t x, int16_t y, uint16_t* tilePtrHi, uint16_t* tilePtrLo)
 {
   enemy_config_t* config = &enemy_configs[id];
-  enemy_add(x, y-config->height+config->y, config->dx, config->height, config->onGround, config->anim, tilePtr);
+  enemy_add(x, y-config->height+config->y, config->dx, config->height, config->onGround, config->anim, tilePtrHi, tilePtrLo);
 }
 
 
@@ -444,6 +446,9 @@ enemy_headsmash(int16_t x, int16_t y)
       ptr->velocity.y = PHYSICS_VELOCITY_KILL;
       game_score += 250;
       smash = 1;
+      *(ptr->tilePtrHi) = 0;
+      *(ptr->tilePtrLo) = 0;
+
     }
     ptr = ptr->next;
   }
