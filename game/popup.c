@@ -109,6 +109,7 @@ popup(char* message, void(*callback)(void))
   popup_boxSprite.visible = 1;
 
   gfx_fillRect(popup_frameBuffer, 4, 4, POPUP_BOX_WIDTH-8, 8, 0);
+  hw_waitBlitter();
 
   frame_buffer_t ptr = popup_frameBuffer;
   ptr += FRAME_BUFFER_WIDTH_BYTES;
