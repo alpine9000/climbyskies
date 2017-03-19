@@ -4,7 +4,7 @@ P61mode	=2	;Try other modes ONLY IF there are no Fxx commands >= 20.
 
 ;;    ---  options common to all P61modes  ---
 
-climbyskies_ingame_usecode equ $9D59|$8559
+climbyskies_ingame_usecode equ $9D59|$8559|$400000
 usecode=-1;climbyskies_ingame_usecode 
 
 
