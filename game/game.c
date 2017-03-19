@@ -863,7 +863,7 @@ game_loop()
 
   message_loading("Welcome to Climby Skies!");
 
-  music_play(0);   
+  music_play(2);   
 
   hw_interruptsInit(); // Don't enable interrupts until music is set up
 

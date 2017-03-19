@@ -19,6 +19,10 @@ static __NOLOAD DISK_SECTOR_ALIGN uint8_t music_level_b[] = {
 #include "out/P61.climbyskies_ingame_b.h"
  } ;
 
+static __NOLOAD DISK_SECTOR_ALIGN uint8_t music_level_c[] = {
+#include "out/P61.climbyskies_ingame_c.h"
+ } ;
+
 typedef struct {
   uint8_t* data;
   uint32_t length;
@@ -26,7 +30,8 @@ typedef struct {
 
 static music_song_t music_songs[] = {
   { music_level_a, sizeof(music_level_a)},
-  { music_level_b, sizeof(music_level_b)}
+  { music_level_b, sizeof(music_level_b)},
+  { music_level_c, sizeof(music_level_c)}
 };
 
 static void* music_current_ptr = music_module1;

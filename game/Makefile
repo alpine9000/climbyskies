@@ -30,7 +30,7 @@ PROGRAM_BIN=out/main.bin
 # all the components that form the game
 C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c panic.c
 SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s sg_trackdisk.s
-MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin
+MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin P61.climbyskies_ingame_c.bin
 SOUND_FILES=jump.wav coin1.wav pop.wav kill.wav falling.wav jetpack.wav jetpack_coin.wav
 LEVELS=1 2 3
 IMAGES=font8x8.png menu.png scoreboard.png popup.png

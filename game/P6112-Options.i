@@ -5,7 +5,7 @@ P61mode	=2	;Try other modes ONLY IF there are no Fxx commands >= 20.
 ;;    ---  options common to all P61modes  ---
 
 climbyskies_ingame_usecode equ $9D59|$8559
-usecode=climbyskies_ingame_usecode 
+usecode=-1;climbyskies_ingame_usecode 
 
 
 		;CHANGE! to the USE hexcode from P61con for a big 
@@ -25,7 +25,7 @@ split4=0	;Great time gain, but INCOMPATIBLE with F03, F02, and F01
 		;See ;@@ note for P61_SetPosition.
 
 
-splitchans=0	;#channels to be split off to be decrunched at "playtime frame"
+splitchans=1	;#channels to be split off to be decrunched at "playtime frame"
 		;0=use normal "decrunch all channels in the same frame"
 		;Experiment to find minimum rastertime, but it should be 1 or 2
 		;for 3-4 channels songs and 0 or 1 with less channels.
@@ -55,7 +55,7 @@ playflag=0	;1=enable music on/off capability (at run-time). .If 0, you can
 		;still do this by just, you know, not calling P61_Music...
 		;It's a convenience function to "pause" music in CIA mode.
 
-p61bigjtab=1	;1 to waste 480b and save max 56 cycles on 68000.
+p61bigjtab=0	;1 to waste 480b and save max 56 cycles on 68000.
 
 opt020	=0	;1=enable optimizations for 020+. Please be 68000 compatible!
 		;splitchans will already give MUCH bigger gains, and you can

@@ -53,6 +53,7 @@ disk_loadData(void* dest, void* src, int32_t size)
   int16_t numSectors = (size+512)>>9;
 #if PHOTON_TRACKLOADER==1
   LoadMFMB(dest, startSector, -numSectors, ((char*)dest)+size);
+  return error;
 #else
 
 #ifdef DEBUG
