@@ -6,6 +6,7 @@
 #include <hardware/intbits.h>
 
 #define DEBUG                         1
+#define ASSERT_CHECK                  1
 #define INLINE_EVERYTHING             1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
@@ -101,6 +102,7 @@ extern uint16_t game_levelComplete;
 #include "string.h"
 #include "registers.h"
 #include "hw.h"
+#include "panic.h"
 #include "disk.h"
 #include "init.h"
 #include "screen.h"
@@ -126,7 +128,6 @@ extern uint16_t game_levelComplete;
 #include "message.h"
 #include "popup.h"
 #include "dos.h"
-#include "panic.h"
 
 #define game_fire() ((!(hw_lastJoystickButton&0x1) && (hw_joystickButton&0x1)) || \
 			(keyboard_key && keyboard_code == KEYBOARD_CODE_RETURN))

@@ -32,10 +32,18 @@ uint16_t game_level;
 uint16_t game_over;
 uint16_t game_levelComplete;
 
-static volatile __section(random_c) uint8_t _frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __section(random_c) uint8_t _bugBuffer1[FRAME_BUFFER_WIDTH_BYTES*1];
-static volatile __section(random_c) uint8_t _frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT)];
-static volatile __section(random_c) uint8_t _bugBuffer2[FRAME_BUFFER_WIDTH_BYTES*1];
+static volatile __section(random_c) struct framebuffeData {
+#ifdef DEBUG
+  uint32_t canary1;
+#endif
+  uint32_t overdraw1;
+  uint8_t frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT+1)];
+  uint32_t overdraw2;
+  uint8_t frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT+1)];
+#ifdef DEBUG
+  uint32_t canary2;
+#endif
+} game_frameBufferData;
 
 static int16_t game_scroll;
 static uint16_t game_paused;
@@ -142,8 +150,8 @@ static void (*game_tileRender)(uint16_t hscroll, uint16_t itemY);
 void
 game_ctor(void)
 {
-  game_onScreenBuffer = (frame_buffer_t)&_frameBuffer1;
-  game_offScreenBuffer = (frame_buffer_t)&_frameBuffer2;
+  game_onScreenBuffer = (frame_buffer_t)&game_frameBufferData.frameBuffer1;
+  game_offScreenBuffer = (frame_buffer_t)&game_frameBufferData.frameBuffer2;
 }
 
 
@@ -155,7 +163,12 @@ game_init(menu_command_t command)
 
   screen_setup((uint16_t*)&copper);
   screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
-  
+
+#ifdef DEBUG
+  game_frameBufferData.canary1 = 0x55555555;
+  game_frameBufferData.canary2 = 0xaaaaaaaa;
+#endif
+
   game_newGame(command);
 }
 
@@ -265,6 +278,15 @@ game_finish(void)
   game_collisions = 0;
   game_over = 1;
   popup("GAME OVER!", game_overCallback);
+
+#ifdef DEBUG
+  if (game_frameBufferData.canary1 != 0x55555555) {
+    PANIC("game_finish: dead canary 1");
+  }
+  if (game_frameBufferData.canary2 != 0xaaaaaaaa) {
+    PANIC("game_finish: dead canary 2");
+  }
+#endif
 }
 
 void
