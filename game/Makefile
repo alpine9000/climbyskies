@@ -102,16 +102,25 @@ version:
 gdrive: all
 	cp $(ADF) ~/Google\ Drive
 
-test: all
+testadf: all
 	cp $(ADF) ~/Projects/amiga/test.adf
 
 libgcc/out/gcc.lib:
 	make -C libgcc
 
-go: test
+.PHONY: test
+test: testadf
+	cp test/test.lua default.lua
+	 $(RUN_SCRIPT)
+	grep SUCCESS lua.log
+
+go: testadf
+	@rm -f default.lua
 	 $(RUN_SCRIPT)
 
-goaga: test
+
+
+goaga: testadf
 	 $(A1200T_RUN_SCRIPT)
 
 bin:
