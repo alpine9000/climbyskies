@@ -1,17 +1,23 @@
 #include "game.h"
 
-#define MAX_INVALID_TILES 100
+#define MAX_INVALID_TILES 24
 
 uint16_t* tile_tilePtr;
 uint16_t* tile_itemPtr;
 int16_t tile_tileX;
-static tile_redraw_t* invalidTiles = 0;
-static tile_redraw_t* invalidFreeList = 0;
-static tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
+#ifdef DEBUG
+uint16_t tile_invalidTileCount = 0;
+#endif
+static __section(random_c) tile_redraw_t* invalidTiles;
+static __section(random_c) tile_redraw_t* invalidFreeList;
+static __section(random_c) tile_redraw_t invalidTileBuffers[MAX_INVALID_TILES];
 
 void
 tile_init(void)
 {
+#ifdef DEBUG
+  tile_invalidTileCount = 0;
+#endif
   invalidTiles = 0;
   invalidFreeList = &invalidTileBuffers[0];
    invalidFreeList->prev = 0;
@@ -22,6 +28,8 @@ tile_init(void)
       ptr->next->prev = ptr;
       ptr = ptr->next;
   }
+
+  ptr->next = 0;
 }
 
 
@@ -38,6 +46,9 @@ tile_getFree(void)
 static void
 tile_addFree(tile_redraw_t* ptr)
 {
+#ifdef DEBUG
+  tile_invalidTileCount--;
+#endif
   if (invalidFreeList == 0) {
     invalidFreeList = ptr;
     ptr->next = 0;
@@ -54,6 +65,13 @@ tile_addFree(tile_redraw_t* ptr)
 static void
 tile_addInvalid(tile_redraw_t* ptr)
 {
+#ifdef DEBUG
+  tile_invalidTileCount++;
+  if (tile_invalidTileCount >= MAX_INVALID_TILES) {
+    PANIC("tile_addInvalid: no free links");
+  }
+#endif
+
   if (invalidTiles == 0) {
     invalidTiles = ptr;
     ptr->next = 0;
@@ -135,7 +153,7 @@ tile_renderScreen(void)
     }
   }
   
-  int16_t y = FRAME_BUFFER_HEIGHT-TILE_HEIGHT;
+  int16_t y = FRAME_BUFFER_MAX_HEIGHT-TILE_HEIGHT;
   for (int16_t x = SCREEN_WIDTH-TILE_WIDTH; x >=0; x-=TILE_WIDTH) {
     uint16_t offset = *tile_tilePtr; // todo: 16  ?
     gfx_renderTileOffScreen(game_onScreenBuffer, x, y, level.spriteBitplanes+offset);

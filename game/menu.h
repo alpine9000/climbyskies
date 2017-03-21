@@ -11,8 +11,9 @@ typedef enum {
 } menu_command_t;
 
 typedef enum {
-  MENU_MODE_MENU,
-  MENU_MODE_HISCORES
+  MENU_MODE_INACTIVE = 0,
+  MENU_MODE_MENU = 1,
+  MENU_MODE_HISCORES = 2
 } menu_mode_t;
 
 menu_command_t

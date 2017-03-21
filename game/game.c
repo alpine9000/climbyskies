@@ -37,9 +37,9 @@ static volatile __section(random_c) struct framebuffeData {
   uint32_t canary1;
 #endif
   uint32_t overdraw1;
-  uint8_t frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT+1)];
+  uint8_t frameBuffer1[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_NUM_LINES)];
   uint32_t overdraw2;
-  uint8_t frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_HEIGHT+1)];
+  uint8_t frameBuffer2[FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH*(FRAME_BUFFER_NUM_LINES)];
 #ifdef DEBUG
   uint32_t canary2;
 #endif
@@ -243,11 +243,11 @@ game_refreshScoreboard(void)
       text_drawScoreBoard("RECORD  " , SCREEN_WIDTH-(14*8));        
       break;
     case RECORD_PLAYBACK:
-#endif
       text_drawScoreBoard("REPLAY  " , SCREEN_WIDTH-(14*8));        
-#ifdef GAME_RECORDING
       break;
     }
+#else
+    text_drawScoreBoard(" SCORE  " , SCREEN_WIDTH-(14*8));
 #endif
 
     text_drawScoreBoard("BONUS 0" , 8);  
@@ -369,9 +369,10 @@ game_loadLevel(menu_command_t command)
   game_lastEnemyCount = -1;
   game_lastItemCount = -1;
   game_scoreBoardMode = 0;
-  game_collisions = 1;
   game_debugRenderFrame = 0;
 #endif
+
+  game_collisions = 1;
 
   popup_off();
 
@@ -421,7 +422,7 @@ game_switchFrameBuffers(void)
     copper.wait1[0] = (copperLine<<8)|1;
     copper.wait2[0] = (copperLine<<8)|1;
     copper.wait3[0] = 0xffdf;
-    screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+    screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_MAX_HEIGHT-game_screenScrollY], copper.bpl1);
     screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
     screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
   } else if (copperLine >= 256) {
@@ -429,12 +430,12 @@ game_switchFrameBuffers(void)
     if (game_screenScrollY >= 256) {
       copper.wait2[0] = (RASTER_Y_START)<<8|1;
       copper.wait3[0] = 0xffdf;
-      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_MAX_HEIGHT-game_screenScrollY], copper.bpl1);
       screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl2);
     } else {
       copper.wait2[0] = ((copperLine-256)<<8)|1;
       copper.wait3[0] = (RASTER_Y_START)<<8|1;
-      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT-game_screenScrollY], copper.bpl1);
+      screen_pokeCopperList(game_offScreenBuffer+(int)gfx_dyOffsetsLUT[FRAME_BUFFER_MAX_HEIGHT-game_screenScrollY], copper.bpl1);
       screen_pokeCopperList(game_offScreenBuffer, copper.bpl2);
       screen_pokeCopperList(game_scoreBoardFrameBuffer, copper.bpl3);
     }
@@ -497,7 +498,7 @@ game_moveCameraY(void)
 
   game_cameraY -= game_scroll;
 
-  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_HEIGHT);
+  game_screenScrollY = -((game_cameraY-(WORLD_HEIGHT-SCREEN_HEIGHT)) % FRAME_BUFFER_MAX_HEIGHT);
 }
 
 
@@ -913,6 +914,7 @@ game_loop()
     hw_readJoystick();
 
     record_process();
+    script_process();
 
     if (game_processKeyboard()) {
       goto menu;

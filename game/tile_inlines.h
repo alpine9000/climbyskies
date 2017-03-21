@@ -31,10 +31,10 @@ tile_processMapObjectDown(uint16_t id, int16_t x, int16_t y, uint16_t* tilePtr)
 INLINE void
 tile_renderNextTile(uint16_t hscroll, uint16_t itemY)
 {
-  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(2*TILE_HEIGHT));
+  int16_t y = (FRAME_BUFFER_MAX_HEIGHT-hscroll-(2*TILE_HEIGHT));
 
   if (y < 0) {
-    y = FRAME_BUFFER_HEIGHT+y;
+    y = FRAME_BUFFER_MAX_HEIGHT+y;
   }
 
   uint16_t offset = *tile_tilePtr;
@@ -62,13 +62,13 @@ tile_renderNextTile(uint16_t hscroll, uint16_t itemY)
 INLINE void
 tile_renderNextTileDown(uint16_t hscroll, uint16_t itemY)
 {
-  int16_t y = (FRAME_BUFFER_HEIGHT-hscroll-(3*TILE_HEIGHT));
+  int16_t y = (FRAME_BUFFER_MAX_HEIGHT-hscroll-(3*TILE_HEIGHT));
 
   if (y < 0) {
-    y = FRAME_BUFFER_HEIGHT+y;
+    y = FRAME_BUFFER_MAX_HEIGHT+y;
   }
 
-#define _OFFSET (((FRAME_BUFFER_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
+#define _OFFSET (((FRAME_BUFFER_MAX_HEIGHT-(1*TILE_HEIGHT))/TILE_HEIGHT)*(SCREEN_WIDTH/TILE_WIDTH))
   uint16_t offset = *(tile_tilePtr+_OFFSET);
   gfx_quickRenderTileOffScreen(game_offScreenBuffer, tile_tileX, y, level.spriteBitplanes+offset);
   gfx_quickRenderTileOffScreen(game_onScreenBuffer, tile_tileX, y, level.spriteBitplanes+offset);

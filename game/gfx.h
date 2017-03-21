@@ -8,7 +8,7 @@
 
 extern const unsigned char font[];
 
-extern uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
+extern uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_NUM_LINES];
 extern uint16_t gfx_heightLUT[65];
 extern uint16_t gfx_renderSprite16NoShiftSetup;
 typedef struct {

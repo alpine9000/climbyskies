@@ -1,13 +1,13 @@
 #include "game.h"
 
-__EXTERNAL uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_HEIGHT+1];
+__EXTERNAL uint16_t gfx_dyOffsetsLUT[FRAME_BUFFER_NUM_LINES];
 uint16_t gfx_heightLUT[65];
 uint16_t gfx_renderSprite16NoShiftSetup;
 
 void 
 gfx_ctor()
 {
-  for (uint16_t y = 0; y <= FRAME_BUFFER_HEIGHT; y++) {
+  for (uint16_t y = 0; y < FRAME_BUFFER_NUM_LINES; y++) {
     gfx_dyOffsetsLUT[y] = (y * (FRAME_BUFFER_WIDTH_BYTES*SCREEN_BIT_DEPTH));
   }
 
@@ -63,9 +63,9 @@ gfx_splitBlitNoMask(frame_buffer_t dest, frame_buffer_t src, int16_t dx, int16_t
   } else {
     if (y > -h) {
       gfx_bitBlitNoMask(dest, src, sx, by-y, dx, 0, w, h+y);    
-      gfx_bitBlitNoMask(dest, src, sx, by, dx, FRAME_BUFFER_HEIGHT+y, w, -y);    
+      gfx_bitBlitNoMask(dest, src, sx, by, dx, FRAME_BUFFER_MAX_HEIGHT+y, w, -y);    
     } else {
-      gfx_bitBlitNoMask(dest, src, sx, by, dx, FRAME_BUFFER_HEIGHT+y, w, h);    
+      gfx_bitBlitNoMask(dest, src, sx, by, dx, FRAME_BUFFER_MAX_HEIGHT+y, w, h);    
     }
   }
 }

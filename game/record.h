@@ -13,9 +13,9 @@ typedef struct {
 } record_item_t;
 
 typedef enum {
-  RECORD_IDLE,
-  RECORD_RECORD,
-  RECORD_PLAYBACK
+  RECORD_IDLE = 0,
+  RECORD_RECORD = 1,
+  RECORD_PLAYBACK = 2
 } record_state_t;
 
 typedef struct {

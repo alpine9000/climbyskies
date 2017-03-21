@@ -416,9 +416,9 @@ gfx_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
   } else {
     if (y > -h) {
       gfx_renderPartialTile(fb, x, y, h+y, tile);
-      gfx_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
+      gfx_renderPartialTile(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, -y, tile);
     } else {
-      gfx_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
+      gfx_renderPartialTile(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, h, tile);
     }
   }
 }

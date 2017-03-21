@@ -71,6 +71,7 @@ static void
 item_addFree(item_t* ptr)
 {
   item_count--;
+
   if (item_freeList == 0) {
     item_freeList = ptr;
     ptr->next = 0;
@@ -88,6 +89,7 @@ static void
 item_addItem(item_t* ptr)
 {
   item_count++;
+
   if (item_activeList == 0) {
     item_activeList = ptr;
     ptr->next = 0;
@@ -126,25 +128,28 @@ item_add(int16_t x, int16_t y, int16_t anim, uint16_t* tilePtr)
     return;
   }
 #endif
-  if (item_count < ITEM_MAX_ITEMS) {
-    item_t* ptr = item_getFree();
-    ptr->tilePtr = tilePtr;
-    ptr->state = ITEM_ALIVE;
-    ptr->sprite.y = y;
-    ptr->sprite.save = &ptr->saves[0];
-    ptr->sprite.saveBuffer = &ptr->saveBuffers[0].fb[0];
-    ptr->saves[0].blit[0].size = 0;
-    ptr->saves[0].blit[1].size = 0;
-    ptr->saves[1].blit[0].size = 0;
-    ptr->saves[1].blit[1].size = 0;
-    ptr->sprite.x = x;
-    ptr->anim = &item_animations[anim];
-    ptr->animId = anim;
-    ptr->sprite.imageIndex = ptr->anim->animation.start;
-    ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
-    ptr->frameCounter = 0;
-    item_addItem(ptr);
+
+  if (item_count >= ITEM_MAX_ITEMS) {
+    return;
   }
+  
+  item_t* ptr = item_getFree();
+  ptr->tilePtr = tilePtr;
+  ptr->state = ITEM_ALIVE;
+  ptr->sprite.y = y;
+  ptr->sprite.save = &ptr->saves[0];
+  ptr->sprite.saveBuffer = &ptr->saveBuffers[0].fb[0];
+  ptr->saves[0].blit[0].size = 0;
+  ptr->saves[0].blit[1].size = 0;
+  ptr->saves[1].blit[0].size = 0;
+  ptr->saves[1].blit[1].size = 0;
+  ptr->sprite.x = x;
+  ptr->anim = &item_animations[anim];
+  ptr->animId = anim;
+  ptr->sprite.imageIndex = ptr->anim->animation.start;
+  ptr->sprite.image = &sprite_imageAtlas[ptr->sprite.imageIndex];
+  ptr->frameCounter = 0;
+  item_addItem(ptr);
 }
 
 
@@ -194,9 +199,9 @@ item_save(frame_buffer_t fb, sprite_t* a)
     if (y > -h) {
       gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, h+y);
       frame_buffer_t dest = a->saveBuffer + ((h+y)*SCREEN_BIT_DEPTH*2); // TODO
-      gfx_saveSprite16(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, -y);    
+      gfx_saveSprite16(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_MAX_HEIGHT+y, -y);    
     } else {
-      gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y,  h);    
+      gfx_saveSprite16(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_MAX_HEIGHT+y,  h);    
       a->save->blit[1].size = 0;
     }
   }

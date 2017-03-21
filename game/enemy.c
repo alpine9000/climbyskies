@@ -89,6 +89,7 @@ static sprite_animation_t enemy_animations[] = {
   }
 };
 
+
 static int16_t enemy_count;
 static enemy_t* enemy_activeList;
 static enemy_t* enemy_freeList;
@@ -171,6 +172,7 @@ static void
 enemy_addFree(enemy_t* ptr)
 {
   enemy_count--;
+
   if (enemy_freeList == 0) {
     enemy_freeList = ptr;
     ptr->next = 0;
@@ -188,6 +190,7 @@ static void
 enemy_addEnemy(enemy_t* ptr)
 {
   enemy_count++;
+
   if (enemy_activeList == 0) {
     enemy_activeList = ptr;
     ptr->next = 0;
@@ -237,6 +240,7 @@ enemy_add(int16_t x, int16_t y, int16_t dx, int16_t height, int16_t onGround, in
   if (enemy_count >= ENEMY_MAX_ENEMIES || y < TILE_HEIGHT*2) {
     return;
   }
+
   enemy_t* p = enemy_activeList;
   while (p != 0) {
     if (tilePtrHi && p->sprite.y == y && (*tilePtrHi == *p->tilePtrHi)) {

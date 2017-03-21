@@ -106,9 +106,9 @@ cloud_renderTile(frame_buffer_t fb, int16_t x, int16_t y, frame_buffer_t tile)
   } else {
     if (y > -h) {
       cloud_renderPartialTile(fb, x, y, h+y, tile);
-      cloud_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tile);
+      cloud_renderPartialTile(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, -y, tile);
     } else {
-      cloud_renderPartialTile(fb, x, FRAME_BUFFER_HEIGHT+y, h, tile);
+      cloud_renderPartialTile(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, h, tile);
     }
   }
 }
@@ -143,9 +143,9 @@ cloud_renderTileMask(frame_buffer_t fb, int16_t x, int16_t y, uint16_t tileOffse
   } else {
     if (y > -h) {
       cloud_renderPartialTileMask(fb, x, y, h+y, tileOffset);
-      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_HEIGHT+y, -y, tileOffset);
+      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, -y, tileOffset);
     } else {
-      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_HEIGHT+y, h, tileOffset);
+      cloud_renderPartialTileMask(fb, x, FRAME_BUFFER_MAX_HEIGHT+y, h, tileOffset);
     }
   }
 }
@@ -243,9 +243,9 @@ cloud_spriteRender(frame_buffer_t fb, sprite_t* sprite)
   } else {
     if (y > -h) {
       cloud_renderSpriteNoMask(fb, image->x, by-y, sprite->x, 0, h+y);    
-      cloud_renderSpriteNoMask(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, -y);    
+      cloud_renderSpriteNoMask(fb, image->x, by, sprite->x, FRAME_BUFFER_MAX_HEIGHT+y, -y);    
     } else {
-      cloud_renderSpriteNoMask(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, h);
+      cloud_renderSpriteNoMask(fb, image->x, by, sprite->x, FRAME_BUFFER_MAX_HEIGHT+y, h);
     }
   }
 }
@@ -308,9 +308,9 @@ cloud_save(frame_buffer_t fb, sprite_t* a)
     if (y > -h) {
       cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, image->w, h+y);    
       frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((CLOUD_WIDTH/8)*SCREEN_BIT_DEPTH)); // TODO:
-      cloud_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
+      cloud_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, -y);    
     } else {
-      cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
+      cloud_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, h);    
       a->save->blit[1].size = 0;
     }
   }

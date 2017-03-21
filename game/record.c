@@ -3,6 +3,7 @@
 #ifdef GAME_RECORDING
 
 __EXTERNAL record_t* record_ptr = (record_t*)&level.recordData;
+__EXTERNAL record_state_t record_state;
 
 record_state_t
 record_getState(void)
@@ -26,6 +27,7 @@ record_showAddress(void)
 void
 record_setState(record_state_t state)
 {
+  record_state = state;
   level.record->size = sizeof(record_t);
   level.record->frame = 0;
   level.record->state = state;

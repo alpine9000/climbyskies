@@ -5,8 +5,8 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
-#define DEBUG                         1
-#define ASSERT_CHECK                  1
+//#define DEBUG                         1
+//#define ASSERT_CHECK                  1
 #define INLINE_EVERYTHING             1
 #define GAME_JETPACK                  1
 #define GAME_KEYBOARD_ENABLED         1
@@ -37,7 +37,8 @@
 #define SCREEN_WIDTH        MAP_TILE_WIDTH*TILE_WIDTH
 #define SCREEN_HEIGHT       256
 #define FRAME_BUFFER_OFFSCREEN_HEIGHT TILE_HEIGHT*4
-#define FRAME_BUFFER_HEIGHT (SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)
+#define FRAME_BUFFER_NUM_LINES ((SCREEN_HEIGHT+FRAME_BUFFER_OFFSCREEN_HEIGHT)+1)
+#define FRAME_BUFFER_MAX_HEIGHT (FRAME_BUFFER_NUM_LINES-1)
 #define FRAME_BUFFER_WIDTH  (SCREEN_WIDTH+64)
 
 #define SCREEN_HEIGHT_WORDS SCREEN_HEIGHT/16
@@ -128,6 +129,7 @@ extern uint16_t game_levelComplete;
 #include "message.h"
 #include "popup.h"
 #include "dos.h"
+#include "script.h"
 
 #define game_fire() ((!(hw_lastJoystickButton&0x1) && (hw_joystickButton&0x1)) || \
 			(keyboard_key && keyboard_code == KEYBOARD_CODE_RETURN))

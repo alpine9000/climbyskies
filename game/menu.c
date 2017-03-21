@@ -90,7 +90,8 @@ menu_showHiScores(void);
 static void
 menu_select(uint16_t i);
 
-static menu_mode_t menu_mode;
+//static 
+menu_mode_t menu_mode = MENU_MODE_INACTIVE;
 menu_item_t menu_items[MENU_NUM_ITEMS+1] = {
   {
     .text = "PLAY NOW!",
@@ -311,6 +312,8 @@ menu_render(void)
       y+= 16;
     }
     break;
+  default:
+    break;
   }
 }
 
@@ -451,6 +454,7 @@ menu_loop(menu_mode_t mode)
   while (!done) {
     hw_readJoystick();
     keyboard_read();
+    script_process();
     if (game_fire()) {
       if (menu_mode == MENU_MODE_HISCORES) {
 	menu_mode = MENU_MODE_MENU;
@@ -479,6 +483,8 @@ menu_loop(menu_mode_t mode)
   hw_waitVerticalBlank();
   custom->dmacon = DMAF_RASTER;
   palette_black();
+
+  menu_mode = MENU_MODE_INACTIVE;
 
   return command;
 }

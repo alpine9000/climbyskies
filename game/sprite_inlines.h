@@ -27,9 +27,9 @@ sprite_save(frame_buffer_t fb, sprite_t* a)
       gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, 0, image->w, h+y);    
       //      frame_buffer_t dest =  a->saveBuffer + ((h+y) * ((48/8)*SCREEN_BIT_DEPTH)); // TODO:
       frame_buffer_t dest =  a->saveBuffer + ((h+y) * a->saveBufferHeightOffset);
-      gfx_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
+      gfx_saveSprite(fb, dest, &a->save->blit[1], a->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, -y);    
     } else {
-      gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
+      gfx_saveSprite(fb, a->saveBuffer, &a->save->blit[0], a->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, h);    
       a->save->blit[1].size = 0;
     }
   }
@@ -63,9 +63,9 @@ _sprite_render(frame_buffer_t fb, sprite_t* sprite, void (*render)(frame_buffer_
   } else {
     if (y > -h) {
       (*render)(fb, image->x, by-y, sprite->x, 0, image->w, h+y);    
-      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, image->w, -y);    
+      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, -y);    
     } else {
-      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_HEIGHT+y, image->w, h);    
+      (*render)(fb, image->x, by, sprite->x, FRAME_BUFFER_MAX_HEIGHT+y, image->w, h);    
     }
   }
 }
