@@ -5,7 +5,7 @@
 #include <hardware/dmabits.h>
 #include <hardware/intbits.h>
 
-//#define DEBUG                         1
+#define DEBUG                         1
 //#define ASSERT_CHECK                  1
 #define INLINE_EVERYTHING             1
 #define GAME_JETPACK                  1

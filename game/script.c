@@ -7,11 +7,10 @@ script_process(void)
 {
 
   switch (script_port) {
-  case 1:
-    keyboard_key = 'P';
+  case 0:
     break;
-  case 2:
-    keyboard_key = '2';
+  default: // keys
+    keyboard_key = script_port;
     break;
   }  
 

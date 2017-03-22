@@ -112,7 +112,8 @@ libgcc/out/gcc.lib:
 test: testadf
 	cp test/test.lua default.lua
 	 $(RUN_SCRIPT)
-	grep SUCCESS lua.log
+	-@grep FAILED lua.log || true
+	@grep PASSED lua.log
 
 go: testadf
 	@rm -f default.lua
