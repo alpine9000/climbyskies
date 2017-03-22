@@ -26,6 +26,8 @@ SECTIONS
         startData = .;
         *(.noload)
         *(noload)
+	.=ALIGN(512);
+	*(music)
         endData = .;
     } > disk
 
