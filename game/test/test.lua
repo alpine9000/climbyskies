@@ -1,5 +1,7 @@
 state = "BOOTING"
 quit = false
+filename1 = "out/test-screenshot.png"
+filename2 = "test/screenshot.png"
 
 
 function Setup()
@@ -12,6 +14,24 @@ end
 
 function Quit()
    uae_quit()
+end
+
+
+function Screenshot()
+   uae_screenshot(filename1);
+end
+
+
+function CheckScreenshot()
+   local screenshot1 = io.open(filename1, "rb")
+   local screenshot2 = io.open(filename2, "rb")
+   if screenshot1:read("*all") ~= screenshot2:read("*all") then
+      io.write("FAILED: ", filename1, " != ", filename2, "\n")
+      io.flush()
+      quit = true
+   end
+   screenshot1:close()
+   screenshot2:close()   
 end
 
 
@@ -32,14 +52,30 @@ stateMachine = {
    },
    ["WAITING FOR RECORD START"] = {
       wait = {"_record_state", 2},
-      next =  "WAITING FOR LEVEL 2 END"
+      next =  "WAITING FOR SCREENSHOT FRAME",
+      write = {"_script_port", 1}
+   },
+   ["WAITING FOR SCREENSHOT FRAME"] = {
+      wait = {"_game_paused", 1, 32},
+      next = "TAKE SCREENSHOT",
+   },
+   ["TAKE SCREENSHOT"] = {
+      wait = {"_hw_verticalBlankCount", 1100, 32},
+      next = "SCREENSHOT COMPLETE",
+      callback = Screenshot
+   },
+   ["SCREENSHOT COMPLETE"] = {
+      wait = {"_hw_verticalBlankCount", 1200, 32},
+      next = "WAITING FOR LEVEL 2 END",
+      write = {"_script_port", string.byte(' ')},
+      callback = CheckScreenshot
    },
    ["WAITING FOR LEVEL 2 END"] = {
       wait = {"_record_state", 0},
-      next = "VERIFY LEVEL 2 PARAMETERS"
+      next = "VERIFY LEVEL 2 PARAMETERS",
    },
    ["VERIFY LEVEL 2 PARAMETERS"] = {
-      less = {{"_game_total", 769000, 32}},
+      less = {{"_game_total", 765648, 32}},
       equal = {{"_game_score", 13461, 32}, {"_game_lives", 2, 32}},
       next = "PASSED",
       callback = Quit
@@ -71,11 +107,12 @@ function Tick()
 	    end
 	 end
 	 
-	 if stateMachine[state].less then
+	 if not quit and stateMachine[state].less then
 	    asserts = true
 	    for i, less in ipairs(stateMachine[state].less) do
 	       if less[3] == 32 then
 		  if uae_peek_symbol32(less[1]) < less[2] then
+		     io.write("PASSED: ", less[1], " (",uae_peek_symbol32(less[1]), ") < ", less[2], "\n");
 		  else
 		     io.write("FAILED: ", less[1], " (",uae_peek_symbol32(less[1]), ") >= ", less[2], "\n");
 		     quit = true
@@ -90,12 +127,16 @@ function Tick()
 	 
 	 if asserts == false then
 	    if stateMachine[state].wait then
-	       if stateMachine[state].wait[3] == 32 and (uae_peek_symbol32(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
-		  transition = true
-	       end		   
-	       if (uae_peek_symbol16(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
-		  transition = true
+	       if stateMachine[state].wait[3] == 32 then
+		  if (uae_peek_symbol32(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
+		     transition = true
+		  end
+	       else
+		  if (uae_peek_symbol16(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
+		     transition = true
+		  end
 	       end
+		  
 	    else
 	       transition = true
 	    end
@@ -109,12 +150,15 @@ function Tick()
 	    if stateMachine[state].callback then
 	       stateMachine[state].callback()
 	    end
-	    if stateMachine[state].write then
-	       io.write("wrote ", stateMachine[state].write[2], " to ", stateMachine[state].write[1], "\n")
-	       uae_write_symbol16(stateMachine[state].write[1], stateMachine[state].write[2])
+
+	    if quit == false then 
+	       if  stateMachine[state].write then
+		  io.write("wrote ", stateMachine[state].write[2], " to ", stateMachine[state].write[1], "\n")
+		  uae_write_symbol16(stateMachine[state].write[1], stateMachine[state].write[2])
+	       end
+	       io.write(state, " -> ", stateMachine[state].next, "\n");
+	       state = stateMachine[state].next
 	    end
-	    io.write(state, " -> ", stateMachine[state].next, "\n");
-	    state = stateMachine[state].next
 	 end	 
       end
       

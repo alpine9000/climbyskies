@@ -31,6 +31,7 @@ uint32_t game_lives;
 uint16_t game_level;
 uint16_t game_over;
 uint16_t game_levelComplete;
+uint32_t game_paused;
 
 static volatile __section(random_c) struct framebuffeData {
 #ifdef DEBUG
@@ -46,7 +47,6 @@ static volatile __section(random_c) struct framebuffeData {
 } game_frameBufferData;
 
 static int16_t game_scroll;
-static uint16_t game_paused;
 static uint16_t game_gotoMenu;				 
 static uint16_t game_singleStep;
 static int16_t game_targetCameraY;
@@ -671,6 +671,10 @@ debug_showRasterLine(void)
   if (game_collectTotal) {
     game_total += line;
     game_frame++;
+    if (game_frame == script_breakpoint) {
+      game_paused = 1;
+      script_breakpoint = 0xffffffff;
+    }
     game_hwframe = hw_verticalBlankCount;
   }
 
@@ -913,7 +917,10 @@ game_loop()
     keyboard_read();
     hw_readJoystick();
 
-    record_process();
+    if (!game_paused) {
+      record_process();
+    }
+    
     script_process();
 
     if (game_processKeyboard()) {

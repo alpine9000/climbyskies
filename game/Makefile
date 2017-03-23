@@ -1,5 +1,5 @@
 # frequently changed config items
-#KEEP_ASM=1
+KEEP_ASM=1
 USE_BIG=1
 SFX=1
 PHOTON_TRACKLOADER=0
@@ -50,9 +50,9 @@ VASM_OPTS=-Wa,-opt-allbra -Wa,-opt-brajmp -Wa,-opt-lsl  -Wa,-opt-movem -Wa,-opt-
 ifeq ($(USE_BIG), 1)
 WHOLE_PROGRAM=-fwhole-program
 endif
-C_OPT=-O3
+C_OPT=-Ofast
 BIG_FLAGS=$(WHOLE_PROGRAM)
-C_OPT_ASM_OUTPUT=-O3
+C_OPT_ASM_OUTPUT=-Ofast
 BASE_CFLAGS=-Wno-overlength-strings $(REGPARAM) $(VASM_OPTS) -fomit-frame-pointer -noixemul -mcpu=68000 -m68000 -pedantic-errors -Wfatal-errors -Wall -Werror -Wextra -Wshadow -Wuninitialized -Wduplicated-cond -Wframe-larger-than=256 -Wstack-usage=256 -Wunsafe-loop-optimizations -Wundef -Wbad-function-cast -Wparentheses $(INCLUDE) $(EXTRA_DEFINES)
 C_LIBS=libgcc/out/gcc.lib
 C_LIBS_WB=$(NDK)/lib/amiga.lib libgcc/out/gcc.lib
@@ -113,7 +113,7 @@ test: testadf
 	cp test/test.lua default.lua
 	 $(RUN_SCRIPT)
 	-@grep FAILED lua.log || true
-	@grep PASSED lua.log
+	grep PASSED lua.log
 
 go: testadf
 	@rm -f default.lua
