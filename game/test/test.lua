@@ -22,6 +22,9 @@ function Screenshot()
    uae_screenshot(filename1);
 end
 
+function Reset()
+   uae_reset()
+end
 
 function CheckLevel2Screenshot()
    local filename = "test/screenshot.png"
@@ -40,6 +43,7 @@ end
 level2 = {
    ["BOOTING"] = {
       next = "WAITING FOR MENU",
+      wait = {"_menu_mode", 0},      
       callback = Setup
    },
    ["WAITING FOR MENU"] = {
@@ -88,9 +92,17 @@ level2 = {
    ["DONE"] = {}      
 }
 
+reset = {
+   ["BOOTING"] = {
+      next = "DONE",
+      callback = Reset
+   },
+   ["DONE"] = {}
+}
 
 tests = {
    level2,
+   reset,
    level2
 }
 
