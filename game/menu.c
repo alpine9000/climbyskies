@@ -454,7 +454,9 @@ menu_loop(menu_mode_t mode)
   while (!done) {
     hw_readJoystick();
     keyboard_read();
+#ifdef DEBUG
     script_process();
+#endif
     if (game_fire()) {
       if (menu_mode == MENU_MODE_HISCORES) {
 	menu_mode = MENU_MODE_MENU;

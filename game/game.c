@@ -71,7 +71,7 @@ static uint16_t game_lastMaxRasterLine;
 static int16_t game_lastEnemyCount;
 static int16_t game_lastItemCount;
 static int16_t game_lastMissedFrameCount;
-static int16_t game_scoreBoardMode;
+static int16_t game_scoreBoardMode = 0;
 static int16_t game_debugRenderFrame;
 #endif
 
@@ -338,6 +338,12 @@ game_loadLevel(menu_command_t command)
 {  
   custom->bltafwm = 0xffff;
 
+#ifdef DEBUG
+  if (game_scoreBoardMode != 0) {
+    disk_loadData((void*)game_scoreBoardFrameBuffer, (void*)game_scoreBoardFrameBuffer, FRAME_BUFFER_WIDTH_BYTES*SCOREBOARD_HEIGHT*SCREEN_BIT_DEPTH);
+  }
+#endif 
+  
   game_cameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   game_targetCameraY = WORLD_HEIGHT-SCREEN_HEIGHT;
   game_scroll = 0;
@@ -920,8 +926,10 @@ game_loop()
     if (!game_paused) {
       record_process();
     }
-    
+
+#ifdef DEBUG
     script_process();
+#endif
 
     if (game_processKeyboard()) {
       goto menu;

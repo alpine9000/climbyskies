@@ -1,8 +1,8 @@
+test = 1
 state = "BOOTING"
 quit = false
 filename1 = "out/test-screenshot.png"
-filename2 = "test/screenshot.png"
-
+level2ScreenshotFrame = 2000
 
 function Setup()
    uae_write_symbol16("_script_port", 0)
@@ -13,6 +13,7 @@ end
 
 
 function Quit()
+   quit = true
    uae_quit()
 end
 
@@ -22,11 +23,12 @@ function Screenshot()
 end
 
 
-function CheckScreenshot()
+function CheckLevel2Screenshot()
+   local filename = "test/screenshot.png"
    local screenshot1 = io.open(filename1, "rb")
-   local screenshot2 = io.open(filename2, "rb")
+   local screenshot2 = io.open(filename, "rb")
    if screenshot1:read("*all") ~= screenshot2:read("*all") then
-      io.write("FAILED: ", filename1, " != ", filename2, "\n")
+      io.write("FAILED: ", filename1, " != ", filename, "\n")
       io.flush()
       quit = true
    end
@@ -35,17 +37,17 @@ function CheckScreenshot()
 end
 
 
-stateMachine = {
+level2 = {
    ["BOOTING"] = {
       next = "WAITING FOR MENU",
       callback = Setup
    },
    ["WAITING FOR MENU"] = {
       wait = {"_menu_mode", 1},
-      next = "WAITING FOR LEVEL 2 LOAD",
+      next = "WAITING FOR LEVEL TO LOAD",
       write = {"_script_port", string.byte('2')}
    },
-   ["WAITING FOR LEVEL 2 LOAD"] = {
+   ["WAITING FOR LEVEL TO LOAD"] = {
       wait = {"_menu_mode", 0},
       next = "WAITING FOR RECORD START",
       write = {"_script_port", string.byte('P')}
@@ -53,38 +55,47 @@ stateMachine = {
    ["WAITING FOR RECORD START"] = {
       wait = {"_record_state", 2},
       next =  "WAITING FOR SCREENSHOT FRAME",
-      write = {"_script_port", 1}
+      write = {"_script_port", level2ScreenshotFrame + 0x8000}
    },
    ["WAITING FOR SCREENSHOT FRAME"] = {
       wait = {"_game_paused", 1, 32},
       next = "TAKE SCREENSHOT",
    },
    ["TAKE SCREENSHOT"] = {
-      wait = {"_hw_verticalBlankCount", 1100, 32},
+      wait = {"_hw_verticalBlankCount", level2ScreenshotFrame+100, 32},
       next = "SCREENSHOT COMPLETE",
       callback = Screenshot
    },
    ["SCREENSHOT COMPLETE"] = {
-      wait = {"_hw_verticalBlankCount", 1200, 32},
-      next = "WAITING FOR LEVEL 2 END",
+      wait = {"_hw_verticalBlankCount", level2ScreenshotFrame+500, 32},
+      next = "WAITING FOR LEVEL END",
       write = {"_script_port", string.byte(' ')},
-      callback = CheckScreenshot
+      callback = CheckLevel2Screenshot
    },
-   ["WAITING FOR LEVEL 2 END"] = {
+   ["WAITING FOR LEVEL END"] = {
       wait = {"_record_state", 0},
-      next = "VERIFY LEVEL 2 PARAMETERS",
+      next = "VERIFY LEVEL PARAMETERS",
    },
-   ["VERIFY LEVEL 2 PARAMETERS"] = {
+   ["VERIFY LEVEL PARAMETERS"] = {
       less = {{"_game_total", 765648, 32}},
       equal = {{"_game_score", 13461, 32}, {"_game_lives", 2, 32}},
-      next = "PASSED",
-      callback = Quit
+      next = "BACK TO MENU"
    },
-   ["PASSED"] = { }
+   ["BACK TO MENU"] = {
+      write = {"_script_port", string.byte('Q')},
+      next = "DONE"
+   },
+   ["DONE"] = {}      
 }
 
 
-function Tick()
+tests = {
+   level2,
+   level2
+}
+
+
+function Tick(stateMachine)
    if not quit then 
       local transition = false
       local asserts = false
@@ -160,6 +171,10 @@ function Tick()
 	       state = stateMachine[state].next
 	    end
 	 end	 
+      else
+	 io.write("NEXT TEST\n", state, " -> ", "BOOTING\n")
+	 test = test + 1
+	 state = "BOOTING"
       end
       
       io.flush()
@@ -172,5 +187,11 @@ end
 
 
 function on_uae_vsync()
-   Tick()
+   if tests[test] then 
+      Tick(tests[test])
+   elseif not quit then
+      io.write("TESTS PASSED\n")
+      io.flush()
+      Quit()
+   end
 end

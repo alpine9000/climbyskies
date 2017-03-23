@@ -78,7 +78,7 @@ l385	equ	0
 	if TRACKLOADER=0
 	section data_c
 	endif
-	align 4
+	
 _game_scoreBoardFrameBuffer:
 	dc.l	_scoreBoardBitplanes
 _popup_frameBuffer:
@@ -86,6 +86,7 @@ _popup_frameBuffer:
 _menu_frameBuffer:
 	dc.l	_menuBitplanes
 
+	align 9
 _scoreBoardBitplanes:
 	incbin  "out/scoreboard.bin"	
 _popupBitplanes:
