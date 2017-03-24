@@ -1,109 +1,153 @@
 test = 1
-state = "BOOTING"
+state = "startup"
 quit = false
-filename1 = "out/test-screenshot.png"
-level2ScreenshotFrame = 2000
+screenShotFilename = "out/test-screenshot.png"
 
 function Setup()
    uae_write_symbol16("_script_port", 0)
    log = io.open("lua.log", "w")
    io.output(log)
    uae_warp()
+   io.write("\n\n=== test started ===\n")
 end
 
 
 function Quit()
    quit = true
+   io.flush()
+   log:close()
    uae_quit()
 end
 
-
-function Screenshot()
-   uae_screenshot(filename1);
-end
 
 function Reset()
    uae_reset()
 end
 
-function CheckLevel2Screenshot()
-   local filename = "test/screenshot.png"
-   local screenshot1 = io.open(filename1, "rb")
+
+function Write(symbol, value)
+   io.write("ram write: ", symbol, " = ", value, "\n")
+   uae_write_symbol16(symbol, value)
+end
+
+
+function CheckLevel2Screenshot(filename)
+   local screenshot1 = io.open(screenShotFilename, "rb")
    local screenshot2 = io.open(filename, "rb")
    if screenshot1:read("*all") ~= screenshot2:read("*all") then
-      io.write("FAILED: ", filename1, " != ", filename, "\n")
+      io.write("FAIL: ", screenShotFilename, " != ", filename, "\n")
       io.flush()
       quit = true
+   else
+      io.write("PASS: ", screenShotFilename, " == ", filename, "\n")
    end
    screenshot1:close()
    screenshot2:close()   
 end
 
 
-level2 = {
-   ["BOOTING"] = {
-      next = "WAITING FOR MENU",
-      wait = {"_menu_mode", 0},      
-      callback = Setup
+function Screenshot(_state)
+   if screenShotState == 0 or screenShotState == nil then
+      screenShotState = 1
+      Write("_script_port",  _state.screenShotFrame + 0x8000)
+   elseif screenShotState == 1 then
+      if uae_peek_symbol32("_game_paused") == 1 then
+	 screenShotState = 2
+	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+      end
+   elseif screenShotState == 2 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+500 then
+	 screenShotState = 3
+	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+	 uae_screenshot(screenShotFilename)
+      end
+   elseif screenShotState == 3 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+500 then
+	 CheckLevel2Screenshot(_state.filename)
+	 Write("_script_port", string.byte(' '))
+	 screenShotState = 4
+      end
+   elseif screenShotState == 4 then
+      if uae_peek_symbol32("_game_paused") == 0 then
+	 screenShotState = 0
+	 return true
+      end
+   end
+   return false
+end
+
+
+setup = {
+   ["startup"] = {
+      next = "startup complete",
+      exitState = Setup
    },
-   ["WAITING FOR MENU"] = {
+   ["startup complete"] = {}
+}
+
+
+level2 = {
+   ["booting"] = {
+      next = "waiting for menu",
+      wait = {"_menu_mode", 0},      
+   },
+   ["waiting for menu"] = {
       wait = {"_menu_mode", 1},
-      next = "WAITING FOR LEVEL TO LOAD",
+      next = "waiting for level to load",
       write = {"_script_port", string.byte('2')}
    },
-   ["WAITING FOR LEVEL TO LOAD"] = {
+   ["waiting for level to load"] = {
       wait = {"_menu_mode", 0},
-      next = "WAITING FOR RECORD START",
+      next = "waiting for record start",
       write = {"_script_port", string.byte('P')}
    },
-   ["WAITING FOR RECORD START"] = {
+   ["waiting for record start"] = {
       wait = {"_record_state", 2},
-      next =  "WAITING FOR SCREENSHOT FRAME",
-      write = {"_script_port", level2ScreenshotFrame + 0x8000}
+      next =  "screenshot1",
    },
-   ["WAITING FOR SCREENSHOT FRAME"] = {
-      wait = {"_game_paused", 1, 32},
-      next = "TAKE SCREENSHOT",
+   ["screenshot1"] = {
+      screenShotFrame = 2000,
+      filename = "test/screenshot.png",
+      transition = Screenshot,
+      next = "screenshot2"
    },
-   ["TAKE SCREENSHOT"] = {
-      wait = {"_hw_verticalBlankCount", level2ScreenshotFrame+100, 32},
-      next = "SCREENSHOT COMPLETE",
-      callback = Screenshot
+   ["screenshot2"] = {
+      screenShotFrame = 3000,
+      filename = "test/screenshot2.png",
+      transition = Screenshot,
+      next = "waiting for level end",
    },
-   ["SCREENSHOT COMPLETE"] = {
-      wait = {"_hw_verticalBlankCount", level2ScreenshotFrame+500, 32},
-      next = "WAITING FOR LEVEL END",
-      write = {"_script_port", string.byte(' ')},
-      callback = CheckLevel2Screenshot
-   },
-   ["WAITING FOR LEVEL END"] = {
+   ["waiting for level end"] = {
       wait = {"_record_state", 0},
-      next = "VERIFY LEVEL PARAMETERS",
+      next = "verify level parameters",
    },
-   ["VERIFY LEVEL PARAMETERS"] = {
+   ["verify level parameters"] = {
       less = {{"_game_total", 765648, 32}},
       equal = {{"_game_score", 13461, 32}, {"_game_lives", 2, 32}},
-      next = "BACK TO MENU"
+      next = "back to menu"
    },
-   ["BACK TO MENU"] = {
+   ["back to menu"] = {
       write = {"_script_port", string.byte('Q')},
-      next = "DONE"
+      next = "done"
    },
-   ["DONE"] = {}      
+   ["done"] = {}      
 }
+
 
 reset = {
-   ["BOOTING"] = {
-      next = "DONE",
-      callback = Reset
+   ["booting"] = {
+      next = "done",
+      exitState = Reset
    },
-   ["DONE"] = {}
+   ["done"] = {}
 }
 
+
 tests = {
-   level2,
-   reset,
-   level2
+   { setup, "setup" },
+   { level2, "level 2 : first pass"},
+   { reset, "reset" },
+   { level2, "level 2 : second pass"}
 }
 
 
@@ -117,15 +161,21 @@ function Tick(stateMachine)
 	    asserts = true
 	    for i, equal in ipairs(stateMachine[state].equal) do
 	       if equal[3] == 32 then
-		  if uae_peek_symbol32(equal[1]) == equal[2] then
+		  local value = uae_peek_symbol32(equal[1])
+		  if  value == equal[2] then
+		     io.write("PASS: ", equal[1], " ", value, " == ", equal[2], "\n")
 		  else
-		     io.write("FAILED: ", equal[1], " (", uae_peek_symbol32(equal[1]), ") != ", equal[2], "\n");
+		     io.write("FAIL: ", equal[1], " ", value, " != ", equal[2], "\n")
 		     quit = true
 		  end
-	       elseif (uae_peek_symbol16(equal[1]) == equal[2]) then
 	       else
-		  io.write("FAILED: ", equal[1], " (",uae_peek_symbol16(equal[1]), ") != ", equal[2], "\n");
-		  quit = true
+		  local value = uae_peek_symbol16(equal[1])
+		  if (value == equal[2]) then
+		     io.write("PASS: ", equal[1], " ", value, " == ", equal[2], "\n")
+		  else
+		     io.write("FAIL: ", equal[1], " ", value, " != ", equal[2], "\n")
+		     quit = true
+		  end
 	       end
 	    end
 	 end
@@ -135,27 +185,29 @@ function Tick(stateMachine)
 	    for i, less in ipairs(stateMachine[state].less) do
 	       if less[3] == 32 then
 		  if uae_peek_symbol32(less[1]) < less[2] then
-		     io.write("PASSED: ", less[1], " (",uae_peek_symbol32(less[1]), ") < ", less[2], "\n");
+		     io.write("PASS: ", less[1], " (",uae_peek_symbol32(less[1]), ") < ", less[2], "\n")
 		  else
-		     io.write("FAILED: ", less[1], " (",uae_peek_symbol32(less[1]), ") >= ", less[2], "\n");
+		     io.write("FAIL: ", less[1], " (",uae_peek_symbol32(less[1]), ") >= ", less[2], "\n")
 		     quit = true
 		  end
 	       elseif (uae_peek_symbol16(less[1]) < less[2]) then
 	       else
-		  io.write("FAILED: ", less[1], " (",uae_peek_symbol16(less[1]), ") >= ", less[2], "\n");
+		  io.write("FAIL: ", less[1], " (",uae_peek_symbol16(less[1]), ") >= ", less[2], "\n")
 		  quit = true
 	       end
 	    end
 	 end
 	 
-	 if asserts == false then
+	 if not quit and asserts == false then
 	    if stateMachine[state].wait then
 	       if stateMachine[state].wait[3] == 32 then
 		  if (uae_peek_symbol32(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
+		     io.write("trigger: ", stateMachine[state].wait[1], " == ", stateMachine[state].wait[2], "\n")
 		     transition = true
 		  end
 	       else
 		  if (uae_peek_symbol16(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
+		     io.write("trigger: ", stateMachine[state].wait[1], " == ", stateMachine[state].wait[2], "\n")
 		     transition = true
 		  end
 	       end
@@ -164,29 +216,39 @@ function Tick(stateMachine)
 	       transition = true
 	    end
 	 else
-	    if quit == false then
+	    if not quit then
 	       transition = true
 	    end
 	 end
+
+	 
+	 if not quit and stateMachine[state].transition then
+	    transition = stateMachine[state].transition(stateMachine[state])
+	 end
 	 
 	 if transition then
-	    if stateMachine[state].callback then
-	       stateMachine[state].callback()
+	    if stateMachine[state].exitState then
+	       stateMachine[state].exitState()
 	    end
 
-	    if quit == false then 
+	    if not quit then 
 	       if  stateMachine[state].write then
-		  io.write("wrote ", stateMachine[state].write[2], " to ", stateMachine[state].write[1], "\n")
-		  uae_write_symbol16(stateMachine[state].write[1], stateMachine[state].write[2])
+		  Write(stateMachine[state].write[1], stateMachine[state].write[2])
 	       end
-	       io.write(state, " -> ", stateMachine[state].next, "\n");
+	       io.write("state: ", state, " -> ", stateMachine[state].next, "\n")
 	       state = stateMachine[state].next
+	       if stateMachine[state].enterState then
+		  stateMachine[state].enterState(stateMachine[state])
+	       end
 	    end
 	 end	 
       else
-	 io.write("NEXT TEST\n", state, " -> ", "BOOTING\n")
 	 test = test + 1
-	 state = "BOOTING"
+	 if tests[test] then
+	    io.write("=== next test: ", tests[test][2], " ===\nstate: ", state, " -> ", "booting\n")
+	 end
+
+	 state = "booting"
       end
       
       io.flush()
@@ -200,10 +262,10 @@ end
 
 function on_uae_vsync()
    if tests[test] then 
-      Tick(tests[test])
+      Tick(tests[test][1])
    elseif not quit then
-      io.write("TESTS PASSED\n")
-      io.flush()
+      io.write("ALL TESTS PASSED!\n")
+      quit = true
       Quit()
    end
 end
