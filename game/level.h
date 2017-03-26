@@ -37,6 +37,8 @@ typedef struct {
   uint8_t recordData[sizeof(record_t)];
   record_t* record;
 #endif
+  void (*initFunctor)(void);
+  void (*effectFunctor)(frame_buffer_t fb);
 } level_t DISK_SECTOR_ALIGN;
 
 extern level_t level;

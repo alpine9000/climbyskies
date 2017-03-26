@@ -111,6 +111,7 @@ extern uint16_t game_levelComplete;
 #include "menu.h"
 #include "palette.h"
 #include "record.h"
+#include "level3.h"
 #include "level.h"
 #include "gfx.h"
 #include "mouse.h"

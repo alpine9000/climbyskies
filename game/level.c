@@ -15,23 +15,31 @@ typedef struct {
   level_t* levelData;
   uint16_t clouds;
   uint16_t moduleIndex;
+  void (*initFunctor)(void);
+  void (*effectFunctor)(frame_buffer_t fb);
 } level_config_t;
 
 level_config_t level_levels[LEVEL_NUM_LEVELS] = {
   { 
-    .levelData = &level_level3,
+    .levelData = &level_level1,
     .clouds = 0,
     .moduleIndex = 2,
+    .initFunctor = 0,
+    .effectFunctor = 0,
   },
   { 
     .levelData = &level_level2,
     .clouds = 1,
     .moduleIndex = 1,
+    .initFunctor = 0,
+    .effectFunctor = 0
   },
   { 
-    .levelData = &level_level1,
+    .levelData = &level_level3,
     .clouds = 0,
     .moduleIndex = 0,
+    .initFunctor = level3_init,
+    .effectFunctor = level3_effect
   }
 };
 
@@ -62,6 +70,8 @@ level_load(uint16_t index)
 #ifdef GAME_RECORDING
   level.record = (record_t*)&level.recordData;
 #endif
+  level.initFunctor = level_levels[index].initFunctor;
+  level.effectFunctor = level_levels[index].effectFunctor;
 
 #if TRACKLOADER==1
   message_screenOff();

@@ -28,7 +28,7 @@ PROGRAM_BIN=out/main.bin
 
 
 # all the components that form the game
-C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c panic.c script.c
+C_SRCS=init.c game.c gfx.c screen.c mouse.c tile.c sprite.c player.c cloud.c palette.c level.c disk.c enemy.c item.c text.c sound.c music.c keyboard.c menu.c message.c record.c popup.c string.c hw.c hiscore.c dos.c panic.c script.c level3.c
 SRCS=blitmtext.s hw_asm.s trackloader.s palette_asm.s  P6112-Play.s  blittext.s music_asm.s keyboard_asm.s sg_trackdisk.s
 MODULES=P61.climbyskies_ingame_a.bin P61.climbyskies_ingame_b.bin P61.climbyskies_ingame_c.bin
 SOUND_FILES=jump.wav coin1.wav pop.wav kill.wav falling.wav jetpack.wav jetpack_coin.wav
@@ -222,113 +222,113 @@ out/sprite_player%-asprite.h: out/sprite_player%.png palettes/default.pal
 	$(IMAGECON) --input $< $(IMAGECON_ARGS) --colors=16 --full-color-palette-file  --output out/sprite_player$* --use-palette=out/asprite_$*.pal --output-asprite --output-png
 
 .SECONDARY:
-out/sprite_playerLeftRun0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
+out/sprite_playerLeftRun0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
 .SECONDARY:
-out/sprite_playerLeftRun1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
+out/sprite_playerLeftRun1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
 .SECONDARY:
-out/sprite_playerRightRun0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
+out/sprite_playerRightRun0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
 .SECONDARY:
-out/sprite_playerRightRun1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
+out/sprite_playerRightRun1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
 .SECONDARY:
-out/sprite_playerRightJump0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+out/sprite_playerRightJump0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerRightJump1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+out/sprite_playerRightJump1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerLeftJump0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+out/sprite_playerLeftJump0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerLeftJump1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+out/sprite_playerLeftJump1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 
 .SECONDARY:
-out/sprite_playerRightStand0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
+out/sprite_playerRightStand0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
 .SECONDARY:
-out/sprite_playerRightStand1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
+out/sprite_playerRightStand1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
 .SECONDARY:
-out/sprite_playerLeftStand0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
+out/sprite_playerLeftStand0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
 .SECONDARY:
-out/sprite_playerLeftStand1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
-out/sprite_playerRightJump0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+out/sprite_playerLeftStand1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+out/sprite_playerRightJump0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerRightJump1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+out/sprite_playerRightJump1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerLeftJump0_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+out/sprite_playerLeftJump0_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerLeftJump1_%.png: assets/sprite_1.png
-	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+out/sprite_playerLeftJump1_%.png: assets/sprite_2.png
+	$(CROPPA) --input=assets/sprite_2.png --output=out/sprite_playerLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftRun0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
+out/sprite_playerJetpackLeftRun0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftRun1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
+out/sprite_playerJetpackLeftRun1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=75
 .SECONDARY:
-out/sprite_playerJetpackRightRun0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
+out/sprite_playerJetpackRightRun0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightRun0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=0 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightRun1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
+out/sprite_playerJetpackRightRun1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightRun1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=16 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightJump0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+out/sprite_playerJetpackRightJump0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightJump1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+out/sprite_playerJetpackRightJump1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 .SECONDARY:
-out/sprite_playerJetpackRightStand0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
+out/sprite_playerJetpackRightStand0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightStand1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
+out/sprite_playerJetpackRightStand1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=123
 .SECONDARY:
-out/sprite_playerJetpackLeftStand0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
+out/sprite_playerJetpackLeftStand0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftStand0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=128 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftStand1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
+out/sprite_playerJetpackLeftStand1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftStand1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=144 --y=75
 .SECONDARY:
-out/sprite_playerJetpackRightJump0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
+out/sprite_playerJetpackRightJump0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightJump1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
+out/sprite_playerJetpackRightJump1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=123
 .SECONDARY:
-out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
+out/sprite_playerJetpackLeftJump0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftJump0 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=160 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
+out/sprite_playerJetpackLeftJump1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftJump1 --width=16 --height=37 --rows=1 --cols=2 --dx=32 --dy=0 --x=176 --y=75
 .SECONDARY:
-out/sprite_playerJetpackRightThrust0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=123
+out/sprite_playerJetpackRightThrust0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=123
 .SECONDARY:
-out/sprite_playerJetpackRightThrust1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackRightThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=123
+out/sprite_playerJetpackRightThrust1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackRightThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=123
 .SECONDARY:
-out/sprite_playerJetpackLeftThrust0_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=75
+out/sprite_playerJetpackLeftThrust0_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftThrust0 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=192 --y=75
 .SECONDARY:
-out/sprite_playerJetpackLeftThrust1_%.png: assets/sprite_3.png
-	$(CROPPA) --input=assets/sprite_3.png --output=out/sprite_playerJetpackLeftThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=75
+out/sprite_playerJetpackLeftThrust1_%.png: assets/sprite_1.png
+	$(CROPPA) --input=assets/sprite_1.png --output=out/sprite_playerJetpackLeftThrust1 --width=16 --height=37 --rows=1 --cols=4 --dx=32 --dy=0 --x=208 --y=75
 
 
 out/fade_in_%.h: ./palettes/palette_%.pal

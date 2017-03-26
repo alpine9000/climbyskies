@@ -390,6 +390,10 @@ game_loadLevel(menu_command_t command)
 
   level_load(game_level);
 
+  if (level.initFunctor) {
+    level.initFunctor();
+  }
+  
   tile_init();
   tile_renderScreen();
 
@@ -720,6 +724,9 @@ game_render(void)
   player_render(game_offScreenBuffer);
 #endif
 
+  if (level.effectFunctor) {
+    level.effectFunctor(game_offScreenBuffer);
+  }  
 }
 
 
@@ -1026,8 +1033,8 @@ game_loop()
       cloud_restoreBackground();
     }
 
-    game_render();
-
+    game_render();    
+    
 #ifdef DEBUG
   skip:;
 #endif

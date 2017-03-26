@@ -1,81 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="16" height="201" tilewidth="16" tileheight="16" nextobjectid="1">
- <tileset firstgid="1" name="sprite_3" tilewidth="16" tileheight="16" tilecount="420" columns="20">
-  <image source="sprite_3.png" width="320" height="336"/>
-  <tile id="1">
-   <properties>
-    <property name="Blah" type="int" value="0"/>
-   </properties>
-  </tile>
-  <tile id="6">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_COIN"/>
-   </properties>
-  </tile>
-  <tile id="26">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_JETPACK"/>
-   </properties>
-  </tile>
-  <tile id="46">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_DRAGON"/>
-   </properties>
-  </tile>
-  <tile id="66">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_DRAGON"/>
-   </properties>
-  </tile>
-  <tile id="200">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_LEFT_RUN"/>
-   </properties>
-  </tile>
-  <tile id="208">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_SKATE"/>
-   </properties>
-  </tile>
-  <tile id="240">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_LEFT_RUN"/>
-   </properties>
-  </tile>
-  <tile id="248">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_SKATE"/>
-   </properties>
-  </tile>
-  <tile id="260">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_RIGHT_RUN"/>
-   </properties>
-  </tile>
-  <tile id="268">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_TOP_RENDER_LEFT_SKATE"/>
-   </properties>
-  </tile>
-  <tile id="300">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_RIGHT_RUN"/>
-   </properties>
-  </tile>
-  <tile id="308">
-   <properties>
-    <property name="SpriteId" value="MAPOBJECT_BOTTOM_RENDER_LEFT_SKATE"/>
-   </properties>
-  </tile>
+ <tileset firstgid="1" name="sprite_3" tilewidth="16" tileheight="16" tilecount="640" columns="20">
+  <image source="sprite_3.png" width="320" height="512"/>
  </tileset>
  <layer name="background_3" width="16" height="201">
   <data encoding="base64" compression="zlib">
-   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
+   eJztmXtOwzAMxpsrIB434CGOgACJMR5jQ0NIY4AYAzGuwDV2YiDWGuGa2HFaBmPyHz8tavelifPFTdKpK4qpYRiGYRiGYRiGYRiGYRhLTcdzUdJFZUoX/faQfuR5LBmjMmWMfp8WoN9/zZGnFaFd3j/xnAv6geeGUHhWyvt3nofMNq0iPW1rW6GHNt1mXP9JIF5niZhJQLz2PBsN27H2C/pOAz1odx3vL0kftE8u7i+oc12hlcYg5lmNVtPmeWpj8RxlPLfveWbGRAPE7p6J37zhchmX2yiQHz6KGQW6/l58XQc0OWQVlWO5bFn0sXexpO8QDfcuhrEoytjjeI8ETawPdfr+H/Ux7297Nj3Hrup5yBGnJTje9D0eGLrqGIQ5ft+gb8sC+LmL6An3Yv8BPx8gsKevPfuuun6l/5EA/VWDvi27/qihfkDq2nLVeZbT/pDvVoh+4nl1fJ7F0HwR/AOe0eTMmD4n/nX07QZ6yGO3NfWg3anZ/qClaxyNntNq9JIW/Led0Et7Mc5/8x7/eeth/kjzJuW/UJ4wdaT8N1XUodWn6tDoIR9wOUDShzzCaTn/hXJqHDn/Sc99U7Q/lT+a6O8a6jX+g/EOZ1+5/sNnYo/C2HH6XHL0nUh/cvR0Txv8B+vdLQV0TYz3fhromvi/wq1RJfC4cTnmgOHQVedETC/NGTqnqMdTPs85C1kEUuevKfqeS0W9eE+IeXGz86DYdVwv3hNq+YszokWDzj/8jQPmGeS145KW+563wM9jBP7GAT6HvDYsie3ljRmc/yXw/DH/1yOcWwV/t1zc5/j7IN4Lh3Or4G/uzIq+J+z734w6vsf+r+N77H+c33IBf3wCahp3zQ==
   </data>
  </layer>
- <layer name="item_3" width="16" height="201">
+ <layer name="item_3" width="16" height="201" visible="0">
   <data encoding="base64" compression="zlib">
-   eJztmj9vwkAMxZOhZWp3YIK9hQW+AP3ysNGdbu3ebnSqTyEiinL/6uTO9vknWUKKrKB35r27hKpSxmDWq9jrpXGEOiH6L1Aflmsh+n5D/SDuPxYbqC2i/wD1NtJ3mRKd+YaHuqoe6//3z6F3Ednf1f4Fel8R9+fCGeod0f8J9YXov0L93j7r7E/r911sWlPx+z4u/w+ZGy7+rzTk8H9DO0vS/J+Sz4dQUhak8nwbPs+nsBbS9v8UNOXAE3jwM8KHV9C7dvT71mEHvXtBORBKrvw1mDWRlr8GDhlcqi/lzGCjOdVzV8tQ/sbMCrX8VfykyADXDEnMABdU86GETEjp/0N6cvT/GLj4fwmzzg1Ja0LV4/tI0twH9edvFCjF/6eA0m8p53MdQ449vep/x6a/SyNK+nHFp6Hqn4a+liHaqv54bBouEb1S0XcvadH9P13GPi+HeEnXk2L/t5IKbuexEJ+XzB/oj1GO
+   eJztwQENAAAAwqD3T20PBxQAAAAAAAAAAAAAAADPBjJAAAE=
   </data>
  </layer>
 </map>
