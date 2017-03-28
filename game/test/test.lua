@@ -143,7 +143,7 @@ setup = {
 hiscore1 = {
    ["booting"] = {
       next = "goto hiscore screen",
-      wait = {"_menu_mode", 1},
+      wait = {"_menu_mode", 1, 32},
    },
    ["goto hiscore screen"] = {
       transition = HiscoreMenu,
@@ -158,7 +158,7 @@ hiscore1 = {
    ["back to menu"] = {
       writeEntry = {"_script_port", 10},
       next = "done",
-      wait = {"_menu_mode", 1},
+      wait = {"_menu_mode", 1, 32},
    },
    ["done"] = {}
 }
@@ -166,17 +166,17 @@ hiscore1 = {
 
 level2 = {
    ["booting"] = {
-      wait = {"_menu_mode", 1},
+      wait = {"_menu_mode", 1, 32},
       next = "waiting for level to load",
       write = {"_script_port", string.byte('2')}
    },
    ["waiting for level to load"] = {
-      wait = {"_menu_mode", 0},      
+      wait = {"_menu_mode", 0, 32},      
       next = "waiting for record start",
       write = {"_script_port", string.byte('P')},
    },
    ["waiting for record start"] = {
-      wait = {"_record_state", 2},
+      wait = {"_record_state", 2, 32},
       next =  "screenshot1",
    },
    ["screenshot1"] = {
@@ -192,7 +192,7 @@ level2 = {
       next = "waiting for level end",
    },
    ["waiting for level end"] = {
-      wait = {"_record_state", 0},
+      wait = {"_game_collectTotal", 0},
       next = "verify level parameters",
    },
    ["verify level parameters"] = {
@@ -202,7 +202,7 @@ level2 = {
    },
    ["back to menu"] = {
       writeEntry = {"_script_port", string.byte('Q')},
-      wait = {"_menu_mode", 1},
+      wait = {"_menu_mode", 1, 32},
       next = "done"
    },
    ["done"] = {}      
@@ -216,7 +216,7 @@ reset = {
    ["reset"] = {
       enterState = Reset,
       next = "done",
-      wait = {"_menu_mode", 0},
+      wait = {"_menu_mode", 0, 32},
    },
    ["done"] = {}
 }
@@ -264,7 +264,7 @@ function Tick(stateMachine)
 	    asserts = true
 	    for i, less in ipairs(stateMachine[state].less) do
 	       if less[3] == 32 then
-		  local val32 = uae_read_symbol32(less[1])
+		  local val32 = uae_peek_symbol32(less[1])
 		  if val32 < less[2] then
 		     io.write("PASS: ", less[1], " (", val32, ") < ", less[2], "\n")
 		  else
@@ -287,7 +287,9 @@ function Tick(stateMachine)
 		     transition = true
 		  end
 	       else
-		  if (uae_peek_symbol16(stateMachine[state].wait[1]) == stateMachine[state].wait[2]) then
+		  local val16 = uae_peek_symbol16(stateMachine[state].wait[1])
+		  --io.write("read16: ", stateMachine[state].wait[1], " == ", val16, "\n")
+		  if (val16 == stateMachine[state].wait[2]) then
 		     io.write("trigger: ", stateMachine[state].wait[1], " == ", stateMachine[state].wait[2], "\n")
 		     transition = true
 		  end
