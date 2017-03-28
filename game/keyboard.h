@@ -5,6 +5,7 @@
 #define KEYBOARD_CODE_RETURN    68
 
 extern uint16_t keyboard_code;
+extern uint16_t keyboard_lastCode;
 extern uint16_t keyboard_key;
 
 void

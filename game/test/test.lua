@@ -2,6 +2,8 @@ test = 1
 state = "startup"
 quit = false
 screenShotFilename = "out/test-screenshot.png"
+screenShotWait = 50
+menuWait = 100
 
 function Setup()
    uae_write_symbol16("_script_port", 0)
@@ -31,7 +33,7 @@ function Write(symbol, value)
 end
 
 
-function CheckLevel2Screenshot(filename)
+function CheckScreenshot(filename)
    local screenshot1 = io.open(screenShotFilename, "rb")
    local screenshot2 = io.open(filename, "rb")
    if screenshot1:read("*all") ~= screenshot2:read("*all") then
@@ -46,7 +48,7 @@ function CheckLevel2Screenshot(filename)
 end
 
 
-function Screenshot(_state)
+function GameScreenshot(_state)
    if screenShotState == 0 or screenShotState == nil then
       screenShotState = 1
       Write("_script_port",  _state.screenShotFrame + 0x8000)
@@ -56,14 +58,14 @@ function Screenshot(_state)
 	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
       end
    elseif screenShotState == 2 then
-      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+500 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+screenShotWait then
 	 screenShotState = 3
 	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
 	 uae_screenshot(screenShotFilename)
       end
    elseif screenShotState == 3 then
-      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+500 then
-	 CheckLevel2Screenshot(_state.filename)
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+screenShotWait then
+	 CheckScreenshot(_state.filename)
 	 Write("_script_port", string.byte(' '))
 	 screenShotState = 4
       end
@@ -71,11 +73,64 @@ function Screenshot(_state)
       if uae_peek_symbol32("_game_paused") == 0 then
 	 screenShotState = 0
 	 return true
+      else
+	 Write("_script_port", string.byte(' '))
       end
    end
    return false
 end
 
+
+function Screenshot(_state)
+   if screenShotState == 0 or screenShotState == nil then
+      screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+      screenShotState = 1
+   elseif screenShotState == 1 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+screenShotWait then
+	 screenShotState = 2
+	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+	 uae_screenshot(screenShotFilename)
+      end
+   elseif screenShotState == 2 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+screenShotWait then
+	 CheckScreenshot(_state.filename)
+	 screenShotFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+	 screenShotState = 3
+      end
+   elseif screenShotState == 3 then
+      if uae_peek_symbol32("_hw_verticalBlankCount") > screenShotFrame+screenShotWait then      
+	 screenShotState = 0
+	 return true
+      end
+   end
+   return false
+end
+
+
+function HiscoreMenu()
+   local frame
+   if hiscoreMenuState == nil or hiscoreMenuState == 0 then
+      Write("_script_port",  5) -- joystick down
+      hiscoreMenuFrame = uae_peek_symbol32("_hw_verticalBlankCount")
+      hiscoreMenuState = 1
+   elseif hiscoreMenuState == 4 then
+      frame = uae_peek_symbol32("_hw_verticalBlankCount")
+      if frame > hiscoreMenuFrame + menuWait then	 
+	 Write("_script_port", 10) -- enter
+	 hiscoreMenuState = nil
+	 return true
+      end
+   else
+      frame = uae_peek_symbol32("_hw_verticalBlankCount")
+      if frame > hiscoreMenuFrame + menuWait then
+	 Write("_script_port",  5) -- joystick down
+	 hiscoreMenuFrame = frame
+	 hiscoreMenuState = hiscoreMenuState + 1
+      end
+   end
+
+   return false
+end
 
 setup = {
    ["startup"] = {
@@ -85,21 +140,40 @@ setup = {
    ["startup complete"] = {}
 }
 
+hiscore1 = {
+   ["booting"] = {
+      next = "goto hiscore screen",
+      wait = {"_menu_mode", 1},
+   },
+   ["goto hiscore screen"] = {
+      transition = HiscoreMenu,
+      next = "hiscore screenshot1"
+   },
+   ["hiscore screenshot1"] = {
+      screenShotFrame = 2000,
+      filename = "test/hiscore1.png",
+      transition = Screenshot,
+      next = "back to menu",
+   },
+   ["back to menu"] = {
+      writeEntry = {"_script_port", 10},
+      next = "done",
+      wait = {"_menu_mode", 1},
+   },
+   ["done"] = {}
+}
+
 
 level2 = {
    ["booting"] = {
-      next = "waiting for menu",
-      wait = {"_menu_mode", 0},      
-   },
-   ["waiting for menu"] = {
       wait = {"_menu_mode", 1},
       next = "waiting for level to load",
       write = {"_script_port", string.byte('2')}
    },
    ["waiting for level to load"] = {
-      wait = {"_menu_mode", 0},
+      wait = {"_menu_mode", 0},      
       next = "waiting for record start",
-      write = {"_script_port", string.byte('P')}
+      write = {"_script_port", string.byte('P')},
    },
    ["waiting for record start"] = {
       wait = {"_record_state", 2},
@@ -108,13 +182,13 @@ level2 = {
    ["screenshot1"] = {
       screenShotFrame = 2000,
       filename = "test/screenshot.png",
-      transition = Screenshot,
+      transition = GameScreenshot,
       next = "screenshot2"
    },
    ["screenshot2"] = {
       screenShotFrame = 3000,
       filename = "test/screenshot2.png",
-      transition = Screenshot,
+      transition = GameScreenshot,
       next = "waiting for level end",
    },
    ["waiting for level end"] = {
@@ -127,7 +201,8 @@ level2 = {
       next = "back to menu"
    },
    ["back to menu"] = {
-      write = {"_script_port", string.byte('Q')},
+      writeEntry = {"_script_port", string.byte('Q')},
+      wait = {"_menu_mode", 1},
       next = "done"
    },
    ["done"] = {}      
@@ -136,8 +211,12 @@ level2 = {
 
 reset = {
    ["booting"] = {
+      next = "reset"
+   },
+   ["reset"] = {
+      enterState = Reset,
       next = "done",
-      exitState = Reset
+      wait = {"_menu_mode", 0},
    },
    ["done"] = {}
 }
@@ -145,6 +224,7 @@ reset = {
 
 tests = {
    { setup, "setup" },
+   { hiscore1, "hiscore 1"},
    { level2, "level 2 : first pass"},
    { reset, "reset" },
    { level2, "level 2 : second pass"}
@@ -184,10 +264,11 @@ function Tick(stateMachine)
 	    asserts = true
 	    for i, less in ipairs(stateMachine[state].less) do
 	       if less[3] == 32 then
-		  if uae_peek_symbol32(less[1]) < less[2] then
-		     io.write("PASS: ", less[1], " (",uae_peek_symbol32(less[1]), ") < ", less[2], "\n")
+		  local val32 = uae_read_symbol32(less[1])
+		  if val32 < less[2] then
+		     io.write("PASS: ", less[1], " (", val32, ") < ", less[2], "\n")
 		  else
-		     io.write("FAIL: ", less[1], " (",uae_peek_symbol32(less[1]), ") >= ", less[2], "\n")
+		     io.write("FAIL: ", less[1], " (", val32, ") >= ", less[2], "\n")
 		     quit = true
 		  end
 	       elseif (uae_peek_symbol16(less[1]) < less[2]) then
@@ -230,6 +311,10 @@ function Tick(stateMachine)
 	    if stateMachine[state].exitState then
 	       stateMachine[state].exitState()
 	    end
+	    
+	    if stateMachine[state].writeExit then
+	       Write(stateMachine[state].writeExit[1], stateMachine[state].writeExit[2])
+	    end
 
 	    if not quit then 
 	       if  stateMachine[state].write then
@@ -239,6 +324,9 @@ function Tick(stateMachine)
 	       state = stateMachine[state].next
 	       if stateMachine[state].enterState then
 		  stateMachine[state].enterState(stateMachine[state])
+	       end
+	       if  stateMachine[state].writeEntry then
+		  Write(stateMachine[state].writeEntry[1], stateMachine[state].writeEntry[2])
 	       end
 	    end
 	 end	 

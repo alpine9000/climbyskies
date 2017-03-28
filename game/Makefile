@@ -110,6 +110,7 @@ libgcc/out/gcc.lib:
 
 .PHONY: test
 test: testadf
+	-@rm -f ~/Documents/FS-UAE/Save\ States/A500/test.sdf
 	cp test/test.lua default.lua
 	 $(RUN_SCRIPT)
 	-@grep FAIL lua.log || true
