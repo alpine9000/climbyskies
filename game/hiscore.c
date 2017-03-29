@@ -240,14 +240,14 @@ hiscore_addScore(uint32_t score)
       } else if (i == 0) {
 	hiscore.scores[i].score = score;
 	name = hiscore_prompt("A NEW HIGH SCORE!!!");
-	strcpy(hiscore.scores[i].name, (char*)name);
+	strcpy(hiscore.scores[i].name, name);
 	dirty = 1;
       }
     } else {
       if (i < HISCORE_NUM_SCORES-1) {
 	hiscore.scores[i+1].score = score;
 	name = hiscore_prompt("YOU ARE ON THE SCORE BOARD!");
-	strcpy(hiscore.scores[i+1].name, (char*)name);
+	strcpy(hiscore.scores[i+1].name, name);
 	dirty = 1;
       }
       break;
