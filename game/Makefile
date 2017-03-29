@@ -146,30 +146,30 @@ out/workbench/level.o: level.c $(LEVEL_FILES)
 
 #(c) Enable Software
 out/jetpack.raw: assets/jetpack.wav
-	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/jump-landing-sound
 out/jump.raw: assets/jump.wav
-	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/10-8bit-coin-sounds
 out/coin1.raw: assets/coin1.wav
-	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 out/jetpack_coin.raw: assets/jetpack_coin.wav
-	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/bubbles-pop
 out/pop.raw: assets/pop.wav
-	sox -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.0 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://freesound.org/people/CGEffex/sounds/98341/
 out/kill.raw: assets/kill.wav
-	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 #http://opengameart.org/content/512-sound-effects-8-bit-style
 out/falling.raw: assets/falling.wav
-	sox -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
+	sox -R -v 1.2 $<  -b 8 -c 1 -r 11025 $@	
 
 
 out/adf/sprite.o: $(HSPRITE_HEADERS)
