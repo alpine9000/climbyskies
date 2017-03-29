@@ -9,14 +9,13 @@ SRC=$(SRC_DIR)/.exists
 CONFIGURE=$(SRC_DIR)/configure
 
 all: build
-install: install
 
 $(ARCHIVE):
 	cd $(DOWNLOADS); curl -OL $(URL)
 
 $(SRC): $(ARCHIVE)
 	cd $(BUILD) ; tar zxfv $(ARCHIVE)
-	mkdir $(SRC_DIR)/build
+	mkdir $(SRC_DIR)
 	touch $(SRC)
 
 .PHONY build:
