@@ -184,6 +184,10 @@ hiscore_prompt(char* message)
   for (;;) {
     char str[2] = {0,0};
     keyboard_read();
+
+#ifdef DEBUG
+    script_process();
+#endif
     
     if (keyboard_key) {            
       //gfx_fillRectSmallScreen(game_offScreenBuffer, 0, 0, 16*8, 8, 0);

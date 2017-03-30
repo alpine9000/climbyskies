@@ -14,6 +14,7 @@ script_process(void)
       keyboard_code = keyboard_lastCode = KEYBOARD_CODE_RETURN;
       keyboard_key = script_port;
     } else {
+      keyboard_code = 0; // todo: correct code
       keyboard_key = script_port;
     }
 

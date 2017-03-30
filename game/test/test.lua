@@ -163,6 +163,29 @@ hiscore1 = {
    ["done"] = {}
 }
 
+hiscore2 = {
+   ["booting"] = {
+      next = "goto hiscore screen",
+      wait = {"_menu_mode", 1, 32},
+   },
+   ["goto hiscore screen"] = {
+      transition = HiscoreMenu,
+      next = "hiscore screenshot1"
+   },
+   ["hiscore screenshot1"] = {
+      screenShotFrame = 2000,
+      filename = "test/hiscore2.png",
+      transition = Screenshot,
+      next = "back to menu",
+   },
+   ["back to menu"] = {
+      writeEntry = {"_script_port", 10},
+      next = "done",
+      wait = {"_menu_mode", 1, 32},
+   },
+   ["done"] = {}
+}
+
 
 level2 = {
    ["booting"] = {
@@ -198,14 +221,52 @@ level2 = {
    ["verify level parameters"] = {
       less = {{"_game_total", 765648, 32}},
       equal = {{"_game_score", 13461, 32}, {"_game_lives", 2, 32}},
-      next = "back to menu"
-   },
-   ["back to menu"] = {
-      writeEntry = {"_script_port", string.byte('Q')},
-      wait = {"_menu_mode", 1, 32},
       next = "done"
    },
    ["done"] = {}      
+}
+
+
+newHiscore = {
+   ["booting"] = {
+      next = "game over"
+   },
+   ["game over"] = {
+      writeEntry = {"_script_port", string.byte('O')},
+      waitFrames = 250,
+      next = "ok"
+   },
+   ["ok"] = {
+      writeEntry = {"_script_port", 10},
+      waitFrames = 250,
+      next = "a"
+   },
+   ["a"] = {
+      write = {"_script_port", string.byte('a')},
+      waitFrames = 250,
+      next = "l"
+   },
+   ["l"] = {
+      write = {"_script_port", string.byte('l')},
+      waitFrames = 250,
+      next = "x"
+   },
+   ["x"] = {
+      write = {"_script_port", string.byte('x')},
+      waitFrames = 250,
+      next = "screenshot"
+   },
+   ["screenshot"] = {
+      filename = "test/enterhiscore.png",
+      transition = Screenshot,
+      next = "enter"
+   },
+   ["enter"] = {
+      writeEntry = {"_script_port", 10},
+      waitFrames = 250,
+      next = "done"
+   },      
+   ["done"] = {}    
 }
 
 
@@ -226,7 +287,9 @@ tests = {
    { setup, "setup" },
    { hiscore1, "hiscore 1"},
    { level2, "level 2 : first pass"},
+   { newHiscore, "level 2 : enter hiscore"},
    { reset, "reset" },
+   { hiscore2, "hiscore 2"},   
    { level2, "level 2 : second pass"}
 }
 
@@ -304,6 +367,14 @@ function Tick(stateMachine)
 	    end
 	 end
 
+	 if stateMachine[state].waitFrames then
+	    if uae_peek_symbol32("_hw_verticalBlankCount") > (stateMachine[state].startFrame + stateMachine[state].waitFrames) then
+	       io.write("trigger: ",uae_peek_symbol32("_hw_verticalBlankCount"), " > ", stateMachine[state].startFrame, " + ", stateMachine[state].waitFrames, "\n")
+	       transition = true
+	    else
+	       transition = false
+	    end
+	 end
 	 
 	 if not quit and stateMachine[state].transition then
 	    transition = stateMachine[state].transition(stateMachine[state])
@@ -324,6 +395,7 @@ function Tick(stateMachine)
 	       end
 	       io.write("state: ", state, " -> ", stateMachine[state].next, "\n")
 	       state = stateMachine[state].next
+	       stateMachine[state].startFrame = uae_peek_symbol32("_hw_verticalBlankCount") 
 	       if stateMachine[state].enterState then
 		  stateMachine[state].enterState(stateMachine[state])
 	       end
