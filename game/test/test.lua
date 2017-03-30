@@ -150,15 +150,19 @@ hiscore1 = {
       next = "hiscore screenshot1"
    },
    ["hiscore screenshot1"] = {
-      screenShotFrame = 2000,
       filename = "test/hiscore1.png",
       transition = Screenshot,
       next = "back to menu",
    },
    ["back to menu"] = {
       writeEntry = {"_script_port", 10},
+      next = "menu screenshot",
+      waitFrames = 250
+   },
+   ["menu screenshot"] = {
+      filename = "test/menu.png",
+      transition = Screenshot,
       next = "done",
-      wait = {"_menu_mode", 1, 32},
    },
    ["done"] = {}
 }
