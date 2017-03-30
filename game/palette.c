@@ -25,3 +25,9 @@ palette_fadeIn(uint16_t* fadeInFadeTable)
 
   palette_background = fadeInFadeTable[63*32];
 }
+
+uint16_t
+palette_getColor(uint16_t* fadeInFadeTable, uint16_t index)
+{
+  return fadeInFadeTable[(63*32)+index];
+}

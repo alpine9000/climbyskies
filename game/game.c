@@ -20,7 +20,6 @@ game_scrollBackground(void);
 
 frame_buffer_t game_offScreenBuffer;
 frame_buffer_t game_onScreenBuffer;
-frame_buffer_t game_onScreenBuffer;
 
 int16_t game_cameraY;
 int16_t game_screenScrollY;
@@ -265,6 +264,21 @@ game_refreshScoreboard(void)
 #endif
 }
 
+
+#ifdef DEBUG
+static void __attribute__ ((noinline))
+game_checkCanary(void)
+{
+  if (game_frameBufferData.canary1 != 0x55555555) {
+    PANIC("game_finish: dead canary 1");
+  }
+  if (game_frameBufferData.canary2 != 0xaaaaaaaa) {
+    PANIC("game_finish: dead canary 2");
+  }
+}
+#endif
+
+
 void
 game_overCallback(void)
 {
@@ -272,22 +286,20 @@ game_overCallback(void)
   hiscore_addScore(game_score);
 }
 
+
 void
 game_finish(void)
 {
   game_collisions = 0;
   game_over = 1;
+  popup_off();
   popup("GAME OVER!", game_overCallback);
 
 #ifdef DEBUG
-  if (game_frameBufferData.canary1 != 0x55555555) {
-    PANIC("game_finish: dead canary 1");
-  }
-  if (game_frameBufferData.canary2 != 0xaaaaaaaa) {
-    PANIC("game_finish: dead canary 2");
-  }
+  game_checkCanary();
 #endif
 }
+
 
 void
 game_loseLife(void)
@@ -522,29 +534,16 @@ game_scrollBackground(void)
   int16_t tileY;
   uint16_t itemY;
 
+  //tile_tileX = (SCREEN_WIDTH - TILE_WIDTH) - ((screenScrollSave % 16) * TILE_WIDTH);  
+  
   gfx_setupRenderTileOffScreen();
 
-#if 0
-  for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
-    if (game_scroll > 0) {
-      sy++;
-      cy--;
-      tileY = (((sy-1) >> 4) << 4);
-      itemY = cy+1;
-    } else {
-      sy--;
-      cy++;
-      tileY = (((sy+1) >> 4) << 4);
-      itemY = cy-1;
-    }
-    (*game_tileRender)(tileY, itemY);
-  }
-#else
   if (game_scroll > 0) {
     for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
       sy++;
       cy--;
-      tileY = (((sy-1) >> 4) << 4);
+      //tileY = (((sy-1) >> 4) << 4);
+      tileY = (sy-1) & 0xfff0;
       itemY = cy+1;
       (*game_tileRender)(tileY, itemY);
     }
@@ -552,14 +551,13 @@ game_scrollBackground(void)
     for (int s = 0, sy = screenScrollSave, cy = cameraYSave;  s < (count); s++) {
       sy--;
       cy++;
-      tileY = (((sy+1) >> 4) << 4);
+      //tileY = (((sy+1) >> 4) << 4);
+      tileY = (sy+1) & 0xfff0;      
       itemY = cy-1;
       (*game_tileRender)(tileY, itemY);
     }    
   }
-#endif
 }
-
 
 
 #ifdef DEBUG
@@ -895,7 +893,6 @@ game_processKeyboard()
 }
 
 
-
 __EXTERNAL void
 game_loop()
 {
@@ -939,6 +936,9 @@ game_loop()
 #endif
 
     if (game_processKeyboard()) {
+#ifdef DEBUG
+      game_checkCanary();
+#endif
       goto menu;
     }
       
@@ -972,7 +972,7 @@ game_loop()
       custom->color[16] = 0xf00;
       game_turtle--;
     } else if (game_turtle == 1) {
-      custom->color[16] = 0x09e;
+      custom->color[16] = palette_getColor(level.fadeIn, 16);
       game_turtle--;
     }
 #endif
