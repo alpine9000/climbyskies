@@ -38,7 +38,9 @@ tile_getFree(void)
 {
   tile_redraw_t* entry = invalidFreeList;
   invalidFreeList = invalidFreeList->next;
-  invalidFreeList->prev = 0;
+  if (invalidFreeList) {
+    invalidFreeList->prev = 0;
+  }
   return entry;
 }
 

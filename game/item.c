@@ -62,7 +62,9 @@ item_getFree(void)
 {
   item_t* entry = item_freeList;
   item_freeList = item_freeList->next;
-  item_freeList->prev = 0;
+  if (item_freeList) {
+    item_freeList->prev = 0;
+  }
   return entry;
 }
 

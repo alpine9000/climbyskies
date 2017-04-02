@@ -163,7 +163,9 @@ enemy_getFree(void)
 {
   enemy_t* entry = enemy_freeList;
   enemy_freeList = enemy_freeList->next;
-  enemy_freeList->prev = 0;
+  if (enemy_freeList) {
+    enemy_freeList->prev = 0;
+  }
   return entry;
 }
 
