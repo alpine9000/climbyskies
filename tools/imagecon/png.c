@@ -45,7 +45,11 @@ png_read(imagecon_image_t* ic, char* filename)
   FILE *fp = fopen(filename, "rb");
   if (!fp)
     abort_("Failed to open %s", filename);
-  fread(header, 1, 8, fp);
+
+  if (fread(header, 1, 8, fp) == (size_t)EOF) {
+    abort_("File %s header could not be read", filename);
+  }
+  
   if (png_sig_cmp(header, 0, 8))
     abort_("File %s is not recognized as a PNG file", filename);
 
