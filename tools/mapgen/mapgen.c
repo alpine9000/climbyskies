@@ -39,7 +39,6 @@ get_tile_address(tmx_map *m, unsigned int gid)
   }
 
 
-  extern void dump_prop(tmx_property *p, int depth);
 
   unsigned baseAddress = 0;
   for (int y = 0; y < ts_count; y++) {
@@ -48,10 +47,6 @@ get_tile_address(tmx_map *m, unsigned int gid)
       tmx_tile* t = ts->tileset->tiles;
       if (t[i].id+ts->firstgid == gid) {
 	unsigned address = baseAddress + (t[i].ul_y * ((ts->tileset->image->width/8) * config.bitDepth)) + (t[i].ul_x/8);
-	if (config.verbose) {
-	  printf("%s - baseAddress = %d address = %d\n", ts->tileset->name, baseAddress, address);
-	  dump_prop(t[i].properties, 1);
-	}
 	return address;
       }
     }
