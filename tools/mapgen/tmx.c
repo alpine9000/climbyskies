@@ -85,7 +85,7 @@ void mk_padding(char pad[11], int depth) {
 }
 
 void print_prop(tmx_property *p, void *depth) {
-	char padding[12]; mk_padding(padding, (int)depth);
+	char padding[11]; mk_padding(padding, *((int*)depth));
 
 	printf("\n%s" "'%s'=(", padding, p->name);
 	switch(p->type) {
